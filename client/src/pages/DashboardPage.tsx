@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, formatMoney } from '../lib/format';
+import { ChatPanel } from '../components/ChatPanel';
 
 interface DashboardSummary {
   totals: { today: number; week: number; month: number };
@@ -36,7 +37,10 @@ export function DashboardPage() {
   const currency = business?.currency || 'USD';
 
   useEffect(() => {
-    Promise.all([api<DashboardSummary>('/dashboard/summary'), api<Sale[]>('/sales', { query: { limit: '10' } })])
+    Promise.all([
+      api<DashboardSummary>('/dashboard/summary'),
+      api<Sale[]>('/sales', { query: { limit: '6' } }),
+    ])
       .then(([s, recent]) => {
         setSummary(s);
         setSales(recent);
@@ -45,122 +49,184 @@ export function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-slate-500">Loading dashboard…</div>;
-  if (error) return <div className="text-red-600">Error: {error}</div>;
+  if (loading) return <div className="text-neutral-500 text-sm">Loading…</div>;
+  if (error) return <div className="text-red-600 text-sm">Error: {error}</div>;
   if (!summary) return null;
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard label="Sales today" value={formatMoney(summary.totals.today, currency)} sub={`${summary.salesCount.today} orders`} />
-        <KpiCard label="Sales this week" value={formatMoney(summary.totals.week, currency)} sub={`${summary.salesCount.week} orders`} />
-        <KpiCard label="Sales this month" value={formatMoney(summary.totals.month, currency)} sub={`${summary.salesCount.month} orders`} />
-        <KpiCard label="Low stock items" value={summary.lowStockProducts.length.toString()} sub="below threshold" tone={summary.lowStockProducts.length > 0 ? 'warn' : 'normal'} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
+        <KpiCard
+          label="Revenue today"
+          value={formatMoney(summary.totals.today, currency)}
+          sub={`${summary.salesCount.today} orders`}
+        />
+        <KpiCard
+          label="This week"
+          value={formatMoney(summary.totals.week, currency)}
+          sub={`${summary.salesCount.week} orders`}
+        />
+        <KpiCard
+          label="This month"
+          value={formatMoney(summary.totals.month, currency)}
+          sub={`${summary.salesCount.month} orders`}
+        />
+        <KpiCard
+          label="Net profit (month)"
+          value={formatMoney(summary.netProfitMonth, currency)}
+          sub={`${formatMoney(summary.expensesMonth, currency)} expenses`}
+          tone={summary.netProfitMonth < 0 ? 'warn' : 'normal'}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="card lg:col-span-2">
-          <h2 className="font-semibold text-slate-800 mb-3">Recent sales</h2>
-          {sales.length === 0 ? (
-            <p className="text-sm text-slate-500">No sales yet.</p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead className="text-left text-slate-500 text-xs uppercase">
-                <tr>
-                  <th className="py-2">When</th>
-                  <th>Items</th>
-                  <th>Method</th>
-                  <th className="text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {sales.map((s) => (
-                  <tr key={s._id}>
-                    <td className="py-2 text-slate-600">{formatDate(s.createdAt)}</td>
-                    <td className="text-slate-700">
-                      {s.items.map((it) => `${it.productName} ×${it.quantity}`).join(', ')}
-                    </td>
-                    <td>
-                      <span className="inline-block rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
-                        {s.paymentMethod}
-                      </span>
-                    </td>
-                    <td className="text-right font-medium">{formatMoney(s.totalAmount, currency)}</td>
-                  </tr>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2">
+          <ChatPanel heightClass="h-[70vh] xl:h-[560px]" />
+        </div>
+
+        <div className="space-y-6">
+          <Panel title="Low stock" badge={summary.lowStockProducts.length.toString()}>
+            {summary.lowStockProducts.length === 0 ? (
+              <Empty text="All stocked." />
+            ) : (
+              <ul className="divide-y divide-neutral-100">
+                {summary.lowStockProducts.slice(0, 6).map((p) => (
+                  <li key={p._id} className="flex justify-between py-2 text-sm">
+                    <span className="text-neutral-800 truncate pr-2">{p.name}</span>
+                    <span className="font-semibold text-neutral-900 tabular-nums">
+                      {p.currentStock}
+                      <span className="text-neutral-400"> / {p.lowStockThreshold}</span>
+                    </span>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+              </ul>
+            )}
+          </Panel>
 
-        <div className="card">
-          <h2 className="font-semibold text-slate-800 mb-3">Payment methods</h2>
-          {summary.paymentMethodBreakdown.length === 0 ? (
-            <p className="text-sm text-slate-500">No data.</p>
-          ) : (
-            <ul className="space-y-2">
-              {summary.paymentMethodBreakdown.map((p) => (
-                <li key={p.method} className="flex justify-between text-sm">
-                  <span className="text-slate-600">{p.method}</span>
-                  <span className="font-medium">
-                    {formatMoney(p.total, currency)} <span className="text-slate-400">({p.count})</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <Panel title="Top products">
+            {summary.topProducts.length === 0 ? (
+              <Empty text="No sales yet." />
+            ) : (
+              <ul className="divide-y divide-neutral-100">
+                {summary.topProducts.map((p) => (
+                  <li key={p.productId} className="flex justify-between py-2 text-sm">
+                    <span className="text-neutral-800 truncate pr-2">{p.productName}</span>
+                    <span className="font-semibold text-neutral-900 tabular-nums">
+                      {formatMoney(p.revenue, currency)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="card">
-          <h2 className="font-semibold text-slate-800 mb-3">Top products this month</h2>
-          {summary.topProducts.length === 0 ? (
-            <p className="text-sm text-slate-500">No sales yet.</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Panel title="Recent sales">
+            {sales.length === 0 ? (
+              <Empty text="No sales yet." />
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-neutral-500 text-[11px] uppercase tracking-wider border-b border-neutral-200">
+                    <th className="py-2 font-medium">When</th>
+                    <th className="py-2 font-medium">Items</th>
+                    <th className="py-2 font-medium">Method</th>
+                    <th className="py-2 font-medium text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100">
+                  {sales.map((s) => (
+                    <tr key={s._id}>
+                      <td className="py-2.5 text-neutral-600 whitespace-nowrap">
+                        {formatDate(s.createdAt)}
+                      </td>
+                      <td className="py-2.5 text-neutral-800 max-w-xs truncate">
+                        {s.items.map((it) => `${it.productName} ×${it.quantity}`).join(', ')}
+                      </td>
+                      <td className="py-2.5">
+                        <span className="chip">{s.paymentMethod}</span>
+                      </td>
+                      <td className="py-2.5 text-right font-semibold tabular-nums">
+                        {formatMoney(s.totalAmount, currency)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </Panel>
+        </div>
+        <Panel title="Payment methods">
+          {summary.paymentMethodBreakdown.length === 0 ? (
+            <Empty text="No data." />
           ) : (
-            <ul className="space-y-2">
-              {summary.topProducts.map((p) => (
-                <li key={p.productId} className="flex justify-between text-sm">
-                  <span className="text-slate-700">{p.productName}</span>
-                  <span className="font-medium">
-                    {formatMoney(p.revenue, currency)} <span className="text-slate-400">· {p.units}u</span>
+            <ul className="divide-y divide-neutral-100">
+              {summary.paymentMethodBreakdown.map((p) => (
+                <li key={p.method} className="flex justify-between py-2 text-sm">
+                  <span className="text-neutral-700">{p.method}</span>
+                  <span className="font-semibold tabular-nums">
+                    {formatMoney(p.total, currency)}
+                    <span className="text-neutral-400 text-xs ml-1">({p.count})</span>
                   </span>
                 </li>
               ))}
             </ul>
           )}
-        </div>
-
-        <div className="card">
-          <h2 className="font-semibold text-slate-800 mb-3">Low stock alerts</h2>
-          {summary.lowStockProducts.length === 0 ? (
-            <p className="text-sm text-slate-500">All stocked.</p>
-          ) : (
-            <ul className="space-y-2">
-              {summary.lowStockProducts.map((p) => (
-                <li key={p._id} className="flex justify-between text-sm">
-                  <span className="text-slate-700">
-                    {p.name} <span className="text-slate-400">({p.sku})</span>
-                  </span>
-                  <span className="font-medium text-amber-600">
-                    {p.currentStock} / {p.lowStockThreshold}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        </Panel>
       </div>
     </div>
   );
 }
 
-function KpiCard({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: 'normal' | 'warn' }) {
+function KpiCard({
+  label,
+  value,
+  sub,
+  tone,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  tone?: 'normal' | 'warn';
+}) {
   return (
-    <div className="card">
+    <div className="p-5">
       <div className="label">{label}</div>
-      <div className={`text-2xl font-bold mt-1 ${tone === 'warn' ? 'text-amber-600' : 'text-slate-900'}`}>{value}</div>
-      {sub && <div className="text-xs text-slate-500 mt-1">{sub}</div>}
+      <div
+        className={`text-2xl font-semibold mt-2 tabular-nums tracking-tight ${
+          tone === 'warn' ? 'text-amber-700' : 'text-neutral-900'
+        }`}
+      >
+        {value}
+      </div>
+      {sub && <div className="text-xs text-neutral-500 mt-1">{sub}</div>}
     </div>
   );
+}
+
+function Panel({
+  title,
+  badge,
+  children,
+}: {
+  title: string;
+  badge?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="card">
+      <div className="px-5 py-3 border-b border-neutral-200 flex items-center justify-between">
+        <div className="section-title">{title}</div>
+        {badge && <span className="chip">{badge}</span>}
+      </div>
+      <div className="px-5 py-3">{children}</div>
+    </div>
+  );
+}
+
+function Empty({ text }: { text: string }) {
+  return <p className="text-sm text-neutral-500 py-2">{text}</p>;
 }

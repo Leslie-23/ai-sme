@@ -13,6 +13,16 @@ interface ConfigResponse {
   apiKeyMasks: Record<Provider, string | null>;
 }
 
+const FREE_TIER_HINTS: Record<Provider, string> = {
+  openai: 'platform.openai.com/api-keys — paid after free trial',
+  anthropic: 'console.anthropic.com — paid',
+  google: 'aistudio.google.com/app/apikey — free (use gemini-1.5-flash for highest quota)',
+  groq: 'console.groq.com/keys — free, very fast',
+  openrouter: 'openrouter.ai/keys — free models end in ":free"',
+  mistral: 'console.mistral.ai — free tier on La Plateforme',
+  cohere: 'dashboard.cohere.com/api-keys — trial credits',
+};
+
 export function SettingsPage() {
   const { user } = useAuth();
   const readOnly = user?.role !== 'OWNER';
@@ -63,85 +73,95 @@ export function SettingsPage() {
     }
   }
 
-  if (!config) return <div className="text-slate-500">Loading settings…</div>;
+  if (!config) return <div className="text-neutral-500 text-sm">Loading settings…</div>;
 
   return (
-    <div className="max-w-2xl">
-      <form onSubmit={onSave} className="card space-y-4">
-        <h2 className="font-semibold text-slate-800">AI provider</h2>
-        {readOnly && (
-          <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
-            Only the business owner can update these settings.
+    <div className="max-w-3xl space-y-6">
+      {readOnly && (
+        <div className="border border-amber-200 bg-amber-50 text-amber-800 text-sm px-4 py-3">
+          Only the business owner can update these settings.
+        </div>
+      )}
+
+      <form onSubmit={onSave} className="card">
+        <div className="px-5 py-3 border-b border-neutral-200 section-title">Active provider</div>
+        <div className="p-5 space-y-4">
+          <div>
+            <label className="label">Provider</label>
+            <select
+              className="input mt-1.5"
+              value={provider}
+              onChange={(e) => setProvider(e.target.value as Provider)}
+              disabled={readOnly}
+            >
+              {config.providers.map((p) => (
+                <option key={p} value={p}>
+                  {config.providerLabels[p]} — default {config.defaultModels[p]}
+                </option>
+              ))}
+            </select>
           </div>
-        )}
-        <div>
-          <label className="label">Active provider</label>
-          <select
-            className="input mt-1"
-            value={provider}
-            onChange={(e) => setProvider(e.target.value as Provider)}
-            disabled={readOnly}
-          >
-            {config.providers.map((p) => (
-              <option key={p} value={p}>
-                {config.providerLabels[p]} (default: {config.defaultModels[p]})
-              </option>
-            ))}
-          </select>
+          <div>
+            <label className="label">Model override (optional)</label>
+            <input
+              className="input mt-1.5"
+              placeholder={config.defaultModels[provider]}
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              disabled={readOnly}
+            />
+            <p className="text-xs text-neutral-500 mt-1.5">
+              Leave blank to use the provider default.
+            </p>
+          </div>
         </div>
-        <div>
-          <label className="label">Model override (optional)</label>
-          <input
-            className="input mt-1"
-            placeholder={config.defaultModels[provider]}
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            disabled={readOnly}
-          />
-          <p className="text-xs text-slate-500 mt-1">Leave blank to use the provider default.</p>
-        </div>
-
-        <div className="pt-4 border-t border-slate-100">
-          <h3 className="font-semibold text-slate-800 mb-3">API keys</h3>
-          <p className="text-xs text-slate-500 mb-3">
-            Keys are encrypted at rest (AES-256-GCM). Leave a field blank to keep the existing key.
-          </p>
-          {config.providers.map((p) => (
-            <div key={p} className="mb-3">
-              <label className="label">{config.providerLabels[p]} API key</label>
-              <div className="flex gap-2 mt-1">
-                <input
-                  type="password"
-                  className="input"
-                  placeholder={config.apiKeyMasks[p] || 'Not set'}
-                  value={keys[p] || ''}
-                  onChange={(e) => setKeys({ ...keys, [p]: e.target.value })}
-                  disabled={readOnly}
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {error && <div className="text-sm text-red-600">{error}</div>}
-        {status && <div className="text-sm text-green-600">{status}</div>}
-
-        <button type="submit" className="btn-primary" disabled={saving || readOnly}>
-          {saving ? 'Saving…' : 'Save settings'}
-        </button>
       </form>
 
-      <div className="mt-6 text-xs text-slate-500 space-y-1">
-        <p className="font-medium text-slate-700">Free-tier provider links:</p>
-        <ul className="list-disc pl-5 space-y-0.5">
-          <li>Google Gemini — aistudio.google.com/app/apikey (use <code>gemini-1.5-flash</code> for highest free quota)</li>
-          <li>Groq — console.groq.com/keys (Llama 3.3 70B, very fast)</li>
-          <li>OpenRouter — openrouter.ai/keys (append <code>:free</code> to a model id)</li>
-          <li>Mistral — console.mistral.ai (free tier on La Plateforme)</li>
-          <li>Cohere — dashboard.cohere.com/api-keys (trial credits)</li>
-        </ul>
-      </div>
+      <form onSubmit={onSave} className="card">
+        <div className="px-5 py-3 border-b border-neutral-200 flex items-center justify-between">
+          <div className="section-title">API keys</div>
+          <span className="text-[11px] text-neutral-500 uppercase tracking-wider">
+            AES-256-GCM at rest
+          </span>
+        </div>
+        <div className="p-5 space-y-4">
+          <p className="text-xs text-neutral-500">
+            Leave a field blank to keep the existing key.
+          </p>
+          {config.providers.map((p) => (
+            <div key={p}>
+              <div className="flex items-baseline justify-between">
+                <label className="label">{config.providerLabels[p]}</label>
+                <span className="text-[10px] text-neutral-400">{FREE_TIER_HINTS[p]}</span>
+              </div>
+              <input
+                type="password"
+                className="input mt-1.5"
+                placeholder={config.apiKeyMasks[p] || 'Not set'}
+                value={keys[p] || ''}
+                onChange={(e) => setKeys({ ...keys, [p]: e.target.value })}
+                disabled={readOnly}
+                autoComplete="off"
+              />
+            </div>
+          ))}
+
+          {error && (
+            <div className="border border-red-200 bg-red-50 text-red-700 text-sm px-3 py-2">
+              {error}
+            </div>
+          )}
+          {status && (
+            <div className="border border-green-200 bg-green-50 text-green-700 text-sm px-3 py-2">
+              {status}
+            </div>
+          )}
+
+          <button type="submit" className="btn-primary" disabled={saving || readOnly}>
+            {saving ? 'Saving…' : 'Save settings'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

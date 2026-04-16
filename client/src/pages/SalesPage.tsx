@@ -116,86 +116,99 @@ export function SalesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="card lg:col-span-2">
-          <h2 className="font-semibold text-slate-800 mb-3">New sale</h2>
-          <input
-            className="input mb-3"
-            placeholder="Search products by name or SKU…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
-            {filteredProducts.map((p) => (
-              <button
-                key={p._id}
-                className="rounded-md border border-slate-200 bg-slate-50 hover:bg-white p-3 text-left"
-                onClick={() => addToCart(p._id)}
-                disabled={p.currentStock <= 0}
-              >
-                <div className="text-sm font-medium text-slate-800 truncate">{p.name}</div>
-                <div className="text-xs text-slate-500">
-                  {formatMoney(p.unitPrice, currency)} · stock {p.currentStock}
-                </div>
-              </button>
-            ))}
-          </div>
-          <form onSubmit={submitSale} className="space-y-3">
-            {cart.length === 0 ? (
-              <p className="text-sm text-slate-500">Add products to start a sale.</p>
-            ) : (
-              <div className="space-y-2">
-                {cart.map((line) => {
-                  const p = productMap.get(line.productId)!;
-                  return (
-                    <div key={line.productId} className="flex items-center justify-between gap-2">
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">{p.name}</div>
-                        <div className="text-xs text-slate-500">{formatMoney(p.unitPrice, currency)}</div>
-                      </div>
-                      <input
-                        type="number"
-                        min={0}
-                        className="input w-20"
-                        value={line.quantity}
-                        onChange={(e) => updateQty(line.productId, parseInt(e.target.value || '0', 10))}
-                      />
-                      <div className="w-24 text-right text-sm font-medium">
-                        {formatMoney(p.unitPrice * line.quantity, currency)}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-              <select
-                className="input w-40"
-                value={method}
-                onChange={(e) => setMethod(e.target.value as Method)}
-              >
-                <option value="CASH">Cash</option>
-                <option value="MOMO">Mobile money</option>
-                <option value="CARD">Card</option>
-                <option value="TRANSFER">Transfer</option>
-              </select>
-              <div className="text-lg font-bold">{formatMoney(cartTotal, currency)}</div>
-              <button type="submit" className="btn-primary" disabled={submitting || cart.length === 0}>
-                {submitting ? 'Saving…' : 'Record sale'}
-              </button>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2 card">
+          <div className="px-5 py-3 border-b border-neutral-200 section-title">New sale</div>
+          <div className="p-5 space-y-4">
+            <input
+              className="input"
+              placeholder="Search products by name or SKU…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {filteredProducts.map((p) => (
+                <button
+                  key={p._id}
+                  className="border border-neutral-200 bg-white hover:border-neutral-900 p-3 text-left transition-colors disabled:opacity-40"
+                  onClick={() => addToCart(p._id)}
+                  disabled={p.currentStock <= 0}
+                >
+                  <div className="text-sm font-medium text-neutral-900 truncate">{p.name}</div>
+                  <div className="text-xs text-neutral-500 mt-0.5">
+                    {formatMoney(p.unitPrice, currency)} · stock {p.currentStock}
+                  </div>
+                </button>
+              ))}
             </div>
-            {error && <div className="text-sm text-red-600">{error}</div>}
-          </form>
+
+            <form onSubmit={submitSale} className="space-y-3 pt-3 border-t border-neutral-200">
+              {cart.length === 0 ? (
+                <p className="text-sm text-neutral-500">Add products to start a sale.</p>
+              ) : (
+                <div className="space-y-2">
+                  {cart.map((line) => {
+                    const p = productMap.get(line.productId)!;
+                    return (
+                      <div key={line.productId} className="flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">{p.name}</div>
+                          <div className="text-xs text-neutral-500">{formatMoney(p.unitPrice, currency)}</div>
+                        </div>
+                        <input
+                          type="number"
+                          min={0}
+                          className="input w-20"
+                          value={line.quantity}
+                          onChange={(e) => updateQty(line.productId, parseInt(e.target.value || '0', 10))}
+                        />
+                        <div className="w-28 text-right text-sm font-semibold tabular-nums">
+                          {formatMoney(p.unitPrice * line.quantity, currency)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-neutral-200">
+                <select
+                  className="input sm:w-40"
+                  value={method}
+                  onChange={(e) => setMethod(e.target.value as Method)}
+                >
+                  <option value="CASH">Cash</option>
+                  <option value="MOMO">Mobile money</option>
+                  <option value="CARD">Card</option>
+                  <option value="TRANSFER">Transfer</option>
+                </select>
+                <div className="text-xl font-semibold tabular-nums">
+                  {formatMoney(cartTotal, currency)}
+                </div>
+                <button
+                  type="submit"
+                  className="btn-primary w-full sm:w-auto"
+                  disabled={submitting || cart.length === 0}
+                >
+                  {submitting ? 'Saving…' : 'Record sale'}
+                </button>
+              </div>
+              {error && (
+                <div className="border border-red-200 bg-red-50 text-red-700 text-sm px-3 py-2">
+                  {error}
+                </div>
+              )}
+            </form>
+          </div>
         </div>
 
         <div className="card">
-          <h2 className="font-semibold text-slate-800 mb-3">Filters</h2>
-          <div className="space-y-3">
+          <div className="px-5 py-3 border-b border-neutral-200 section-title">Filters</div>
+          <div className="p-5 space-y-4">
             <div>
               <label className="label">From</label>
               <input
                 type="date"
-                className="input mt-1"
+                className="input mt-1.5"
                 value={filter.from || ''}
                 onChange={(e) => setFilter((f) => ({ ...f, from: e.target.value || undefined }))}
               />
@@ -204,7 +217,7 @@ export function SalesPage() {
               <label className="label">To</label>
               <input
                 type="date"
-                className="input mt-1"
+                className="input mt-1.5"
                 value={filter.to || ''}
                 onChange={(e) => setFilter((f) => ({ ...f, to: e.target.value || undefined }))}
               />
@@ -212,7 +225,7 @@ export function SalesPage() {
             <div>
               <label className="label">Payment method</label>
               <select
-                className="input mt-1"
+                className="input mt-1.5"
                 value={filter.paymentMethod || ''}
                 onChange={(e) =>
                   setFilter((f) => ({ ...f, paymentMethod: (e.target.value as Method) || '' }))
@@ -230,37 +243,41 @@ export function SalesPage() {
       </div>
 
       <div className="card">
-        <h2 className="font-semibold text-slate-800 mb-3">Sales history</h2>
-        {sales.length === 0 ? (
-          <p className="text-sm text-slate-500">No sales for the selected filters.</p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="text-left text-slate-500 text-xs uppercase">
-              <tr>
-                <th className="py-2">When</th>
-                <th>Items</th>
-                <th>Method</th>
-                <th className="text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {sales.map((s) => (
-                <tr key={s._id}>
-                  <td className="py-2 text-slate-600">{formatDate(s.createdAt)}</td>
-                  <td className="text-slate-700">
-                    {s.items.map((i) => `${i.productName} ×${i.quantity}`).join(', ')}
-                  </td>
-                  <td>
-                    <span className="inline-block rounded bg-slate-100 px-2 py-0.5 text-xs">
-                      {s.paymentMethod}
-                    </span>
-                  </td>
-                  <td className="text-right font-medium">{formatMoney(s.totalAmount, currency)}</td>
+        <div className="px-5 py-3 border-b border-neutral-200 section-title">Sales history</div>
+        <div className="overflow-x-auto">
+          {sales.length === 0 ? (
+            <p className="text-sm text-neutral-500 p-5">No sales for the selected filters.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-neutral-500 text-[11px] uppercase tracking-wider border-b border-neutral-200">
+                  <th className="px-5 py-2.5 font-medium">When</th>
+                  <th className="py-2.5 font-medium">Items</th>
+                  <th className="py-2.5 font-medium">Method</th>
+                  <th className="px-5 py-2.5 font-medium text-right">Total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {sales.map((s) => (
+                  <tr key={s._id} className="hover:bg-neutral-50">
+                    <td className="px-5 py-2.5 text-neutral-600 whitespace-nowrap">
+                      {formatDate(s.createdAt)}
+                    </td>
+                    <td className="py-2.5 text-neutral-800 max-w-lg truncate">
+                      {s.items.map((i) => `${i.productName} ×${i.quantity}`).join(', ')}
+                    </td>
+                    <td className="py-2.5">
+                      <span className="chip">{s.paymentMethod}</span>
+                    </td>
+                    <td className="px-5 py-2.5 text-right font-semibold tabular-nums">
+                      {formatMoney(s.totalAmount, currency)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );
