@@ -81,7 +81,7 @@ export function DashboardPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2">
-          <ChatPanel heightClass="h-[70vh] xl:h-[560px]" />
+          <ChatPanel sessionId="dashboard" heightClass="h-[70vh] xl:h-[560px]" />
         </div>
 
         <div className="space-y-6">

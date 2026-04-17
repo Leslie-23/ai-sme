@@ -14,6 +14,8 @@ import expenseRoutes from './routes/expenses';
 import dashboardRoutes from './routes/dashboard';
 import aiRoutes from './routes/ai';
 import configRoutes from './routes/config';
+import importRoutes from './routes/import';
+import businessRoutes from './routes/business';
 
 async function main(): Promise<void> {
   await connectDB();
@@ -33,6 +35,8 @@ async function main(): Promise<void> {
   app.use('/dashboard', requireAuth, dashboardRoutes);
   app.use('/ai', requireAuth, aiRoutes);
   app.use('/config', requireAuth, configRoutes);
+  app.use('/import', requireAuth, importRoutes);
+  app.use('/business', requireAuth, businessRoutes);
 
   app.use(errorHandler);
 

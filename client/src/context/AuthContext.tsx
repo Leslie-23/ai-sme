@@ -25,6 +25,7 @@ interface AuthContextValue {
     currency?: string;
   }) => Promise<void>;
   logout: () => void;
+  setBusiness: (business: AuthBusiness) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -82,6 +83,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem(SESSION_KEY);
         setUser(null);
         setBusiness(null);
+      },
+      setBusiness: (next: AuthBusiness) => {
+        setBusiness(next);
+        if (user) saveSession(user, next);
       },
     }),
     [user, business, loading]

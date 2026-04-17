@@ -6,6 +6,7 @@ const navItems = [
   { to: '/dashboard', label: 'Overview', icon: IconGrid },
   { to: '/sales', label: 'Sales', icon: IconCart },
   { to: '/inventory', label: 'Inventory', icon: IconBox },
+  { to: '/import', label: 'Import', icon: IconUpload },
   { to: '/chat', label: 'AI Assistant', icon: IconSpark },
   { to: '/settings', label: 'Settings', icon: IconGear },
 ];
@@ -14,6 +15,7 @@ const pageTitles: Record<string, string> = {
   '/dashboard': 'Overview',
   '/sales': 'Sales',
   '/inventory': 'Inventory',
+  '/import': 'Import',
   '/chat': 'AI Assistant',
   '/settings': 'Settings',
 };
@@ -273,6 +275,15 @@ function IconChevronRight() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+function IconUpload() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <path d="M17 8l-5-5-5 5" />
+      <path d="M12 3v12" />
     </svg>
   );
 }

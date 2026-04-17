@@ -1,22 +1,26 @@
-import { FormEvent, useRef, useState, useEffect } from 'react';
+import { FormEvent, useRef, useState, useEffect, useCallback } from 'react';
 import { api, ApiError } from '../lib/api';
-
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  text: string;
-  modelUsed?: string;
-  timestamp: string;
-}
+import {
+  ChatMessage,
+  loadMessages,
+  saveMessages,
+  loadSessions,
+  saveSessions,
+  deriveTitle,
+} from '../lib/chatStore';
 
 interface ChatPanelProps {
+  sessionId: string;
   heightClass?: string;
   showDateRange?: boolean;
   placeholder?: string;
   suggestions?: string[];
+  onMessagesChange?: (messages: ChatMessage[]) => void;
+  headerExtras?: React.ReactNode;
 }
 
 export function ChatPanel({
+  sessionId,
   heightClass = 'h-[480px]',
   showDateRange = false,
   placeholder = 'Ask about your business…',
@@ -26,8 +30,10 @@ export function ChatPanel({
     'Am I running low on any stock?',
     'How does this week compare to last?',
   ],
+  onMessagesChange,
+  headerExtras,
 }: ChatPanelProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => loadMessages(sessionId));
   const [input, setInput] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -36,18 +42,50 @@ export function ChatPanel({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMessages(loadMessages(sessionId));
+    setError(null);
+  }, [sessionId]);
+
+  useEffect(() => {
+    saveMessages(sessionId, messages);
+    onMessagesChange?.(messages);
+  }, [messages, sessionId, onMessagesChange]);
+
+  useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, sending]);
 
+  const touchSessionMeta = useCallback(
+    (firstUserText?: string) => {
+      const sessions = loadSessions();
+      const idx = sessions.findIndex((s) => s.id === sessionId);
+      const now = new Date().toISOString();
+      if (idx === -1) return;
+      const current = sessions[idx];
+      const shouldRename =
+        firstUserText && (current.title === 'New chat' || current.messageCount === 0);
+      sessions[idx] = {
+        ...current,
+        title: shouldRename ? deriveTitle(firstUserText!) : current.title,
+        updatedAt: now,
+        messageCount: current.messageCount + (firstUserText ? 1 : 0),
+      };
+      saveSessions(sessions);
+    },
+    [sessionId]
+  );
+
   async function send(query: string) {
     if (!query.trim()) return;
-    const userMsg: Message = {
+    const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: 'user',
       text: query.trim(),
       timestamp: new Date().toISOString(),
     };
+    const isFirstUserMsg = messages.every((m) => m.role !== 'user');
     setMessages((m) => [...m, userMsg]);
+    touchSessionMeta(isFirstUserMsg ? userMsg.text : undefined);
     setInput('');
     setSending(true);
     setError(null);
@@ -96,23 +134,26 @@ export function ChatPanel({
             Grounded on your live business data
           </div>
         </div>
-        {showDateRange && (
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <input
-              type="date"
-              className="input !py-1 !px-2 text-xs flex-1 sm:w-36 sm:flex-none"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-            />
-            <span className="text-neutral-400 text-xs">→</span>
-            <input
-              type="date"
-              className="input !py-1 !px-2 text-xs flex-1 sm:w-36 sm:flex-none"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-            />
-          </div>
-        )}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {showDateRange && (
+            <>
+              <input
+                type="date"
+                className="input !py-1 !px-2 text-xs flex-1 sm:w-36 sm:flex-none"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+              />
+              <span className="text-neutral-400 text-xs">→</span>
+              <input
+                type="date"
+                className="input !py-1 !px-2 text-xs flex-1 sm:w-36 sm:flex-none"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+              />
+            </>
+          )}
+          {headerExtras}
+        </div>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 space-y-4">
