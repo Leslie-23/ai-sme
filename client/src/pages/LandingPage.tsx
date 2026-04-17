@@ -275,32 +275,56 @@ export function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
-              <div className="text-2xl mb-3">⚡</div>
+              <div className="w-8 h-8 mb-3 text-neutral-900">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
               <h3 className="font-semibold text-lg mb-2">Start in minutes</h3>
               <p className="text-sm text-neutral-600">No month-long implementation. Sign up, import your products, invite your staff. You're live in an afternoon.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
-              <div className="text-2xl mb-3">🎯</div>
+              <div className="w-8 h-8 mb-3 text-neutral-900">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
               <h3 className="font-semibold text-lg mb-2">You own your data</h3>
               <p className="text-sm text-neutral-600">Everything lives in your MongoDB. Export whenever you want, via standard tools. No proprietary formats, no escape clauses.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
-              <div className="text-2xl mb-3">💰</div>
+              <div className="w-8 h-8 mb-3 text-neutral-900">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
               <h3 className="font-semibold text-lg mb-2">No surprises</h3>
               <p className="text-sm text-neutral-600">Pay only for what you use. Bring your own AI key and pay the provider directly. No hidden markup, no seat licenses.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
-              <div className="text-2xl mb-3">🔐</div>
+              <div className="w-8 h-8 mb-3 text-neutral-900">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
               <h3 className="font-semibold text-lg mb-2">Seriously private</h3>
               <p className="text-sm text-neutral-600">Your sales, stock, and costs never leave your server. The AI sees only what's needed for the current question.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
-              <div className="text-2xl mb-3">🔄</div>
+              <div className="w-8 h-8 mb-3 text-neutral-900">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
               <h3 className="font-semibold text-lg mb-2">Switch providers anytime</h3>
               <p className="text-sm text-neutral-600">Locked into OpenAI? Leave. Found a cheaper option? Go. Change AI providers in one click, keep all your data.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
-              <div className="text-2xl mb-3">📞</div>
+              <div className="w-8 h-8 mb-3 text-neutral-900">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+              </div>
               <h3 className="font-semibold text-lg mb-2">Built by makers</h3>
               <p className="text-sm text-neutral-600">We run small businesses too. We got tired of fancy tools that didn't fit. This is what we built for ourselves.</p>
             </div>
