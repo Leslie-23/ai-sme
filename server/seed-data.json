@@ -1,0 +1,787 @@
+{
+  "products": [
+    {
+      "name": "TCL 50\" TV",
+      "sku": "TCL-TV-50",
+      "category": "Television",
+      "unitPrice": 4400,
+      "costPrice": 4000,
+      "currentStock": 2,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Nasco Washing Machine (Standard)",
+      "sku": "NASCO-WM-STD",
+      "category": "Washing Machine",
+      "unitPrice": 1100,
+      "costPrice": 925,
+      "currentStock": 3,
+      "lowStockThreshold": 3
+    },
+    {
+      "name": "Nasco Washing Machine (Large)",
+      "sku": "NASCO-WM-LG",
+      "category": "Washing Machine",
+      "unitPrice": 2000,
+      "costPrice": 2000,
+      "currentStock": 1,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Nasco Washing Machine (Mid)",
+      "sku": "NASCO-WM-MID",
+      "category": "Washing Machine",
+      "unitPrice": 1600,
+      "costPrice": 1350,
+      "currentStock": 2,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Nasco Washing Machine (Economy)",
+      "sku": "NASCO-WM-ECO",
+      "category": "Washing Machine",
+      "unitPrice": 1090,
+      "costPrice": 975,
+      "currentStock": 2,
+      "lowStockThreshold": 3
+    },
+    {
+      "name": "Nasco A/C 1.5HP",
+      "sku": "NASCO-AC-15HP",
+      "category": "Air Conditioner",
+      "unitPrice": 2800,
+      "costPrice": 2550,
+      "currentStock": 1,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Midea Juicer",
+      "sku": "MIDEA-JUICER",
+      "category": "Kitchen Appliance",
+      "unitPrice": 650,
+      "costPrice": 475,
+      "currentStock": 4,
+      "lowStockThreshold": 3
+    },
+    {
+      "name": "Microwave",
+      "sku": "MICRO-GEN",
+      "category": "Kitchen Appliance",
+      "unitPrice": 900,
+      "costPrice": 700,
+      "currentStock": 2,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Chest Freezer",
+      "sku": "CHEST-FRZ",
+      "category": "Refrigeration",
+      "unitPrice": 2000,
+      "costPrice": 2000,
+      "currentStock": 1,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Midea Fridge",
+      "sku": "MIDEA-FRIDGE",
+      "category": "Refrigeration",
+      "unitPrice": 2700,
+      "costPrice": 2500,
+      "currentStock": 2,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Extension Board",
+      "sku": "EXT-BOARD",
+      "category": "Accessories",
+      "unitPrice": 220,
+      "costPrice": 105,
+      "currentStock": 8,
+      "lowStockThreshold": 5
+    },
+    {
+      "name": "A/C Stand",
+      "sku": "AC-STAND",
+      "category": "Accessories",
+      "unitPrice": 80,
+      "costPrice": 80,
+      "currentStock": 5,
+      "lowStockThreshold": 3
+    },
+    {
+      "name": "Nasco Fridge/Freezer",
+      "sku": "NASCO-FRZFRIDGE",
+      "category": "Refrigeration",
+      "unitPrice": 2300,
+      "costPrice": 1900,
+      "currentStock": 1,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Nasco TV 32\"",
+      "sku": "NASCO-TV-32",
+      "category": "Television",
+      "unitPrice": 1000,
+      "costPrice": 900,
+      "currentStock": 3,
+      "lowStockThreshold": 3
+    },
+    {
+      "name": "Tabletop Fridge/Freezer",
+      "sku": "TABLETOP-FRZFRIDGE",
+      "category": "Refrigeration",
+      "unitPrice": 1345,
+      "costPrice": 1345,
+      "currentStock": 1,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Midea Charging Fan",
+      "sku": "MIDEA-FAN-CHG",
+      "category": "Fan",
+      "unitPrice": 1187.6,
+      "costPrice": 900,
+      "currentStock": 3,
+      "lowStockThreshold": 3
+    },
+    {
+      "name": "TCL 32\" TV",
+      "sku": "TCL-TV-32",
+      "category": "Television",
+      "unitPrice": 1324.59,
+      "costPrice": 1024.59,
+      "currentStock": 2,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Blender",
+      "sku": "BLENDER-GEN",
+      "category": "Kitchen Appliance",
+      "unitPrice": 300,
+      "costPrice": 300,
+      "currentStock": 3,
+      "lowStockThreshold": 3
+    },
+    {
+      "name": "Nasco Washing Machine (Jumia)",
+      "sku": "NASCO-WM-JUMIA",
+      "category": "Washing Machine",
+      "unitPrice": 2160.28,
+      "costPrice": 1700,
+      "currentStock": 2,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Nasco 32\" TV (Jumia)",
+      "sku": "NASCO-TV-32-JUMIA",
+      "category": "Television",
+      "unitPrice": 1324.59,
+      "costPrice": 1224.59,
+      "currentStock": 2,
+      "lowStockThreshold": 2
+    },
+    {
+      "name": "Nasco Fridge/Freezer (Jumia)",
+      "sku": "NASCO-FRZFRIDGE-JUMIA",
+      "category": "Refrigeration",
+      "unitPrice": 3200,
+      "costPrice": 2800,
+      "currentStock": 0,
+      "lowStockThreshold": 1
+    },
+    {
+      "name": "Nasco A/C (Jumia)",
+      "sku": "NASCO-AC-JUMIA",
+      "category": "Air Conditioner",
+      "unitPrice": 3000,
+      "costPrice": 2600,
+      "currentStock": 0,
+      "lowStockThreshold": 1
+    },
+    { "name": "LED/LCD/Plasma [14-32 inch]", "sku": "AD-YM1442", "category": "General Electronics", "unitPrice": 50, "costPrice": 20, "currentStock": 4, "lowStockThreshold": 3 },
+    { "name": "LED/LCD/Plasma Wall Mount [32-60 inch]", "sku": "AD-YM3260", "category": "General Electronics", "unitPrice": 60, "costPrice": 45, "currentStock": 4, "lowStockThreshold": 3 },
+    { "name": "AC Bracket [1-25 HP]", "sku": "AC-BRK-125HP", "category": "General Electronics", "unitPrice": 98, "costPrice": 75, "currentStock": 4, "lowStockThreshold": 3 },
+    { "name": "Nasco Washing Machine", "sku": "NAS07-TW", "category": "Washing Machine", "unitPrice": 1755, "costPrice": 1350, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Top Load Washing Machine", "sku": "NAS8.0", "category": "Washing Machine", "unitPrice": 3250, "costPrice": 2500, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Washing Machine (11kg)", "sku": "NAS11-TW", "category": "Washing Machine", "unitPrice": 2600, "costPrice": 2000, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Nasco Fridge/Freezer (NASD2-18FL)", "sku": "NASD2-18FL", "category": "Fridge/Freezers", "unitPrice": 2795, "costPrice": 2150, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Fridge/Freezer (NASF2-13FL)", "sku": "NASF2-13FL", "category": "Fridge/Freezers", "unitPrice": 2145, "costPrice": 1650, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Nasco Fridge/Freezer (NASFL-18FL)", "sku": "NASFL-18FL", "category": "Fridge/Freezers", "unitPrice": 2300, "costPrice": 1900, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Samsung Microwave", "sku": "MS23K3513AW", "category": "Microwaves", "unitPrice": 2200, "costPrice": 1500, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Washing Machine (10kg)", "sku": "NAS-10-TW", "category": "Washing Machine", "unitPrice": 2500, "costPrice": 1700, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Nasco Table Top (Single Door)", "sku": "NAS-F1-10S", "category": "Fridge/Freezers", "unitPrice": 1495, "costPrice": 1150, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Washing Machine (5kg)", "sku": "NAS-05-TW", "category": "Washing Machine", "unitPrice": 1100, "costPrice": 925, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Hisense Display Fridge", "sku": "HS001", "category": "Display Fridges", "unitPrice": 6000, "costPrice": 4000, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Showcase Fridge", "sku": "NAS-TN3501DR", "category": "Display Fridges", "unitPrice": 4500, "costPrice": 3450, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "TCL Fridge/Freezer (P540TMG)", "sku": "P540TMG", "category": "Fridge/Freezers", "unitPrice": 9000, "costPrice": 7250, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "TCL Freezer Upright", "sku": "F208SDS", "category": "Freezers", "unitPrice": 4000, "costPrice": 3100, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Midea Hand Blender", "sku": "MJ-BH6001W", "category": "Blenders", "unitPrice": 500, "costPrice": 350, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Midea Rechargeable Fan", "sku": "FS-45-23MRD", "category": "General Electronics", "unitPrice": 1200, "costPrice": 900, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Midea Standing Fan", "sku": "FS-40-21M", "category": "General Electronics", "unitPrice": 500, "costPrice": 250, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Nasco Air Purifier", "sku": "AP2202A-GS", "category": "General Electronics", "unitPrice": 900, "costPrice": 700, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Midea Rice Cooker (YJ508J)", "sku": "YJ508J", "category": "General Electronics", "unitPrice": 500, "costPrice": 350, "currentStock": 3, "lowStockThreshold": 2 },
+    { "name": "Galaxy Rice Cooker (GA-D18)", "sku": "GA-D18", "category": "General Electronics", "unitPrice": 300, "costPrice": 150, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "Galaxy Electric Kettle", "sku": "GLX03", "category": "General Electronics", "unitPrice": 120, "costPrice": 80, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "Midea A/C", "sku": "MSAF-12CRN1", "category": "Air Condition", "unitPrice": 4800, "costPrice": 3600, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Ice Maker", "sku": "IMB1008AB-N", "category": "General Electronics", "unitPrice": 1300, "costPrice": 1000, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "Counting Machine", "sku": "CM-1", "category": "General Electronics", "unitPrice": 2200, "costPrice": 1600, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "TCL Top Loaded Washing Machine (10.5kg)", "sku": "TCL-WM", "category": "Washing Machine", "unitPrice": 5200, "costPrice": 3500, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Electric Kettle", "sku": "KES4116-GS", "category": "General Electronics", "unitPrice": 220, "costPrice": 130, "currentStock": 3, "lowStockThreshold": 2 },
+    { "name": "Nasco Electric Kettle (white)", "sku": "KEC-1798A", "category": "General Electronics", "unitPrice": 210, "costPrice": 120, "currentStock": 3, "lowStockThreshold": 2 },
+    { "name": "Nasco Display Fridge (FL350)", "sku": "NAS-FL350-1DR", "category": "Fridge/Freezers", "unitPrice": 4500, "costPrice": 4000, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "TCL Fridge/Freezer (F322BFS)", "sku": "F322BFS", "category": "Fridge/Freezers", "unitPrice": 5200, "costPrice": 4400, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "TCL Fridge/Freezer (F216TMS)", "sku": "F216TMS", "category": "Fridge/Freezers", "unitPrice": 3510, "costPrice": 2700, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "TCL Washing Machine (7kg)", "sku": "F207TT", "category": "Washing Machine", "unitPrice": 1900, "costPrice": 1600, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "TCL Fridge/Freezer (P575SBGWD)", "sku": "P575SBGWD", "category": "Fridge/Freezers", "unitPrice": 9000, "costPrice": 8500, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "TCL Smart TV 55\"", "sku": "55P6K", "category": "Smart TV", "unitPrice": 5500, "costPrice": 4500, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "TCL Smart TV 43\"", "sku": "43S5K", "category": "Smart TV", "unitPrice": 3500, "costPrice": 2600, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "TCL Smart TV 32\"", "sku": "32S5K", "category": "Smart TV", "unitPrice": 2000, "costPrice": 1700, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "TCL Smart TV 50\"", "sku": "50S5K", "category": "Smart TV", "unitPrice": 4500, "costPrice": 3350, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Sunny Walk Table Top (Single Door)", "sku": "RFX92TT", "category": "Fridge/Freezers", "unitPrice": 1600, "costPrice": 1200, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Chest Freezer", "sku": "NAS-200FL", "category": "Freezers", "unitPrice": 2400, "costPrice": 2800, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Nasco Fridge/Freezer (NAS-D2-24FL)", "sku": "NAS-D2-24FL", "category": "Fridge/Freezers", "unitPrice": 3500, "costPrice": 2900, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Nasco Fridge/Freezer (NAS-F2-15S)", "sku": "NAS-F2-15S", "category": "Fridge/Freezers", "unitPrice": 2700, "costPrice": 2500, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Table Top Freezer (Double Door)", "sku": "NAS-F2-120", "category": "Freezers", "unitPrice": 1755, "costPrice": 1350, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Gas Cooker", "sku": "NASGC", "category": "General Electronics", "unitPrice": 2900, "costPrice": 2500, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Nasco A/C", "sku": "NAS-T12N1", "category": "Air Condition", "unitPrice": 3000, "costPrice": 2500, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Nasco Digital TV 43\"", "sku": "NAS-B43FBFL-G-", "category": "Digital TV", "unitPrice": 2500, "costPrice": 1800, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Nasco Digital TV 32\"", "sku": "NAS-B32FBL-G", "category": "Digital TV", "unitPrice": 1100, "costPrice": 950, "currentStock": 4, "lowStockThreshold": 3 },
+    { "name": "Nasco Smart TV 43\"", "sku": "NAS-B43FBFL-G", "category": "Smart TV", "unitPrice": 3000, "costPrice": 2250, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "Midea Fridge/Freezer (MDRT187)", "sku": "MDRT187FGG28", "category": "Fridge/Freezers", "unitPrice": 2860, "costPrice": 2200, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Midea Gas Cooker", "sku": "SP055T082", "category": "General Electronics", "unitPrice": 2600, "costPrice": 1500, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "Extension (EX-3)", "sku": "EX-3", "category": "General Electronics", "unitPrice": 225, "costPrice": 115, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Extension (EX-1)", "sku": "EX-1", "category": "General Electronics", "unitPrice": 250, "costPrice": 200, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "Extension (EX)", "sku": "EX", "category": "General Electronics", "unitPrice": 215, "costPrice": 175, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "Midea Air Fryer", "sku": "MR-CN40E2", "category": "General Electronics", "unitPrice": 600, "costPrice": 575, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Midea Juice Extractor", "sku": "JE2802", "category": "General Electronics", "unitPrice": 650, "costPrice": 475, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "Electric Kettle (MK1753A2)", "sku": "MK1753A2", "category": "General Electronics", "unitPrice": 320, "costPrice": 110, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Midea Microwave Oven", "sku": "MM7P012MZ-B", "category": "General Electronics", "unitPrice": 910, "costPrice": 700, "currentStock": 2, "lowStockThreshold": 2 },
+    { "name": "Midea Blender (MJBL6006W)", "sku": "MJBL6006W", "category": "Blenders", "unitPrice": 490, "costPrice": 350, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Midea Table Blender", "sku": "BL2518", "category": "Blenders", "unitPrice": 351, "costPrice": 270, "currentStock": 5, "lowStockThreshold": 3 },
+    { "name": "Galaxy Rice Cooker (GA-J15)", "sku": "GA-J15", "category": "General Electronics", "unitPrice": 300, "costPrice": 200, "currentStock": 0, "lowStockThreshold": 1 },
+    { "name": "Galaxy Rice Cooker (GA-J22)", "sku": "GA-J22", "category": "General Electronics", "unitPrice": 370, "costPrice": 165, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Galaxy Rice Cooker (GA-D22)", "sku": "GA-D22", "category": "General Electronics", "unitPrice": 350, "costPrice": 175, "currentStock": 4, "lowStockThreshold": 2 },
+    { "name": "Bardefu Blender (BF5042)", "sku": "BF5042", "category": "Blenders", "unitPrice": 550, "costPrice": 440, "currentStock": 1, "lowStockThreshold": 2 },
+    { "name": "Bardefu Blender (BF5062)", "sku": "BF5062", "category": "Blenders", "unitPrice": 600, "costPrice": 395, "currentStock": 1, "lowStockThreshold": 2 }
+  ],
+  "sales": [
+    {
+      "items": [
+        {
+          "sku": "TCL-TV-50",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-03-07T10:30:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-WM-STD",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "MOMO",
+      "createdAt": "2026-03-12T11:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-AC-15HP",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-03-18T09:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "MIDEA-JUICER",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "MOMO",
+      "createdAt": "2026-03-18T09:30:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "MICRO-GEN",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-03-20T14:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-WM-STD",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "MOMO",
+      "createdAt": "2026-03-23T10:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "CHEST-FRZ",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-03-24T11:30:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "MIDEA-FRIDGE",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "TRANSFER",
+      "createdAt": "2026-03-27T15:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-WM-LG",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-04-01T10:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "EXT-BOARD",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-04-06T09:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "AC-STAND",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-04-06T09:15:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-FRZFRIDGE",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "MOMO",
+      "createdAt": "2026-04-07T13:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-WM-MID",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-04-08T10:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-WM-STD",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "MOMO",
+      "createdAt": "2026-04-08T11:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-TV-32",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-04-11T14:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-WM-ECO",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "MOMO",
+      "createdAt": "2026-04-12T10:30:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "TABLETOP-FRZFRIDGE",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "TRANSFER",
+      "createdAt": "2026-03-09T08:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-WM-JUMIA",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "TRANSFER",
+      "createdAt": "2026-03-16T08:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "MIDEA-FAN-CHG",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "TRANSFER",
+      "createdAt": "2026-03-23T08:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-TV-32-JUMIA",
+          "quantity": 2
+        },
+        {
+          "sku": "TCL-TV-32",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "TRANSFER",
+      "createdAt": "2026-03-30T08:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-WM-STD",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-04-16T10:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "BLENDER-GEN",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "CASH",
+      "createdAt": "2026-04-16T10:30:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-AC-JUMIA",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "TRANSFER",
+      "createdAt": "2026-04-16T08:00:00.000Z"
+    },
+    {
+      "items": [
+        {
+          "sku": "NASCO-FRZFRIDGE-JUMIA",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "TRANSFER",
+      "createdAt": "2026-04-14T08:00:00.000Z"
+    }
+  ],
+  "payments": [
+    {
+      "amount": 4400,
+      "method": "CASH",
+      "reference": "TCL-TV-50 sale",
+      "createdAt": "2026-03-07T10:30:00.000Z"
+    },
+    {
+      "amount": 1100,
+      "method": "MOMO",
+      "reference": "NASCO-WM-STD sale",
+      "createdAt": "2026-03-12T11:00:00.000Z"
+    },
+    {
+      "amount": 2800,
+      "method": "CASH",
+      "reference": "NASCO-AC-15HP sale",
+      "createdAt": "2026-03-18T09:00:00.000Z"
+    },
+    {
+      "amount": 650,
+      "method": "MOMO",
+      "reference": "MIDEA-JUICER sale",
+      "createdAt": "2026-03-18T09:30:00.000Z"
+    },
+    {
+      "amount": 900,
+      "method": "CASH",
+      "reference": "MICRO-GEN sale",
+      "createdAt": "2026-03-20T14:00:00.000Z"
+    },
+    {
+      "amount": 1100,
+      "method": "MOMO",
+      "reference": "NASCO-WM-STD sale",
+      "createdAt": "2026-03-23T10:00:00.000Z"
+    },
+    {
+      "amount": 2000,
+      "method": "CASH",
+      "reference": "CHEST-FRZ sale",
+      "createdAt": "2026-03-24T11:30:00.000Z"
+    },
+    {
+      "amount": 2700,
+      "method": "TRANSFER",
+      "reference": "MIDEA-FRIDGE sale",
+      "createdAt": "2026-03-27T15:00:00.000Z"
+    },
+    {
+      "amount": 2000,
+      "method": "CASH",
+      "reference": "NASCO-WM-LG sale",
+      "createdAt": "2026-04-01T10:00:00.000Z"
+    },
+    {
+      "amount": 220,
+      "method": "CASH",
+      "reference": "EXT-BOARD sale",
+      "createdAt": "2026-04-06T09:00:00.000Z"
+    },
+    {
+      "amount": 80,
+      "method": "CASH",
+      "reference": "AC-STAND sale",
+      "createdAt": "2026-04-06T09:15:00.000Z"
+    },
+    {
+      "amount": 2300,
+      "method": "MOMO",
+      "reference": "NASCO-FRZFRIDGE sale",
+      "createdAt": "2026-04-07T13:00:00.000Z"
+    },
+    {
+      "amount": 1600,
+      "method": "CASH",
+      "reference": "NASCO-WM-MID sale",
+      "createdAt": "2026-04-08T10:00:00.000Z"
+    },
+    {
+      "amount": 1100,
+      "method": "MOMO",
+      "reference": "NASCO-WM-STD sale",
+      "createdAt": "2026-04-08T11:00:00.000Z"
+    },
+    {
+      "amount": 1000,
+      "method": "CASH",
+      "reference": "NASCO-TV-32 sale",
+      "createdAt": "2026-04-11T14:00:00.000Z"
+    },
+    {
+      "amount": 1090,
+      "method": "MOMO",
+      "reference": "NASCO-WM-ECO sale",
+      "createdAt": "2026-04-12T10:30:00.000Z"
+    },
+    {
+      "amount": 1345,
+      "method": "TRANSFER",
+      "reference": "Jumia - TABLETOP-FRZFRIDGE",
+      "createdAt": "2026-03-09T08:00:00.000Z"
+    },
+    {
+      "amount": 2160.28,
+      "method": "TRANSFER",
+      "reference": "Jumia - NASCO-WM",
+      "createdAt": "2026-03-16T08:00:00.000Z"
+    },
+    {
+      "amount": 1187.6,
+      "method": "TRANSFER",
+      "reference": "Jumia - MIDEA-FAN",
+      "createdAt": "2026-03-23T08:00:00.000Z"
+    },
+    {
+      "amount": 3973.76,
+      "method": "TRANSFER",
+      "reference": "Jumia - TV batch",
+      "createdAt": "2026-03-30T08:00:00.000Z"
+    },
+    {
+      "amount": 2000,
+      "method": "CASH",
+      "reference": "Post-cycle WM - remitted to Boss",
+      "createdAt": "2026-04-16T10:00:00.000Z"
+    },
+    {
+      "amount": 300,
+      "method": "CASH",
+      "reference": "Post-cycle Blender - remitted to Boss",
+      "createdAt": "2026-04-16T10:30:00.000Z"
+    },
+    {
+      "amount": -125,
+      "method": "MOMO",
+      "reference": "Fina MoMo transaction loss",
+      "createdAt": "2026-04-16T11:00:00.000Z"
+    }
+  ],
+  "expenses": [
+    {
+      "amount": 850,
+      "category": "Utilities",
+      "description": "Waste disposal",
+      "createdAt": "2026-03-21T08:00:00.000Z"
+    },
+    {
+      "amount": 100,
+      "category": "Maintenance",
+      "description": "Bike faults",
+      "createdAt": "2026-03-21T09:00:00.000Z"
+    },
+    {
+      "amount": 60,
+      "category": "Miscellaneous",
+      "description": "Police",
+      "createdAt": "2026-03-24T10:00:00.000Z"
+    },
+    {
+      "amount": 3100,
+      "category": "Salaries",
+      "description": "Staff salaries - March",
+      "createdAt": "2026-03-15T08:00:00.000Z"
+    },
+    {
+      "amount": 860,
+      "category": "Legal & Compliance",
+      "description": "Nigerian registration documents",
+      "createdAt": "2026-03-27T10:00:00.000Z"
+    },
+    {
+      "amount": 50,
+      "category": "Utilities",
+      "description": "Waste disposal monthly",
+      "createdAt": "2026-03-30T08:00:00.000Z"
+    },
+    {
+      "amount": 945,
+      "category": "Marketing",
+      "description": "Jiji.com.gh advertisement - Month 1",
+      "createdAt": "2026-03-01T08:00:00.000Z"
+    },
+    {
+      "amount": 200,
+      "category": "Maintenance",
+      "description": "Generator cable and plug",
+      "createdAt": "2026-04-04T09:00:00.000Z"
+    },
+    {
+      "amount": 300,
+      "category": "Maintenance",
+      "description": "Electrician",
+      "createdAt": "2026-04-04T10:00:00.000Z"
+    },
+    {
+      "amount": 180,
+      "category": "Transport",
+      "description": "Fuel",
+      "createdAt": "2026-04-04T11:00:00.000Z"
+    },
+    {
+      "amount": 60,
+      "category": "Transport",
+      "description": "Fuel",
+      "createdAt": "2026-04-06T08:00:00.000Z"
+    },
+    {
+      "amount": 60,
+      "category": "Transport",
+      "description": "Fuel",
+      "createdAt": "2026-04-07T08:00:00.000Z"
+    },
+    {
+      "amount": 60,
+      "category": "Transport",
+      "description": "Fuel",
+      "createdAt": "2026-04-08T08:00:00.000Z"
+    },
+    {
+      "amount": 100,
+      "category": "Maintenance",
+      "description": "Bike faults",
+      "createdAt": "2026-04-09T08:00:00.000Z"
+    },
+    {
+      "amount": 120,
+      "category": "Transport",
+      "description": "Fuel",
+      "createdAt": "2026-04-10T08:00:00.000Z"
+    },
+    {
+      "amount": 3000,
+      "category": "Utilities",
+      "description": "ECG issues",
+      "createdAt": "2026-04-10T09:00:00.000Z"
+    },
+    {
+      "amount": 90,
+      "category": "Supplies",
+      "description": "A4 paper pack",
+      "createdAt": "2026-04-10T10:00:00.000Z"
+    },
+    {
+      "amount": 150,
+      "category": "Supplies",
+      "description": "Bubble wrap for shipment packaging",
+      "createdAt": "2026-04-11T08:00:00.000Z"
+    },
+    {
+      "amount": 945,
+      "category": "Marketing",
+      "description": "Jiji.com.gh advertisement - Month 2",
+      "createdAt": "2026-04-01T08:00:00.000Z"
+    },
+    {
+      "amount": 1000,
+      "category": "Marketing",
+      "description": "Eric advert video",
+      "createdAt": "2026-04-01T09:00:00.000Z"
+    },
+    {
+      "amount": 3300,
+      "category": "Salaries",
+      "description": "Staff salaries - April",
+      "createdAt": "2026-04-15T08:00:00.000Z"
+    },
+    {
+      "amount": 500,
+      "category": "Salaries",
+      "description": "Staff payment - boss directed",
+      "createdAt": "2026-04-08T12:00:00.000Z"
+    }
+  ]
+}
