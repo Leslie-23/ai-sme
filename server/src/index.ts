@@ -37,7 +37,7 @@ async function main(): Promise<void> {
   app.use('/config', requireAuth, configRoutes);
   app.use('/import', requireAuth, importRoutes);
   app.use('/business', requireAuth, businessRoutes);
-
+  app.get('/', (_req, res) => res.json({ message: 'Welcome to the AI SME API' }));
   app.use(errorHandler);
 
   app.listen(env.PORT, () => {
