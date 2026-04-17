@@ -29,6 +29,7 @@ export function LoginPage() {
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : 'We are working to fix this issue. Please try again later.');
     } finally {
       setSubmitting(false);
     }

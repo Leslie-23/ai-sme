@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
+import bcrypt from 'bcryptjs';
 import mongoose, { Types } from 'mongoose';
 import { connectDB } from '../src/utils/db';
 import { User } from '../src/models/User';
@@ -46,7 +47,7 @@ interface SeedExpense {
 }
 
 interface SeedFile {
-  business?: { currency?: string; timezone?: string };
+  business?: { name?: string; currency?: string; timezone?: string };
   products: SeedProduct[];
   sales: SeedSale[];
   payments: SeedPayment[];
@@ -57,37 +58,63 @@ function parseArgs() {
   const args = process.argv.slice(2);
   let email = 'test@gmail.com';
   let reset = false;
+  let file = 'seed-data.json';
+  let password = 'changeme123';
+  let businessName: string | undefined;
   for (const a of args) {
     if (a === '--reset') reset = true;
     else if (a.startsWith('--email=')) email = a.slice('--email='.length).trim();
+    else if (a.startsWith('--file=')) file = a.slice('--file='.length).trim();
+    else if (a.startsWith('--password=')) password = a.slice('--password='.length).trim();
+    else if (a.startsWith('--business-name=')) businessName = a.slice('--business-name='.length).trim();
   }
-  return { email, reset };
+  return { email, reset, file, password, businessName };
 }
 
 async function main() {
-  const { email, reset } = parseArgs();
-  const dataPath = path.resolve(__dirname, '..', 'seed-data.json');
+  const { email, reset, file, password, businessName } = parseArgs();
+  const dataPath = path.resolve(__dirname, '..', file);
   const raw = fs.readFileSync(dataPath, 'utf8');
   const data: SeedFile = JSON.parse(raw);
 
   await connectDB();
 
-  const user = await User.findOne({ email: email.toLowerCase() });
+  const normalizedEmail = email.toLowerCase();
+  let user = await User.findOne({ email: normalizedEmail });
+  const currency = data.business?.currency || 'USD';
+  const timezone = data.business?.timezone || 'UTC';
+  const resolvedBizName = businessName || data.business?.name || 'My Business';
+
   if (!user) {
-    console.error(`[seed] no user with email "${email}". Register through the app first, then re-run.`);
-    await mongoose.disconnect();
-    process.exit(1);
+    console.log(`[seed] no user with email "${normalizedEmail}" — creating user + business...`);
+    const passwordHash = await bcrypt.hash(password, 12);
+    const businessId = new Types.ObjectId();
+    const userId = new Types.ObjectId();
+    user = await User.create({
+      _id: userId,
+      email: normalizedEmail,
+      passwordHash,
+      role: 'OWNER',
+      businessId,
+    });
+    await Business.create({
+      _id: businessId,
+      name: resolvedBizName,
+      owner: userId,
+      currency,
+      timezone,
+    });
+    console.log(`[seed] created user ${normalizedEmail} (password: ${password})`);
+    console.log(`[seed] created business "${resolvedBizName}" ${businessId}`);
+  } else {
+    await Business.updateOne(
+      { _id: user.businessId },
+      { $set: { currency, timezone, ...(businessName ? { name: businessName } : {}) } }
+    );
+    console.log(`[seed] existing user ${normalizedEmail} — updated business ${user.businessId} currency=${currency}`);
   }
 
   const businessId = user.businessId;
-  const currency = data.business?.currency || 'EUR';
-  const timezone = data.business?.timezone;
-
-  await Business.updateOne(
-    { _id: businessId },
-    { $set: { currency, ...(timezone ? { timezone } : {}) } }
-  );
-  console.log(`[seed] business ${businessId} currency=${currency}`);
 
   if (reset) {
     const [dp, ds, dpay, de] = await Promise.all([
