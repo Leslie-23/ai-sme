@@ -48,7 +48,7 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-3 md:py-4 flex items-center justify-between">
           <Link to="/" className="flex items-baseline gap-3">
             <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">AI · SME</span>
-            <span className="text-xl font-semibold tracking-tight">Askly</span>
+            <span className="text-xl font-semibold tracking-tight">Intellexa</span>
           </Link>
           <nav className="flex items-center gap-1">
             <a href="#product" className="hidden md:inline btn-ghost !px-3 !py-1.5 text-sm">Product</a>
@@ -73,7 +73,7 @@ export function LandingPage() {
               when you ask.
             </h1>
             <p className="text-lg md:text-xl text-neutral-600 max-w-2xl">
-              Askly turns your day-to-day sales, stock, and spending into a conversation. Ask in plain
+              Intellexa turns your day-to-day sales, stock, and spending into a conversation. Ask in plain
               words — "what sold today?", "am I low on anything?" — and get honest numbers back,
               grounded on your live data.
             </p>
@@ -105,12 +105,12 @@ export function LandingPage() {
           <ValueProp
             label="Talk, don't dashboard"
             title="Ask in plain English."
-            body="“What were my top 3 products this week?” “Am I low on anything?” “How does today compare to last Friday?” Askly answers with real figures from your books."
+            body="“What were my top 3 products this week?” “Am I low on anything?” “How does today compare to last Friday?” Intellexa answers with real figures from your books."
           />
           <ValueProp
             label="Grounded, never guessed"
             title="No hallucinated numbers."
-            body="Every answer is computed from your live MongoDB via aggregation pipelines, then phrased by the model. If the data isn't there, Askly says so."
+            body="Every answer is computed from your live MongoDB via aggregation pipelines, then phrased by the model. If the data isn't there, Intellexa says so."
           />
           <ValueProp
             label="Runs on your AI"
@@ -130,7 +130,7 @@ export function LandingPage() {
               </h2>
             </div>
             <p className="text-neutral-600 max-w-md">
-              Askly wraps a minimal CRUD layer — sales, inventory, expenses — with a chat-first AI.
+              Intellexa wraps a minimal CRUD layer — sales, inventory, expenses — with a chat-first AI.
               Owners ask; staff record. Numbers align by construction.
             </p>
           </div>
@@ -215,7 +215,7 @@ export function LandingPage() {
               </h2>
             </div>
             <p className="text-neutral-400 max-w-md">
-              Askly talks to whichever model makes sense for you today — free tier for bootstrapping,
+              Intellexa talks to whichever model makes sense for you today — free tier for bootstrapping,
               frontier for the heavy questions. Switch at any time in Settings.
             </p>
           </div>
@@ -293,7 +293,7 @@ export function LandingPage() {
           </div>
           <div className="divide-y divide-neutral-200 border-y border-neutral-200">
             <Faq
-              q="Does Askly send my sales data to OpenAI?"
+              q="Does Intellexa send my sales data to OpenAI?"
               a="Only the minimal business snapshot needed to answer the current question — sales totals, top products, low stock — is included in the prompt. Raw customer details are never sent. You can also pick an open-weights provider like Groq/OpenRouter if you want to keep data away from closed-API vendors."
             />
             <Faq
@@ -310,7 +310,7 @@ export function LandingPage() {
             />
             <Faq
               q="Who is this for?"
-              a="Small retailers and service businesses — shops with 1–20 staff and a handful to a few hundred SKUs. If your operations fit in a WhatsApp group and a notebook today, Askly is sized for you."
+              a="Small retailers and service businesses — shops with 1–20 staff and a handful to a few hundred SKUs. If your operations fit in a WhatsApp group and a notebook today, Intellexa is sized for you."
             />
             <Faq
               q="Can multiple staff log in?"
@@ -349,7 +349,7 @@ export function LandingPage() {
           <div className="md:col-span-2">
             <div className="flex items-baseline gap-3">
               <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">AI · SME</span>
-              <span className="text-lg font-semibold">Askly</span>
+              <span className="text-lg font-semibold">Intellexa</span>
             </div>
             <p className="text-sm text-neutral-600 mt-3 max-w-sm">
               AI-native business intelligence, sized for the shop around the corner.
@@ -374,7 +374,7 @@ export function LandingPage() {
         </div>
         <div className="border-t border-neutral-200">
           <div className="max-w-6xl mx-auto px-5 md:px-8 py-5 text-xs text-neutral-500">
-            © {new Date().getFullYear()} Askly. Built for small businesses.
+            © {new Date().getFullYear()} Intellexa. Built for small businesses.
           </div>
         </div>
       </footer>
