@@ -1,4 +1,3 @@
-const API_BASE = '/api';
 const TOKEN_KEY = 'ai_sme_token';
 
 export function getToken(): string | null {
@@ -23,22 +22,29 @@ export class ApiError extends Error {
   }
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
+
 export async function api<T = unknown>(
   path: string,
   opts: { method?: string; body?: unknown; query?: Record<string, string | undefined> } = {}
 ): Promise<T> {
   const { method = 'GET', body, query } = opts;
-  const url = new URL(`${API_BASE}${path}`, window.location.origin);
+  
+  // In production, use the full backend URL; in development, use relative paths (handled by Vite proxy)
+  const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL : '';
+  const url = new URL(`${baseUrl}/api${path}`, import.meta.env.VITE_API_URL ? undefined : window.location.origin);
+  
   if (query) {
     for (const [k, v] of Object.entries(query)) {
       if (v !== undefined && v !== '') url.searchParams.set(k, v);
     }
   }
+  
   const headers: Record<string, string> = { 'content-type': 'application/json' };
   const token = getToken();
   if (token) headers.authorization = `Bearer ${token}`;
 
-  const res = await fetch(url.pathname + url.search, {
+  const res = await fetch(url.toString(), {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
