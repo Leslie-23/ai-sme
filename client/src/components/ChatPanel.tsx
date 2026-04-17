@@ -8,6 +8,12 @@ import {
   saveSessions,
   deriveTitle,
 } from '../lib/chatStore';
+import {
+  AttachedFile,
+  AttachmentChips,
+  FileAttach,
+  formatAttachmentsForPrompt,
+} from './FileAttach';
 
 interface ChatPanelProps {
   sessionId: string;
@@ -39,6 +45,7 @@ export function ChatPanel({
   const [to, setTo] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attached, setAttached] = useState<AttachedFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -76,22 +83,27 @@ export function ChatPanel({
   );
 
   async function send(query: string) {
-    if (!query.trim()) return;
+    const trimmed = query.trim();
+    if (!trimmed && attached.length === 0) return;
+    const fileLabels = attached.length > 0 ? `\n\n(attached: ${attached.map((a) => a.name).join(', ')})` : '';
+    const displayText = (trimmed || '(files attached)') + fileLabels;
+    const fullQuery = trimmed + formatAttachmentsForPrompt(attached);
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: 'user',
-      text: query.trim(),
+      text: displayText,
       timestamp: new Date().toISOString(),
     };
     const isFirstUserMsg = messages.every((m) => m.role !== 'user');
     setMessages((m) => [...m, userMsg]);
     touchSessionMeta(isFirstUserMsg ? userMsg.text : undefined);
     setInput('');
+    setAttached([]);
     setSending(true);
     setError(null);
     try {
       const payload: { userQuery: string; dateRange?: { from?: string; to?: string } } = {
-        userQuery: userMsg.text,
+        userQuery: fullQuery,
       };
       if (from || to) {
         payload.dateRange = {
@@ -206,18 +218,26 @@ export function ChatPanel({
         )}
       </div>
 
-      <form onSubmit={onSubmit} className="border-t border-neutral-200 p-3 flex gap-2">
-        <input
-          className="input flex-1"
-          placeholder={placeholder}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          disabled={sending}
-        />
-        <button type="submit" className="btn-primary" disabled={sending || !input.trim()}>
-          Send
-        </button>
-      </form>
+      <div className="border-t border-neutral-200">
+        <AttachmentChips attached={attached} onRemove={(n) => setAttached(attached.filter((f) => f.name !== n))} />
+        <form onSubmit={onSubmit} className="p-3 flex gap-2">
+          <FileAttach attached={attached} onChange={setAttached} disabled={sending} onError={setError} />
+          <input
+            className="input flex-1"
+            placeholder={placeholder}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={sending}
+          />
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={sending || (!input.trim() && attached.length === 0)}
+          >
+            Send
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

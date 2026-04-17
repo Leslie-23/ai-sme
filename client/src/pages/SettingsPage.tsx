@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { api, ApiError } from '../lib/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, BusinessFeatures, DEFAULT_FEATURES, Terminology } from '../context/AuthContext';
 
 type Provider = 'openai' | 'anthropic' | 'google' | 'groq' | 'openrouter' | 'mistral' | 'cohere';
 
@@ -79,23 +79,35 @@ export function SettingsPage() {
   const [bizInfo, setBizInfo] = useState<{ id: string; createdAt: string; updatedAt: string } | null>(
     null
   );
+  const [features, setFeatures] = useState<BusinessFeatures>(business?.features || DEFAULT_FEATURES);
+  const [terminology, setTerminology] = useState<Terminology>(business?.terminology || 'product');
+  const [categories, setCategories] = useState<string[]>(business?.categories || []);
+  const [newCategory, setNewCategory] = useState('');
   const [bizSaving, setBizSaving] = useState(false);
   const [bizStatus, setBizStatus] = useState<string | null>(null);
   const [bizError, setBizError] = useState<string | null>(null);
 
+  type BusinessDto = {
+    id: string;
+    name: string;
+    currency: string;
+    timezone: string;
+    features: BusinessFeatures;
+    terminology: Terminology;
+    categories: string[];
+    createdAt: string;
+    updatedAt: string;
+  };
+
   useEffect(() => {
-    api<{
-      id: string;
-      name: string;
-      currency: string;
-      timezone: string;
-      createdAt: string;
-      updatedAt: string;
-    }>('/business')
+    api<BusinessDto>('/business')
       .then((b) => {
         setBizName(b.name);
         setBizCurrency(b.currency);
         setBizTimezone(b.timezone);
+        setFeatures({ ...DEFAULT_FEATURES, ...(b.features || {}) });
+        setTerminology(b.terminology || 'product');
+        setCategories(Array.isArray(b.categories) ? b.categories : []);
         setBizInfo({ id: b.id, createdAt: b.createdAt, updatedAt: b.updatedAt });
       })
       .catch((e) => setBizError(e.message));
@@ -107,18 +119,25 @@ export function SettingsPage() {
     setBizStatus(null);
     setBizSaving(true);
     try {
-      const updated = await api<{
-        id: string;
-        name: string;
-        currency: string;
-        timezone: string;
-        createdAt: string;
-        updatedAt: string;
-      }>('/business', {
+      const updated = await api<BusinessDto>('/business', {
         method: 'PUT',
-        body: { name: bizName, currency: bizCurrency, timezone: bizTimezone },
+        body: {
+          name: bizName,
+          currency: bizCurrency,
+          timezone: bizTimezone,
+          features,
+          terminology,
+          categories,
+        },
       });
-      setBusiness({ id: updated.id, name: updated.name, currency: updated.currency });
+      setBusiness({
+        id: updated.id,
+        name: updated.name,
+        currency: updated.currency,
+        features: updated.features,
+        terminology: updated.terminology,
+        categories: updated.categories,
+      });
       setBizInfo({ id: updated.id, createdAt: updated.createdAt, updatedAt: updated.updatedAt });
       setBizStatus('Saved.');
     } catch (err) {
@@ -126,6 +145,21 @@ export function SettingsPage() {
     } finally {
       setBizSaving(false);
     }
+  }
+
+  function addCategory() {
+    const v = newCategory.trim();
+    if (!v) return;
+    if (categories.includes(v)) {
+      setNewCategory('');
+      return;
+    }
+    setCategories([...categories, v]);
+    setNewCategory('');
+  }
+
+  function removeCategory(c: string) {
+    setCategories(categories.filter((x) => x !== c));
   }
 
   async function refresh() {
@@ -226,6 +260,116 @@ export function SettingsPage() {
                 Used for dashboard "today / this week" boundaries.
               </p>
             </div>
+          </div>
+
+          <div>
+            <label className="label">Item terminology</label>
+            <div className="flex gap-2 mt-1.5">
+              {(['product', 'item', 'service'] as Terminology[]).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  disabled={readOnly}
+                  onClick={() => setTerminology(t)}
+                  className={`px-3 py-1.5 text-xs border ${
+                    terminology === t
+                      ? 'bg-neutral-900 text-white border-neutral-900'
+                      : 'bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400'
+                  }`}
+                >
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-neutral-500 mt-1.5">
+              What you sell — labels adapt across the app (e.g. "Add product" vs "Add service").
+            </p>
+          </div>
+
+          <div>
+            <label className="label">Enabled modules</label>
+            <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {(
+                [
+                  ['chat', 'AI Assistant', 'Grounded chat over your business data'],
+                  ['imports', 'Imports', 'Chat-based data ingestion with file attach'],
+                  ['expenses', 'Expenses', 'Track operating costs'],
+                  ['payments', 'Payments', 'Track non-sale money in'],
+                ] as [keyof BusinessFeatures, string, string][]
+              ).map(([key, label, hint]) => (
+                <label
+                  key={key}
+                  className={`flex items-start gap-2.5 border border-neutral-200 px-3 py-2 cursor-pointer ${
+                    features[key] ? 'bg-neutral-50' : 'bg-white'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={features[key]}
+                    disabled={readOnly}
+                    onChange={(e) => setFeatures({ ...features, [key]: e.target.checked })}
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-neutral-900">{label}</span>
+                    <span className="block text-[11px] text-neutral-500">{hint}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="label">Categories</label>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {categories.length === 0 && (
+                <span className="text-xs text-neutral-500">No categories yet.</span>
+              )}
+              {categories.map((c) => (
+                <span
+                  key={c}
+                  className="inline-flex items-center gap-1 border border-neutral-200 bg-neutral-50 text-xs px-2 py-1"
+                >
+                  {c}
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => removeCategory(c)}
+                      className="text-neutral-400 hover:text-red-600"
+                      aria-label={`Remove ${c}`}
+                    >
+                      ×
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+            <div className="mt-2 flex gap-2">
+              <input
+                className="input flex-1"
+                placeholder="Add a category (e.g. Men's Sneakers)"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCategory();
+                  }
+                }}
+                disabled={readOnly}
+              />
+              <button
+                type="button"
+                className="btn-ghost !border !border-neutral-200"
+                onClick={addCategory}
+                disabled={readOnly || !newCategory.trim()}
+              >
+                Add
+              </button>
+            </div>
+            <p className="text-xs text-neutral-500 mt-1.5">
+              Used in product forms and as hints to the AI import assistant.
+            </p>
           </div>
 
           {bizInfo && (

@@ -58,26 +58,43 @@ function parseArgs() {
   const args = process.argv.slice(2);
   let email = 'test@gmail.com';
   let reset = false;
+  let purge = false;
   let file = 'seed-data.json';
   let password = 'changeme123';
   let businessName: string | undefined;
   for (const a of args) {
     if (a === '--reset') reset = true;
+    else if (a === '--purge') purge = true;
     else if (a.startsWith('--email=')) email = a.slice('--email='.length).trim();
     else if (a.startsWith('--file=')) file = a.slice('--file='.length).trim();
     else if (a.startsWith('--password=')) password = a.slice('--password='.length).trim();
     else if (a.startsWith('--business-name=')) businessName = a.slice('--business-name='.length).trim();
   }
-  return { email, reset, file, password, businessName };
+  return { email, reset, purge, file, password, businessName };
 }
 
 async function main() {
-  const { email, reset, file, password, businessName } = parseArgs();
+  const { email, reset, purge, file, password, businessName } = parseArgs();
   const dataPath = path.resolve(__dirname, '..', file);
   const raw = fs.readFileSync(dataPath, 'utf8');
   const data: SeedFile = JSON.parse(raw);
 
   await connectDB();
+
+  if (purge) {
+    console.log('[seed] --purge: wiping ALL users, businesses, products, sales, payments, expenses...');
+    const [du, db, dp, ds, dpay, de] = await Promise.all([
+      User.deleteMany({}),
+      Business.deleteMany({}),
+      Product.deleteMany({}),
+      Sale.deleteMany({}),
+      Payment.deleteMany({}),
+      Expense.deleteMany({}),
+    ]);
+    console.log(
+      `[seed] purged — users=${du.deletedCount} businesses=${db.deletedCount} products=${dp.deletedCount} sales=${ds.deletedCount} payments=${dpay.deletedCount} expenses=${de.deletedCount}`
+    );
+  }
 
   const normalizedEmail = email.toLowerCase();
   let user = await User.findOne({ email: normalizedEmail });

@@ -2,12 +2,19 @@ import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const navItems = [
+type NavItem = {
+  to: string;
+  label: string;
+  icon: () => JSX.Element;
+  feature?: 'chat' | 'imports' | 'expenses' | 'payments';
+};
+
+const navItems: NavItem[] = [
   { to: '/dashboard', label: 'Overview', icon: IconGrid },
   { to: '/sales', label: 'Sales', icon: IconCart },
   { to: '/inventory', label: 'Inventory', icon: IconBox },
-  { to: '/import', label: 'Import', icon: IconUpload },
-  { to: '/chat', label: 'AI Assistant', icon: IconSpark },
+  { to: '/import', label: 'Import', icon: IconUpload, feature: 'imports' },
+  { to: '/chat', label: 'AI Assistant', icon: IconSpark, feature: 'chat' },
   { to: '/settings', label: 'Settings', icon: IconGear },
 ];
 
@@ -101,7 +108,9 @@ export function Layout() {
         </div>
 
         <nav className="flex-1 py-3">
-          {navItems.map(({ to, label, icon: Icon }) => (
+          {navItems
+            .filter((n) => !n.feature || business?.features?.[n.feature] !== false)
+            .map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

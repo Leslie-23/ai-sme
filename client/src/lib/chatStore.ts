@@ -14,9 +14,24 @@ export interface ChatSession {
   messageCount: number;
 }
 
-const SESSIONS_KEY = 'ai_sme_chat_sessions_v1';
-const ACTIVE_KEY = 'ai_sme_chat_active_v1';
-const MESSAGES_PREFIX = 'ai_sme_chat_messages_v1_';
+const KEY_PREFIX = 'ai_sme_chat_v2';
+let scope: string | null = null;
+
+export function setChatScope(userId: string | null): void {
+  scope = userId;
+}
+
+function sessionsKey(): string {
+  return `${KEY_PREFIX}:${scope ?? 'anon'}:sessions`;
+}
+
+function activeKey(): string {
+  return `${KEY_PREFIX}:${scope ?? 'anon'}:active`;
+}
+
+function messagesKey(sessionId: string): string {
+  return `${KEY_PREFIX}:${scope ?? 'anon'}:msg:${sessionId}`;
+}
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -36,36 +51,36 @@ function write(key: string, value: unknown): void {
 }
 
 export function loadSessions(): ChatSession[] {
-  return read<ChatSession[]>(SESSIONS_KEY, []);
+  return read<ChatSession[]>(sessionsKey(), []);
 }
 
 export function saveSessions(sessions: ChatSession[]): void {
-  write(SESSIONS_KEY, sessions);
+  write(sessionsKey(), sessions);
 }
 
 export function loadMessages(sessionId: string): ChatMessage[] {
-  return read<ChatMessage[]>(MESSAGES_PREFIX + sessionId, []);
+  return read<ChatMessage[]>(messagesKey(sessionId), []);
 }
 
 export function saveMessages(sessionId: string, messages: ChatMessage[]): void {
-  write(MESSAGES_PREFIX + sessionId, messages);
+  write(messagesKey(sessionId), messages);
 }
 
 export function deleteMessages(sessionId: string): void {
   try {
-    localStorage.removeItem(MESSAGES_PREFIX + sessionId);
+    localStorage.removeItem(messagesKey(sessionId));
   } catch {
     /* ignore */
   }
 }
 
 export function getActiveSessionId(): string | null {
-  return localStorage.getItem(ACTIVE_KEY);
+  return localStorage.getItem(activeKey());
 }
 
 export function setActiveSessionId(id: string | null): void {
-  if (id) localStorage.setItem(ACTIVE_KEY, id);
-  else localStorage.removeItem(ACTIVE_KEY);
+  if (id) localStorage.setItem(activeKey(), id);
+  else localStorage.removeItem(activeKey());
 }
 
 export function createSession(title = 'New chat'): ChatSession {
@@ -83,4 +98,19 @@ export function deriveTitle(text: string, max = 48): string {
   const s = text.replace(/\s+/g, ' ').trim();
   if (!s) return 'New chat';
   return s.length <= max ? s : s.slice(0, max - 1).trimEnd() + '…';
+}
+
+export function clearAllChatData(): void {
+  try {
+    const drop: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith(KEY_PREFIX) || k.startsWith('ai_sme_chat_sessions_v1') || k.startsWith('ai_sme_chat_active_v1') || k.startsWith('ai_sme_chat_messages_v1_'))) {
+        drop.push(k);
+      }
+    }
+    for (const k of drop) localStorage.removeItem(k);
+  } catch {
+    /* ignore */
+  }
 }

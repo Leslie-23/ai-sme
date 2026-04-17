@@ -3,9 +3,20 @@ import bcrypt from 'bcryptjs';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 import { User } from '../models/User';
-import { Business } from '../models/Business';
+import { Business, IBusiness, normalizeFeatures } from '../models/Business';
 import { signToken } from '../middleware/auth';
 import { HttpError } from '../middleware/error';
+
+function serializeBusiness(b: IBusiness) {
+  return {
+    id: b._id.toString(),
+    name: b.name,
+    currency: b.currency,
+    features: normalizeFeatures(b.features),
+    terminology: b.terminology || 'product',
+    categories: Array.isArray(b.categories) ? b.categories : [],
+  };
+}
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -56,7 +67,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
     res.status(201).json({
       token,
       user: { id: user._id, email: user.email, role: user.role },
-      business: { id: business._id, name: business.name, currency: business.currency },
+      business: serializeBusiness(business),
     });
   } catch (err) {
     next(err);
@@ -66,13 +77,23 @@ export async function register(req: Request, res: Response, next: NextFunction):
 export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const input = loginSchema.parse(req.body);
-    const user = await User.findOne({ email: input.email });
+    const user = await User.findOne({ email: input.email.toLowerCase() });
     if (!user) throw new HttpError(401, 'Invalid credentials');
     const ok = await bcrypt.compare(input.password, user.passwordHash);
     if (!ok) throw new HttpError(401, 'Invalid credentials');
 
-    const business = await Business.findById(user.businessId);
-    if (!business) throw new HttpError(500, 'Associated business missing');
+    let business = await Business.findById(user.businessId);
+    if (!business) {
+      // Self-heal: User doc survived a DB wipe / mismatched seed. Recreate the
+      // Business with the user's existing businessId so the app stays usable.
+      business = await Business.create({
+        _id: user.businessId,
+        name: 'My Business',
+        owner: user._id,
+        currency: 'USD',
+        timezone: 'UTC',
+      });
+    }
 
     const token = signToken({
       userId: user._id.toString(),
@@ -84,7 +105,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     res.json({
       token,
       user: { id: user._id, email: user.email, role: user.role },
-      business: { id: business._id, name: business.name, currency: business.currency },
+      business: serializeBusiness(business),
     });
   } catch (err) {
     next(err);
