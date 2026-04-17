@@ -18,6 +18,7 @@ export function LandingPage() {
 
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastY = useRef(0);
 
   useEffect(() => {
@@ -42,28 +43,107 @@ export function LandingPage() {
     <div className="min-h-screen bg-white text-neutral-900">
       <header
         className={`fixed top-0 inset-x-0 z-50 bg-white/85 backdrop-blur-sm transition-transform duration-300 ${
-          hidden ? '-translate-y-full' : 'translate-y-0'
+          hidden && !mobileMenuOpen ? '-translate-y-full' : 'translate-y-0'
         } ${scrolled ? 'border-b border-neutral-200 shadow-[0_1px_0_rgba(0,0,0,0.02)]' : ''}`}
       >
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-3 md:py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-baseline gap-3">
+          <Link to="/" className="flex items-baseline gap-3" onClick={() => setMobileMenuOpen(false)}>
             <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">AI · SME</span>
             <span className="text-xl font-semibold tracking-tight">Intellexa</span>
           </Link>
-          <nav className="flex items-center gap-1">
-            <a href="#product" className="hidden md:inline btn-ghost !px-3 !py-1.5 text-sm">Product</a>
-            <a href="#how" className="hidden md:inline btn-ghost !px-3 !py-1.5 text-sm">How it works</a>
-            <a href="#features" className="hidden md:inline btn-ghost !px-3 !py-1.5 text-sm">Features</a>
-            <a href="#security" className="hidden md:inline btn-ghost !px-3 !py-1.5 text-sm">Security</a>
-            <a href="#faq" className="hidden md:inline btn-ghost !px-3 !py-1.5 text-sm">FAQ</a>
+          <nav className="hidden md:flex items-center gap-1">
+            <a href="#product" className="btn-ghost !px-3 !py-1.5 text-sm">Product</a>
+            <a href="#how" className="btn-ghost !px-3 !py-1.5 text-sm">How it works</a>
+            <a href="#features" className="btn-ghost !px-3 !py-1.5 text-sm">Features</a>
+            <a href="#security" className="btn-ghost !px-3 !py-1.5 text-sm">Security</a>
+            <a href="#faq" className="btn-ghost !px-3 !py-1.5 text-sm">FAQ</a>
             <Link to={primaryHref} className="btn-primary !px-4 !py-1.5 text-sm ml-2">
               {primaryLabel}
             </Link>
           </nav>
+          <button
+            className="md:hidden flex flex-col gap-1.5 p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span className={`w-6 h-0.5 bg-neutral-900 transition-all ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`w-6 h-0.5 bg-neutral-900 transition-all ${mobileMenuOpen ? 'opacity-0' : ''}`} />
+            <span className={`w-6 h-0.5 bg-neutral-900 transition-all ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+          </button>
         </div>
       </header>
 
-      <section className={`relative border-b border-neutral-200 ${DOT_GRID} pt-24 md:pt-28`}>
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 top-[56px] md:hidden bg-white z-40 flex flex-col overflow-y-auto">
+          <nav className="flex flex-col divide-y divide-neutral-200 flex-1">
+            <a
+              href="#product"
+              className="px-5 py-6 text-lg font-medium text-neutral-900 hover:bg-neutral-50 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Product
+            </a>
+            <a
+              href="#how"
+              className="px-5 py-6 text-lg font-medium text-neutral-900 hover:bg-neutral-50 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              How it works
+            </a>
+            <a
+              href="#features"
+              className="px-5 py-6 text-lg font-medium text-neutral-900 hover:bg-neutral-50 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Features
+            </a>
+            <a
+              href="#security"
+              className="px-5 py-6 text-lg font-medium text-neutral-900 hover:bg-neutral-50 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Security
+            </a>
+            <a
+              href="#faq"
+              className="px-5 py-6 text-lg font-medium text-neutral-900 hover:bg-neutral-50 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              FAQ
+            </a>
+          </nav>
+          
+          <div className="border-t border-neutral-200 bg-neutral-50 p-5 space-y-4">
+            <div>
+              <div className="label mb-2">Why Intellexa</div>
+              <ul className="space-y-2">
+                <li className="text-sm text-neutral-600">No setup time • Live in an afternoon</li>
+                <li className="text-sm text-neutral-600">You own all your data • Full export anytime</li>
+                <li className="text-sm text-neutral-600">Transparent pricing • No surprises</li>
+              </ul>
+            </div>
+            <div>
+              <div className="label mb-2">Providers</div>
+              <div className="text-xs text-neutral-600 space-y-1">
+                <div>OpenAI • Anthropic • Google Gemini</div>
+                <div>Groq • OpenRouter • Mistral • Cohere</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-5 border-t border-neutral-200">
+            <Link
+              to={primaryHref}
+              className="btn-primary w-full text-center !px-5 !py-3 text-base"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {primaryLabel}
+            </Link>
+          </div>
+        </div>
+      )}
+
+      <section className={`relative border-b border-neutral-200 ${DOT_GRID} pt-24 md:pt-28 ${mobileMenuOpen ? 'overflow-hidden' : ''}`}>
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-12 md:py-20 grid grid-cols-1 lg:grid-cols-5 gap-10 relative">
           <div className="lg:col-span-3 space-y-6">
             <span className="chip bg-white/80 backdrop-blur">AI-native business intelligence</span>
