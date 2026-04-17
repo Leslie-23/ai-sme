@@ -262,23 +262,48 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className={`relative border-b border-neutral-200 ${DOT_GRID}`}>
+      <section className={`relative border-b border-neutral-200 bg-neutral-50`}>
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24">
-          <div className="mb-10">
-            <span className="label">Under the hood</span>
+          <div className="mb-12">
+            <span className="label">Why choose Intellexa</span>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
-              Boring stack, sharp edges.
+              Built for you, not against you.
             </h2>
             <p className="text-neutral-600 mt-3 max-w-2xl">
-              No exotic choices. Everything here is deliberate — so it stays debuggable, forkable, and
-              cheap to host.
+              We've cut the noise and kept what matters. No complicated setup, no vendor lock-in, no surprises on your bill.
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-white border border-neutral-200 [&>*]:border-neutral-200 [&>*]:p-6 [&>*]:border-r [&>*]:border-b md:[&>*:nth-child(4n)]:border-r-0 md:[&>*:nth-last-child(-n+4)]:border-b-0">
-            <TechCell cat="Frontend" items={['React 18', 'Vite', 'Tailwind', 'React Router']} />
-            <TechCell cat="Backend" items={['Node 20+', 'Express 4', 'TypeScript', 'Zod']} />
-            <TechCell cat="Data" items={['MongoDB', 'Mongoose 8', 'Aggregation pipelines', 'Atomic $inc']} />
-            <TechCell cat="Security" items={['JWT (8h)', 'bcrypt (cost 12)', 'AES-256-GCM', 'Role gates']} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white border border-neutral-200 p-6 rounded-lg">
+              <div className="text-2xl mb-3">⚡</div>
+              <h3 className="font-semibold text-lg mb-2">Start in minutes</h3>
+              <p className="text-sm text-neutral-600">No month-long implementation. Sign up, import your products, invite your staff. You're live in an afternoon.</p>
+            </div>
+            <div className="bg-white border border-neutral-200 p-6 rounded-lg">
+              <div className="text-2xl mb-3">🎯</div>
+              <h3 className="font-semibold text-lg mb-2">You own your data</h3>
+              <p className="text-sm text-neutral-600">Everything lives in your MongoDB. Export whenever you want, via standard tools. No proprietary formats, no escape clauses.</p>
+            </div>
+            <div className="bg-white border border-neutral-200 p-6 rounded-lg">
+              <div className="text-2xl mb-3">💰</div>
+              <h3 className="font-semibold text-lg mb-2">No surprises</h3>
+              <p className="text-sm text-neutral-600">Pay only for what you use. Bring your own AI key and pay the provider directly. No hidden markup, no seat licenses.</p>
+            </div>
+            <div className="bg-white border border-neutral-200 p-6 rounded-lg">
+              <div className="text-2xl mb-3">🔐</div>
+              <h3 className="font-semibold text-lg mb-2">Seriously private</h3>
+              <p className="text-sm text-neutral-600">Your sales, stock, and costs never leave your server. The AI sees only what's needed for the current question.</p>
+            </div>
+            <div className="bg-white border border-neutral-200 p-6 rounded-lg">
+              <div className="text-2xl mb-3">🔄</div>
+              <h3 className="font-semibold text-lg mb-2">Switch providers anytime</h3>
+              <p className="text-sm text-neutral-600">Locked into OpenAI? Leave. Found a cheaper option? Go. Change AI providers in one click, keep all your data.</p>
+            </div>
+            <div className="bg-white border border-neutral-200 p-6 rounded-lg">
+              <div className="text-2xl mb-3">📞</div>
+              <h3 className="font-semibold text-lg mb-2">Built by makers</h3>
+              <p className="text-sm text-neutral-600">We run small businesses too. We got tired of fancy tools that didn't fit. This is what we built for ourselves.</p>
+            </div>
           </div>
         </div>
       </section>
