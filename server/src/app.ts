@@ -27,7 +27,7 @@ function buildCors() {
   const configured = parseOrigins(process.env.CORS_ORIGINS);
   const allowAll = configured.includes('*');
   // Dev fallback if no allowlist: accept localhost vite origins
-  const fallback = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+  const fallback = ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'];
   const allowed = configured.length > 0 ? configured : fallback;
 
   return cors({
