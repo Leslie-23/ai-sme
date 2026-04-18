@@ -26,20 +26,31 @@ function parseOrigins(raw: string | undefined): string[] {
 function buildCors() {
   const configured = parseOrigins(process.env.CORS_ORIGINS);
   const allowAll = configured.includes('*');
-  // Dev fallback if no allowlist: accept localhost vite origins
-  const fallback = ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'];
-  const allowed = configured.length > 0 ? configured : fallback;
+
+  // Baseline always-allowed dev origins so local work never breaks.
+  const devDefaults = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5174',
+  ];
+
+  // The explicit allowlist = user config ∪ dev defaults. Explicit entries
+  // take precedence; dev defaults just mean `npm run dev` works out of the box.
+  const explicit = new Set<string>([...configured, ...devDefaults]);
+
+  // If the user set CORS_ORIGINS=* we accept everything. Otherwise we also
+  // auto-accept any *.vercel.app origin because this app is deployed on
+  // Vercel and will have sibling frontend(s) there — avoids the whole
+  // "works locally, 404/CORS in prod" dance when the env var is missing.
+  const autoAllowVercel = !allowAll;
 
   return cors({
     origin(origin, cb) {
-      // Non-browser (curl, server-to-server, health checks) — no Origin header
-      if (!origin) return cb(null, true);
+      if (!origin) return cb(null, true); // curl, server-to-server, health checks
       if (allowAll) return cb(null, true);
-      if (allowed.includes(origin)) return cb(null, true);
-      // Also auto-allow any *.vercel.app preview if the primary production
-      // origin lives on vercel.app — makes preview deploys work without
-      // manual allowlist churn.
-      if (allowed.some((o) => o.endsWith('.vercel.app')) && origin.endsWith('.vercel.app')) {
+      if (explicit.has(origin)) return cb(null, true);
+      if (autoAllowVercel && /\.vercel\.app$/.test(new URL(origin).hostname)) {
         return cb(null, true);
       }
       return cb(new Error(`CORS: origin ${origin} is not allowed`));
