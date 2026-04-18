@@ -309,51 +309,33 @@ export async function extractTurn(params: ExtractParams): Promise<ExtractResult>
 
   const countsByKind =
     typeof alreadyExtracted === 'number'
-      ? { products: 0, sales: 0, payments: 0, expenses: 0, [kind]: alreadyExtracted } as {
-          products: number;
-          sales: number;
-          payments: number;
-          expenses: number;
-        }
+      ? ({
+          products: 0,
+          sales: 0,
+          payments: 0,
+          expenses: 0,
+          ...(kind === 'auto' ? {} : { [kind]: alreadyExtracted }),
+        } as { products: number; sales: number; payments: number; expenses: number })
       : alreadyExtracted;
-  const singleCount = typeof alreadyExtracted === 'number' ? alreadyExtracted : 0;
 
-  // Always fetch known SKUs — needed for sales AND for auto mode
-  const knownSkus =
-    kind === 'sales' || kind === 'auto'
-      ? await Product.find({ businessId })
-          .select('sku name')
-          .sort({ name: 1 })
-          .limit(200)
-          .lean()
-      : [];
+  // Always go through the AUTO prompt now — kind tabs act as a focus hint but
+  // the AI still classifies cross-kind rows into the right buckets so nothing
+  // gets dropped when the user pastes mixed data under the wrong tab.
+  const knownSkus = await Product.find({ businessId })
+    .select('sku name')
+    .sort({ name: 1 })
+    .limit(200)
+    .lean();
 
-  let system: string;
-  const isAuto = kind === 'auto';
-
-  if (kind === 'auto') {
-    system = AUTO_SYSTEM_PROMPT(
-      businessName,
-      currency,
-      categories,
-      terminology,
-      knownSkus.map((p) => ({ sku: p.sku, name: p.name })),
-      countsByKind
-    );
-  } else if (kind === 'products') {
-    system = PRODUCT_SYSTEM_PROMPT(businessName, currency, categories, terminology, singleCount);
-  } else if (kind === 'sales') {
-    system = SALE_SYSTEM_PROMPT(
-      businessName,
-      currency,
-      knownSkus.map((p) => ({ sku: p.sku, name: p.name })),
-      singleCount
-    );
-  } else if (kind === 'payments') {
-    system = PAYMENT_SYSTEM_PROMPT(businessName, currency, singleCount);
-  } else {
-    system = EXPENSE_SYSTEM_PROMPT(businessName, currency, singleCount);
-  }
+  const system = AUTO_SYSTEM_PROMPT(
+    businessName,
+    currency,
+    categories,
+    terminology,
+    knownSkus.map((p) => ({ sku: p.sku, name: p.name })),
+    countsByKind,
+    kind
+  );
 
   const conversation = messagesToText(messages);
   const userMessage = `Conversation so far:\n\n${conversation}\n\nProduce the JSON response now.`;
@@ -380,29 +362,10 @@ export async function extractTurn(params: ExtractParams): Promise<ExtractResult>
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const json = JSON.parse(stripJsonFences(text));
-      if (isAuto) {
-        const r = autoResponseSchema.parse(json);
-        reply = r.reply;
-        records = r.records;
-        done = r.done ?? false;
-      } else {
-        let r:
-          | z.infer<typeof productResponseSchema>
-          | z.infer<typeof saleResponseSchema>
-          | z.infer<typeof paymentResponseSchema>
-          | z.infer<typeof expenseResponseSchema>;
-        if (kind === 'products') r = productResponseSchema.parse(json);
-        else if (kind === 'sales') r = saleResponseSchema.parse(json);
-        else if (kind === 'payments') r = paymentResponseSchema.parse(json);
-        else r = expenseResponseSchema.parse(json);
-        reply = r.reply;
-        done = r.done ?? false;
-        records = emptyBuckets();
-        if (kind === 'products') records.products = r.records as ImportProduct[];
-        else if (kind === 'sales') records.sales = r.records as ImportSale[];
-        else if (kind === 'payments') records.payments = r.records as ImportPayment[];
-        else records.expenses = r.records as ImportExpense[];
-      }
+      const r = autoResponseSchema.parse(json);
+      reply = r.reply;
+      records = r.records;
+      done = r.done ?? false;
       parsed = true;
       break;
     } catch (err) {

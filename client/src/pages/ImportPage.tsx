@@ -10,6 +10,7 @@ import {
 } from '../components/FileAttach';
 
 type PaymentMethod = 'CASH' | 'MOMO' | 'CARD' | 'TRANSFER';
+type Kind = 'auto' | 'products' | 'sales' | 'payments' | 'expenses';
 
 interface ChatMsg {
   id: string;
@@ -72,11 +73,34 @@ const emptyBuckets = (): Buckets => ({
   expenses: [],
 });
 
-const bucketTotal = (b: Buckets) =>
-  b.products.length + b.sales.length + b.payments.length + b.expenses.length;
+const TAB_LABELS: Record<Kind, string> = {
+  auto: 'Auto',
+  products: 'Products',
+  sales: 'Sales',
+  payments: 'Payments',
+  expenses: 'Expenses',
+};
 
-const INTRO =
-  "Hi! I'm your universal import assistant. Paste anything — a product catalog, a list of sales, receipts, deposits, expenses — or attach a CSV / text file. I'll classify each row into products, sales, payments, or expenses automatically and queue them on the right for you to review before saving.";
+const PLACEHOLDERS: Record<Kind, string> = {
+  auto: 'Paste, describe, or attach — AI figures out what it is',
+  products: 'Paste a product catalog — name, SKU, price, stock…',
+  sales: 'Describe sales — items + qty + payment method',
+  payments: 'Describe non-sale money in — deposits, refunds, top-ups',
+  expenses: 'Describe expenses — rent, utilities, restocking, fees…',
+};
+
+const INTROS: Record<Kind, string> = {
+  auto:
+    "Hi! I'm your universal import assistant. Paste or attach anything — I'll classify each row into products, sales, payments, or expenses automatically. Or use a tab above to focus on one kind.",
+  products:
+    "Let's import products. Paste a catalog, describe items, or attach a CSV — if you mix in sales or expenses, I'll still route them to the right bucket.",
+  sales:
+    "Let's log sales. Tell me what sold, quantity, and payment method. I'll match items to your known SKUs — anything that's not a sale will still be classified correctly.",
+  payments:
+    "Let's record non-sale money in: deposits, refunds, transfers. Mixed data is fine — I'll sort anything that isn't a payment into the right bucket.",
+  expenses:
+    "Let's log expenses — rent, utilities, marketing, restocking. Mixed data is fine; I'll classify anything that isn't an expense correctly.",
+};
 
 export function ImportPage() {
   const { business } = useAuth();
@@ -86,8 +110,20 @@ export function ImportPage() {
   const showPayments = features?.payments !== false;
   const showExpenses = features?.expenses !== false;
 
+  const availableKinds = useMemo<Kind[]>(() => {
+    const ks: Kind[] = ['auto', 'products', 'sales'];
+    if (showPayments) ks.push('payments');
+    if (showExpenses) ks.push('expenses');
+    return ks;
+  }, [showPayments, showExpenses]);
+
+  const [kind, setKind] = useState<Kind>('auto');
+  useEffect(() => {
+    if (!availableKinds.includes(kind)) setKind('auto');
+  }, [availableKinds, kind]);
+
   const [messages, setMessages] = useState<ChatMsg[]>([
-    { id: crypto.randomUUID(), role: 'assistant', text: INTRO },
+    { id: crypto.randomUUID(), role: 'assistant', text: INTROS.auto },
   ]);
   const [input, setInput] = useState('');
   const [attached, setAttached] = useState<AttachedFile[]>([]);
@@ -117,12 +153,30 @@ export function ImportPage() {
     if (total > 0 || messages.some((m) => m.role === 'user')) {
       if (!confirm('Clear the current chat and queued records?')) return;
     }
-    setMessages([{ id: crypto.randomUUID(), role: 'assistant', text: INTRO }]);
+    setMessages([{ id: crypto.randomUUID(), role: 'assistant', text: INTROS[kind] }]);
     setPending(emptyBuckets());
     setInput('');
     setAttached([]);
     setError(null);
     setStatus(null);
+  }
+
+  function switchKind(next: Kind) {
+    if (next === kind) return;
+    setKind(next);
+    // Pending records persist across tab changes — the tab only hints focus
+    // to the AI. Append a small system note so the chat reflects the switch.
+    setMessages((m) => [
+      ...m,
+      {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text:
+          next === 'auto'
+            ? 'Switched to Auto — I\'ll classify whatever you send across all four buckets.'
+            : `Focusing on ${TAB_LABELS[next].toLowerCase()}. Mixed data is still fine — I\'ll route anything that isn\'t ${TAB_LABELS[next].toLowerCase()} to the right bucket.`,
+      },
+    ]);
   }
 
   async function send(text: string) {
@@ -144,7 +198,7 @@ export function ImportPage() {
       const res = await api<ExtractResponse>('/import/extract', {
         method: 'POST',
         body: {
-          kind: 'auto',
+          kind,
           messages: history.map((m, i) =>
             i === history.length - 1 && m.role === 'user'
               ? { role: m.role, text: fullText || displayText }
@@ -217,21 +271,37 @@ export function ImportPage() {
       <div className="xl:col-span-3 card flex flex-col h-full min-h-[420px]">
         <div className="px-5 py-3 border-b border-neutral-200">
           <div className="flex items-center justify-between gap-3">
-            <div>
+            <div className="min-w-0">
               <div className="section-title">Import assistant</div>
               <div className="text-[11px] text-neutral-500 mt-0.5">
-                AI auto-classifies into products · sales
-                {showPayments ? ' · payments' : ''}
-                {showExpenses ? ' · expenses' : ''}.
+                {kind === 'auto'
+                  ? `Auto-classifies into products · sales${showPayments ? ' · payments' : ''}${showExpenses ? ' · expenses' : ''}.`
+                  : `Focused on ${TAB_LABELS[kind].toLowerCase()} — mixed data still routes correctly.`}
               </div>
             </div>
             <button
               type="button"
               onClick={resetAll}
-              className="text-[11px] text-neutral-500 hover:text-neutral-900"
+              className="text-[11px] text-neutral-500 hover:text-neutral-900 shrink-0"
             >
               Reset
             </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {availableKinds.map((k) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => switchKind(k)}
+                className={`px-2.5 py-1 text-xs border ${
+                  k === kind
+                    ? 'bg-neutral-900 text-white border-neutral-900'
+                    : 'bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400'
+                }`}
+              >
+                {TAB_LABELS[k]}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -272,7 +342,7 @@ export function ImportPage() {
             <FileAttach attached={attached} onChange={setAttached} disabled={sending} onError={setError} />
             <input
               className="input flex-1"
-              placeholder="Paste, describe, or attach — AI figures out what it is"
+              placeholder={PLACEHOLDERS[kind]}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={sending}
