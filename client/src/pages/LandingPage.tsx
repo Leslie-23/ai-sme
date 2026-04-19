@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PricingGrid } from '../components/PricingGrid';
@@ -259,7 +259,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className={`border-b border-neutral-200 ${HORIZONTAL_LINES}`}>
+      <section className={`border-b border-neutral-200 `}>
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <StaffSnippet />
@@ -640,121 +640,338 @@ function Faq({ q, a }: { q: string; a: string }) {
   );
 }
 
+type ChatTurn =
+  | { role: 'user'; text: string }
+  | { role: 'assistant'; text: string; thinkMs: number };
+
+const CHAT_SCRIPT: ChatTurn[] = [
+  { role: 'user', text: 'What were my top 3 products this month?' },
+  {
+    role: 'assistant',
+    thinkMs: 300,
+    text:
+      'This month so far:\n• TCL Smart TV 50" — €13,500 (3 units)\n• Nasco Fridge/Freezer — €5,590 (2 units)\n• Midea A/C — €4,800 (1 unit)',
+  },
+  { role: 'user', text: 'Am I low on anything?' },
+  {
+    role: 'assistant',
+    thinkMs: 300,
+    text:
+      'Three SKUs below threshold: Samsung Microwave (1/2), Midea A/C (1/2), Counting Machine (1/2). Want me to draft a restock list?',
+  },
+];
+
 function MockChat() {
+  const [step, setStep] = useState(0);
+  const [typed, setTyped] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const current = step < CHAT_SCRIPT.length ? CHAT_SCRIPT[step] : null;
+  // Thinking state is derived from render signals so the effect below can
+  // schedule the reveal timeout without re-entering and cancelling itself.
+  const thinking = current?.role === 'assistant' && typed === '';
+
+  // Drive the scripted conversation: type user msgs char-by-char, pause on
+  // assistant turns (the dots render while typed === ''), then reveal the
+  // reply all at once, hold, and advance.
+  useEffect(() => {
+    if (step >= CHAT_SCRIPT.length) {
+      const t = setTimeout(() => {
+        setStep(0);
+        setTyped('');
+      }, 2800);
+      return () => clearTimeout(t);
+    }
+    const turn = CHAT_SCRIPT[step];
+    if (turn.role === 'user') {
+      if (typed.length < turn.text.length) {
+        const t = setTimeout(() => setTyped(turn.text.slice(0, typed.length + 1)), 32);
+        return () => clearTimeout(t);
+      }
+      const t = setTimeout(() => {
+        setStep(step + 1);
+        setTyped('');
+      }, 450);
+      return () => clearTimeout(t);
+    }
+    // assistant turn
+    if (typed === '') {
+      const t = setTimeout(() => setTyped(turn.text), turn.thinkMs);
+      return () => clearTimeout(t);
+    }
+    if (typed === turn.text) {
+      const t = setTimeout(() => {
+        setStep(step + 1);
+        setTyped('');
+      }, 2200);
+      return () => clearTimeout(t);
+    }
+  }, [step, typed]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [step, typed]);
+
+  const history = CHAT_SCRIPT.slice(0, step);
+
   return (
     <div className="card shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
       <div className="px-4 py-3 border-b border-neutral-200 flex items-center justify-between">
         <div>
-          <div className="section-title">Assistant</div>
+          <div className="section-title flex items-center gap-2">
+            Assistant
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-60" />
+              <span className="relative rounded-full bg-emerald-500 h-2 w-2" />
+            </span>
+          </div>
           <div className="text-[10px] text-neutral-500 mt-0.5">Grounded on live data</div>
         </div>
-        <span className="chip">Demo</span>
+        <span className="chip">Live demo</span>
       </div>
-      <div className="p-4 space-y-3 text-sm">
-        <div className="flex justify-end">
-          <div className="max-w-[85%] px-3.5 py-2 border bg-neutral-900 text-white border-neutral-900">
-            What were my top 3 products this month?
-          </div>
-        </div>
-        <div className="flex justify-start">
-          <div className="max-w-[90%] px-3.5 py-2 border bg-white border-neutral-200">
-            In April so far:
-            <br />
-            • TCL Smart TV 50" — €13,500 (3 units)
-            <br />
-            • Nasco Fridge/Freezer — €5,590 (2 units)
-            <br />
-            • Midea A/C — €4,800 (1 unit)
-            <div className="text-[10px] uppercase tracking-wider mt-2 opacity-60">gpt-4o</div>
-          </div>
-        </div>
-        <div className="flex justify-end">
-          <div className="max-w-[85%] px-3.5 py-2 border bg-neutral-900 text-white border-neutral-900">
-            Am I low on anything?
-          </div>
-        </div>
-        <div className="flex justify-start">
-          <div className="max-w-[90%] px-3.5 py-2 border bg-white border-neutral-200">
-            Three SKUs below threshold: Samsung Microwave (1/2), Midea A/C (1/2), and Counting Machine
-            (1/2). Want me to draft a restock list?
-            <div className="text-[10px] uppercase tracking-wider mt-2 opacity-60">gpt-4o</div>
-          </div>
-        </div>
+      <div
+        ref={scrollRef}
+        className="p-4 space-y-3 text-sm h-[320px] overflow-hidden flex flex-col justify-end"
+      >
+        {history.map((m, i) => (
+          <ChatBubble key={i} role={m.role} text={m.text} />
+        ))}
+        {current && current.role === 'user' && typed.length > 0 && (
+          <ChatBubble role="user" text={typed} caret />
+        )}
+        {current && current.role === 'assistant' && thinking && <TypingDots />}
+        {current && current.role === 'assistant' && !thinking && typed.length > 0 && (
+          <ChatBubble role="assistant" text={typed} />
+        )}
       </div>
       <div className="border-t border-neutral-200 p-3 flex gap-2">
-        <div className="input flex-1 text-neutral-400 select-none">Ask about your business…</div>
+        <div className="input flex-1 text-neutral-400 select-none">
+          {current?.role === 'user' ? typed + (typed ? '' : '') : 'Ask about your business…'}
+        </div>
         <div className="btn-primary !px-4 text-sm select-none">Send</div>
       </div>
     </div>
   );
 }
 
-function OwnerSnippet() {
+function ChatBubble({ role, text, caret }: { role: 'user' | 'assistant'; text: string; caret?: boolean }) {
+  const lines = text.split('\n');
   return (
-    <div className="card p-5 space-y-3 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
-      <div className="flex items-center justify-between">
-        <span className="label">Overview · April</span>
-        <span className="chip">EUR</span>
-      </div>
-      <div className="grid grid-cols-3 gap-0 border border-neutral-200 [&>*]:p-4 [&>*:not(:last-child)]:border-r [&>*]:border-neutral-200">
-        <div>
-          <div className="label">Revenue</div>
-          <div className="text-xl font-semibold mt-1 tabular-nums">€24,310</div>
-        </div>
-        <div>
-          <div className="label">Net profit</div>
-          <div className="text-xl font-semibold mt-1 tabular-nums">€5,820</div>
-        </div>
-        <div>
-          <div className="label">Low stock</div>
-          <div className="text-xl font-semibold mt-1 tabular-nums text-amber-700">7</div>
-        </div>
-      </div>
-      <div className="space-y-2 pt-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-700">TCL Smart TV 50"</span>
-          <span className="tabular-nums font-semibold">€13,500</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-700">Nasco Fridge/Freezer</span>
-          <span className="tabular-nums font-semibold">€5,590</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-700">Midea A/C</span>
-          <span className="tabular-nums font-semibold">€4,800</span>
-        </div>
+    <div className={`flex animate-chat-in ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
+      <div
+        className={`max-w-[90%] px-3.5 py-2 border whitespace-pre-line ${
+          role === 'user'
+            ? 'bg-neutral-900 text-white border-neutral-900'
+            : 'bg-white border-neutral-200'
+        }`}
+      >
+        {lines.map((ln, i) => (
+          <span key={i}>
+            {ln}
+            {i < lines.length - 1 && <br />}
+          </span>
+        ))}
+        {caret && <span className="inline-block w-[7px] h-[14px] align-middle bg-white/80 ml-0.5 animate-caret" />}
+        {role === 'assistant' && !caret && (
+          <div className="text-[10px] uppercase tracking-wider mt-2 opacity-60">gpt-4o</div>
+        )}
       </div>
     </div>
   );
 }
 
+function TypingDots() {
+  return (
+    <div className="flex justify-start animate-chat-in">
+      <div className="px-3.5 py-2.5 border bg-white border-neutral-200 flex items-center gap-1">
+        <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-dot" style={{ animationDelay: '0ms' }} />
+        <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-dot" style={{ animationDelay: '160ms' }} />
+        <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-dot" style={{ animationDelay: '320ms' }} />
+      </div>
+    </div>
+  );
+}
+
+const OWNER_SCENES = [
+  {
+    month: 'This month',
+    revenue: 24310,
+    profit: 5820,
+    lowStock: 7,
+    rows: [
+      { name: 'TCL Smart TV 50"', value: 13500 },
+      { name: 'Nasco Fridge/Freezer', value: 5590 },
+      { name: 'Midea A/C', value: 4800 },
+    ],
+  },
+  {
+    month: 'Last month',
+    revenue: 19870,
+    profit: 4210,
+    lowStock: 4,
+    rows: [
+      { name: 'Samsung Microwave', value: 6200 },
+      { name: 'TCL Smart TV 50"', value: 4500 },
+      { name: 'Bardefu Blender', value: 2780 },
+    ],
+  },
+];
+
+function useCounter(target: number, durationMs = 700): number {
+  const [value, setValue] = useState(target);
+  const prev = useRef(target);
+  useEffect(() => {
+    const from = prev.current;
+    const to = target;
+    prev.current = target;
+    if (from === to) return;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setValue(Math.round(from + (to - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  return value;
+}
+
+function OwnerSnippet() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % OWNER_SCENES.length), 4200);
+    return () => clearInterval(t);
+  }, []);
+  const scene = OWNER_SCENES[idx];
+  const revenue = useCounter(scene.revenue);
+  const profit = useCounter(scene.profit);
+  const lowStock = useCounter(scene.lowStock);
+  return (
+    <div className="card p-5 space-y-3 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center justify-between">
+        <span className="label flex items-center gap-2">
+          <span key={scene.month} className="inline-block animate-fade-in">Overview · {scene.month}</span>
+        </span>
+        <span className="chip">EUR</span>
+      </div>
+      <div className="grid grid-cols-3 gap-0 border border-neutral-200 [&>*]:p-4 [&>*:not(:last-child)]:border-r [&>*]:border-neutral-200">
+        <div>
+          <div className="label">Revenue</div>
+          <div className="text-xl font-semibold mt-1 tabular-nums">€{revenue.toLocaleString()}</div>
+        </div>
+        <div>
+          <div className="label">Net profit</div>
+          <div className="text-xl font-semibold mt-1 tabular-nums">€{profit.toLocaleString()}</div>
+        </div>
+        <div>
+          <div className="label">Low stock</div>
+          <div className="text-xl font-semibold mt-1 tabular-nums text-amber-700">{lowStock}</div>
+        </div>
+      </div>
+      <div className="space-y-2 pt-2">
+        {scene.rows.map((r, i) => (
+          <div
+            key={`${idx}-${r.name}`}
+            className="flex justify-between text-sm animate-fade-in"
+            style={{ animationDelay: `${i * 80}ms` }}
+          >
+            <span className="text-neutral-700">{r.name}</span>
+            <span className="tabular-nums font-semibold">€{r.value.toLocaleString()}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const STAFF_SCRIPT: { name: string; qty: number; unit: number }[][] = [
+  [
+    { name: 'TCL Smart TV 50"', qty: 1, unit: 4500 },
+    { name: 'Bardefu Blender', qty: 2, unit: 550 },
+  ],
+  [
+    { name: 'Samsung Microwave', qty: 1, unit: 1850 },
+    { name: 'Counting Machine', qty: 1, unit: 890 },
+    { name: 'Nasco Fridge/Freezer', qty: 1, unit: 2795 },
+  ],
+  [
+    { name: 'Midea A/C', qty: 2, unit: 2400 },
+  ],
+];
+
 function StaffSnippet() {
+  const [cartIdx, setCartIdx] = useState(0);
+  const [revealed, setRevealed] = useState(0);
+  const [recording, setRecording] = useState(false);
+
+  useEffect(() => {
+    const target = STAFF_SCRIPT[cartIdx];
+    if (revealed < target.length) {
+      const t = setTimeout(() => setRevealed((r) => r + 1), 700);
+      return () => clearTimeout(t);
+    }
+    // Cart is complete — flash the "Record sale" button, then reset.
+    const t1 = setTimeout(() => setRecording(true), 1200);
+    const t2 = setTimeout(() => {
+      setRecording(false);
+      setRevealed(0);
+      setCartIdx((i) => (i + 1) % STAFF_SCRIPT.length);
+    }, 2400);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [cartIdx, revealed]);
+
+  const items = STAFF_SCRIPT[cartIdx].slice(0, revealed);
+  const total = useMemo(() => items.reduce((s, it) => s + it.qty * it.unit, 0), [items]);
+  const animatedTotal = useCounter(total, 400);
+
   return (
     <div className="card p-5 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between mb-3">
         <span className="label">New sale</span>
         <span className="chip">Cashier</span>
       </div>
-      <div className="border border-neutral-200">
-        <div className="px-3 py-2 text-sm border-b border-neutral-200 flex items-center justify-between">
-          <span>TCL Smart TV 50"</span>
-          <span className="tabular-nums text-neutral-500">×1</span>
-          <span className="tabular-nums font-semibold w-20 text-right">€4,500</span>
-        </div>
-        <div className="px-3 py-2 text-sm border-b border-neutral-200 flex items-center justify-between">
-          <span>Bardefu Blender</span>
-          <span className="tabular-nums text-neutral-500">×2</span>
-          <span className="tabular-nums font-semibold w-20 text-right">€1,100</span>
-        </div>
-        <div className="px-3 py-2 text-sm flex items-center justify-between bg-neutral-50">
-          <span className="font-medium">Total</span>
-          <span></span>
-          <span className="tabular-nums font-semibold w-20 text-right">€5,600</span>
-        </div>
+      <div className="border border-neutral-200 min-h-[148px]">
+        {items.length === 0 && (
+          <div className="px-3 py-6 text-xs text-neutral-400 text-center">Scanning items…</div>
+        )}
+        {items.map((it, i) => (
+          <div
+            key={`${cartIdx}-${i}`}
+            className={`px-3 py-2 text-sm border-b border-neutral-200 flex items-center justify-between animate-slide-in`}
+          >
+            <span>{it.name}</span>
+            <span className="tabular-nums text-neutral-500">×{it.qty}</span>
+            <span className="tabular-nums font-semibold w-20 text-right">
+              €{(it.qty * it.unit).toLocaleString()}
+            </span>
+          </div>
+        ))}
+        {items.length > 0 && (
+          <div className="px-3 py-2 text-sm flex items-center justify-between bg-neutral-50">
+            <span className="font-medium">Total</span>
+            <span></span>
+            <span className="tabular-nums font-semibold w-20 text-right">
+              €{animatedTotal.toLocaleString()}
+            </span>
+          </div>
+        )}
       </div>
       <div className="flex items-center justify-between gap-2 mt-3">
         <div className="input !py-1.5 text-xs flex-1">Cash</div>
-        <div className="btn-primary !px-4 !py-1.5 text-sm">Record sale</div>
+        <div
+          className={`btn-primary !px-4 !py-1.5 text-sm transition-transform ${
+            recording ? 'scale-[0.97] opacity-80' : ''
+          }`}
+        >
+          {recording ? 'Recorded ✓' : 'Record sale'}
+        </div>
       </div>
     </div>
   );

@@ -53,6 +53,16 @@ export async function api<T = unknown>(
   const text = await res.text();
   const data = text ? JSON.parse(text) : null;
   if (!res.ok) {
+    if (res.status === 401) {
+      // Token missing / invalid / expired — drop the session and kick to login.
+      // We dispatch an event so AuthProvider can clear its React state and
+      // React Router can handle the redirect without us touching window.location
+      // (which would blow away any router-based state we want to keep).
+      clearToken();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      }
+    }
     throw new ApiError(res.status, data?.error || res.statusText, data?.details);
   }
   return data as T;

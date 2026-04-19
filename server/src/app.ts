@@ -17,10 +17,12 @@ import businessRoutes from './routes/business';
 import reportRoutes from './routes/reports';
 import billingRoutes from './routes/billing';
 import exportRoutes from './routes/export';
+import teamRoutes from './routes/team';
 import { getPlans } from './controllers/billingController';
 import { paystackWebhook } from './controllers/paystackWebhookController';
 import { requirePro } from './middleware/requirePro';
 import { requireBusiness } from './middleware/requireBusiness';
+import { requirePermission } from './middleware/requirePermission';
 
 function parseOrigins(raw: string | undefined): string[] {
   if (!raw) return [];
@@ -94,12 +96,13 @@ export function createApp(): Express {
   app.use('/api/payments', requireAuth, paymentRoutes);
   app.use('/api/expenses', requireAuth, expenseRoutes);
   app.use('/api/dashboard', requireAuth, dashboardRoutes);
-  app.use('/api/ai', requireAuth, requirePro, aiRoutes);
+  app.use('/api/ai', requireAuth, requirePro, requirePermission('useAI'), aiRoutes);
   app.use('/api/config', requireAuth, configRoutes);
-  app.use('/api/import', requireAuth, requirePro, importRoutes);
+  app.use('/api/import', requireAuth, requirePro, requirePermission('manageInventory'), importRoutes);
   app.use('/api/business', requireAuth, businessRoutes);
-  app.use('/api/reports', requireAuth, requirePro, reportRoutes);
+  app.use('/api/reports', requireAuth, requirePro, requirePermission('viewReports'), reportRoutes);
   app.use('/api/export', requireAuth, requireBusiness, exportRoutes);
+  app.use('/api/team', requireAuth, teamRoutes);
 
   app.use(errorHandler);
   return app;

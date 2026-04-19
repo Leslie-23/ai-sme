@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { api, ApiError } from '../lib/api';
 import { useAuth, BusinessFeatures, DEFAULT_FEATURES, Terminology, SubscriptionInfo } from '../context/AuthContext';
 import { BillingSection } from '../components/BillingSection';
+import { TeamSection } from '../components/TeamSection';
 
 type Provider = 'openai' | 'anthropic' | 'google' | 'groq' | 'openrouter' | 'mistral' | 'cohere';
 
@@ -215,6 +216,8 @@ export function SettingsPage() {
       )}
 
       <BillingSection />
+
+      <TeamSection />
 
       <form onSubmit={onSaveBusiness} className="card">
         <div className="px-5 py-3 border-b border-neutral-200 section-title">Business</div>

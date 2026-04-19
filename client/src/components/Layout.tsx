@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { AuthPermissions, useAuth } from '../context/AuthContext';
 import { SubscriptionBanner } from './SubscriptionBanner';
 
 type NavItem = {
@@ -8,15 +8,16 @@ type NavItem = {
   label: string;
   icon: () => JSX.Element;
   feature?: 'chat' | 'imports' | 'expenses' | 'payments';
+  requires?: keyof AuthPermissions;
 };
 
 const navItems: NavItem[] = [
   { to: '/dashboard', label: 'Overview', icon: IconGrid },
   { to: '/sales', label: 'Sales', icon: IconCart },
   { to: '/inventory', label: 'Inventory', icon: IconBox },
-  { to: '/import', label: 'Import', icon: IconUpload, feature: 'imports' },
-  { to: '/reports', label: 'Reports', icon: IconReport, feature: 'chat' },
-  { to: '/chat', label: 'AI Assistant', icon: IconSpark, feature: 'chat' },
+  { to: '/import', label: 'Import', icon: IconUpload, feature: 'imports', requires: 'manageInventory' },
+  { to: '/reports', label: 'Reports', icon: IconReport, feature: 'chat', requires: 'viewReports' },
+  { to: '/chat', label: 'AI Assistant', icon: IconSpark, feature: 'chat', requires: 'useAI' },
   { to: '/pricing', label: 'Pricing', icon: IconTag },
   { to: '/settings', label: 'Settings', icon: IconGear },
 ];
@@ -115,6 +116,7 @@ export function Layout() {
         <nav className="flex-1 py-3">
           {navItems
             .filter((n) => !n.feature || business?.features?.[n.feature] !== false)
+            .filter((n) => !n.requires || user?.permissions?.[n.requires] !== false)
             .map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}

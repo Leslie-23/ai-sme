@@ -2,10 +2,44 @@ import { createContext, useContext, useEffect, useMemo, useState, ReactNode } fr
 import { api, clearToken, getToken, setToken } from '../lib/api';
 import { clearAllChatData, setChatScope } from '../lib/chatStore';
 
+export interface AuthPermissions {
+  recordSales: boolean;
+  manageInventory: boolean;
+  viewReports: boolean;
+  managePayments: boolean;
+  manageExpenses: boolean;
+  useAI: boolean;
+}
+
+export const ALL_PERMISSIONS: AuthPermissions = {
+  recordSales: true,
+  manageInventory: true,
+  viewReports: true,
+  managePayments: true,
+  manageExpenses: true,
+  useAI: true,
+};
+
 export interface AuthUser {
   id: string;
   email: string;
   role: 'OWNER' | 'STAFF';
+  name?: string | null;
+  roleLabel?: string | null;
+  permissions: AuthPermissions;
+}
+
+function normalizeUser(raw: Partial<AuthUser> & { id: string; email: string; role: 'OWNER' | 'STAFF' }): AuthUser {
+  return {
+    id: raw.id,
+    email: raw.email,
+    role: raw.role,
+    name: raw.name ?? null,
+    roleLabel: raw.roleLabel ?? null,
+    permissions: raw.permissions
+      ? { ...ALL_PERMISSIONS, ...raw.permissions }
+      : ALL_PERMISSIONS, // legacy session — assume everything until /auth/me refreshes it
+  };
 }
 
 export type Terminology = 'product' | 'item' | 'service';
@@ -92,7 +126,7 @@ function loadSession(): { user: AuthUser; business: AuthBusiness } | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed?.user || !parsed?.business) return null;
-    return { user: parsed.user, business: normalizeBusiness(parsed.business) };
+    return { user: normalizeUser(parsed.user), business: normalizeBusiness(parsed.business) };
   } catch {
     return null;
   }
@@ -114,10 +148,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(sess.user);
       setBusiness(sess.business);
       setChatScope(sess.user.id);
+      // Best-effort refresh of user + business from the server so permission
+      // edits and plan changes take effect without a manual logout/login.
+      api<{ user: AuthUser; business: AuthBusiness }>('/auth/me')
+        .then((fresh) => {
+          const normUser = normalizeUser(fresh.user);
+          const normBiz = normalizeBusiness(fresh.business);
+          setUser(normUser);
+          setBusiness(normBiz);
+          saveSession(normUser, normBiz);
+        })
+        .catch(() => {
+          // 401 path already handled by the auth:unauthorized event in api.ts.
+        });
     } else {
       setChatScope(null);
     }
     setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    // api.ts dispatches this on any 401 response (missing/expired/invalid token).
+    // We drop React state here; the fetch already cleared the stored token.
+    function onUnauthorized() {
+      clearAllChatData();
+      setChatScope(null);
+      localStorage.removeItem(SESSION_KEY);
+      setUser(null);
+      setBusiness(null);
+    }
+    window.addEventListener('auth:unauthorized', onUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', onUnauthorized);
   }, []);
 
   async function doAuth(path: '/auth/login' | '/auth/register', body: unknown): Promise<void> {
@@ -126,11 +187,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body,
     });
     setToken(data.token);
+    const normUser = normalizeUser(data.user);
     const biz = normalizeBusiness(data.business);
-    saveSession(data.user, biz);
-    setUser(data.user);
+    saveSession(normUser, biz);
+    setUser(normUser);
     setBusiness(biz);
-    setChatScope(data.user.id);
+    setChatScope(normUser.id);
   }
 
   const value = useMemo<AuthContextValue>(

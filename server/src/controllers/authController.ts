@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import { Types } from 'mongoose';
 import { z } from 'zod';
-import { User } from '../models/User';
+import { IUser, User, effectivePermissions } from '../models/User';
 import {
   Business,
   IBusiness,
@@ -13,6 +13,17 @@ import {
 } from '../models/Business';
 import { signToken } from '../middleware/auth';
 import { HttpError } from '../middleware/error';
+
+function serializeUser(u: IUser) {
+  return {
+    id: u._id.toString(),
+    email: u.email,
+    role: u.role,
+    name: u.name || null,
+    roleLabel: u.roleLabel || null,
+    permissions: effectivePermissions({ role: u.role, permissions: u.permissions }),
+  };
+}
 
 function serializeBusiness(b: IBusiness) {
   const sub = normalizeSubscription(b.subscription);
@@ -82,7 +93,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
 
     res.status(201).json({
       token,
-      user: { id: user._id, email: user.email, role: user.role },
+      user: serializeUser(user),
       business: serializeBusiness(business),
     });
   } catch (err) {
@@ -123,9 +134,25 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
 
     res.json({
       token,
-      user: { id: user._id, email: user.email, role: user.role },
+      user: serializeUser(user),
       business: serializeBusiness(business),
     });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Lightweight session refresh — returns the current user (including live
+// permissions) without issuing a new JWT. The client calls this on boot so
+// permission edits applied by the owner take effect next page load even
+// if the staff's JWT predates them.
+export async function me(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const user = await User.findById(req.auth!.userId);
+    if (!user) throw new HttpError(401, 'Session no longer valid');
+    const business = await Business.findById(user.businessId);
+    if (!business) throw new HttpError(404, 'Business not found');
+    res.json({ user: serializeUser(user), business: serializeBusiness(business) });
   } catch (err) {
     next(err);
   }

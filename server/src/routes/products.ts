@@ -5,10 +5,11 @@ import {
   updateProduct,
   deleteProduct,
 } from '../controllers/productController';
+import { requirePermission } from '../middleware/requirePermission';
 
 const router = Router();
 router.get('/', listProducts);
-router.post('/', createProduct);
-router.put('/:id', updateProduct);
-router.delete('/:id', deleteProduct);
+router.post('/', requirePermission('manageInventory'), createProduct);
+router.put('/:id', requirePermission('manageInventory'), updateProduct);
+router.delete('/:id', requirePermission('manageInventory'), deleteProduct);
 export default router;

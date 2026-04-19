@@ -3,6 +3,22 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../lib/api';
 
+const CURRENCIES: { code: string; label: string }[] = [
+  { code: 'USD', label: 'US Dollar' },
+  { code: 'EUR', label: 'Euro' },
+  { code: 'GBP', label: 'British Pound' },
+  { code: 'NGN', label: 'Nigerian Naira' },
+  { code: 'GHS', label: 'Ghanaian Cedi' },
+  { code: 'KES', label: 'Kenyan Shilling' },
+  { code: 'ZAR', label: 'South African Rand' },
+  { code: 'XAF', label: 'Central African Franc' },
+  { code: 'XOF', label: 'West African Franc' },
+  { code: 'CAD', label: 'Canadian Dollar' },
+  { code: 'AUD', label: 'Australian Dollar' },
+  { code: 'JPY', label: 'Japanese Yen' },
+  { code: 'INR', label: 'Indian Rupee' },
+];
+
 export function LoginPage() {
   const { user, login, register } = useAuth();
   const navigate = useNavigate();
@@ -93,12 +109,17 @@ export function LoginPage() {
                 </div>
                 <div>
                   <label className="label">Currency</label>
-                  <input
+                  <select
                     className="input mt-1.5"
                     value={currency}
-                    onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-                    maxLength={3}
-                  />
+                    onChange={(e) => setCurrency(e.target.value)}
+                  >
+                    {CURRENCIES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.code} — {c.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </>
             )}
