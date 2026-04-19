@@ -236,6 +236,13 @@ export function LandingPage() {
             <Step n={3} title="Operate" body="Staff record sales through the point-of-sale view; stock decrements atomically under concurrent writes." />
             <Step n={4} title="Ask" body="Open the Assistant and ask. Dashboards are there too, but the chat does the thinking." />
           </ol>
+                    <div className="mt-10 flex justify-center">
+            <a href="#how-it-works" className="btn-secondary !px-5 !py-2.5 inline-flex items-center gap-2">
+              View live in action
+              <span aria-hidden>→</span>
+            </a>
+          </div>
+
         </div>
       </section>
 
@@ -664,21 +671,17 @@ const CHAT_SCRIPT: ChatTurn[] = [
 function MockChat() {
   const [step, setStep] = useState(0);
   const [typed, setTyped] = useState('');
+  const [thinking, setThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const current = step < CHAT_SCRIPT.length ? CHAT_SCRIPT[step] : null;
-  // Thinking state is derived from render signals so the effect below can
-  // schedule the reveal timeout without re-entering and cancelling itself.
-  const thinking = current?.role === 'assistant' && typed === '';
-
-  // Drive the scripted conversation: type user msgs char-by-char, pause on
-  // assistant turns (the dots render while typed === ''), then reveal the
-  // reply all at once, hold, and advance.
+  // Drive the scripted conversation: type user msgs char-by-char, show an
+  // "assistant is thinking" pause, then reveal assistant replies all at once.
   useEffect(() => {
     if (step >= CHAT_SCRIPT.length) {
       const t = setTimeout(() => {
         setStep(0);
         setTyped('');
+        setThinking(false);
       }, 2800);
       return () => clearTimeout(t);
     }
@@ -694,9 +697,13 @@ function MockChat() {
       }, 450);
       return () => clearTimeout(t);
     }
-    // assistant turn
-    if (typed === '') {
-      const t = setTimeout(() => setTyped(turn.text), turn.thinkMs);
+    // assistant: thinking pause, then reveal whole message, then hold before next
+    if (!thinking && typed === '') {
+      setThinking(true);
+      const t = setTimeout(() => {
+        setThinking(false);
+        setTyped(turn.text);
+      }, turn.thinkMs);
       return () => clearTimeout(t);
     }
     if (typed === turn.text) {
@@ -706,14 +713,15 @@ function MockChat() {
       }, 2200);
       return () => clearTimeout(t);
     }
-  }, [step, typed]);
+  }, [step, typed, thinking]);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [step, typed]);
+  }, [step, typed, thinking]);
 
   const history = CHAT_SCRIPT.slice(0, step);
+  const current = step < CHAT_SCRIPT.length ? CHAT_SCRIPT[step] : null;
 
   return (
     <div className="card shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
