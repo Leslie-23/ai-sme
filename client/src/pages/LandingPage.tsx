@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { PricingGrid } from '../components/PricingGrid';
 
 const DOT_GRID =
   'bg-[radial-gradient(circle,_#e5e5e5_1px,_transparent_1px)] [background-size:20px_20px]';
@@ -13,8 +14,10 @@ const DARK_DOTS =
 
 export function LandingPage() {
   const { user } = useAuth();
-  const primaryHref = user ? '/dashboard' : '/login';
-  const primaryLabel = user ? 'Go to dashboard' : 'Sign in';
+  const primaryHref = user ? '/dashboard' : '/login?mode=register';
+  const primaryLabel = user ? 'Go to dashboard' : 'Start free';
+  const secondaryHref = user ? null : '/login';
+  const secondaryLabel = user ? null : 'Sign in';
 
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -55,6 +58,7 @@ export function LandingPage() {
             <a href="#product" className="btn-ghost !px-3 !py-1.5 text-sm">Product</a>
             <a href="#how" className="btn-ghost !px-3 !py-1.5 text-sm">How it works</a>
             <a href="#features" className="btn-ghost !px-3 !py-1.5 text-sm">Features</a>
+            <a href="#pricing" className="btn-ghost !px-3 !py-1.5 text-sm">Pricing</a>
             <a href="#security" className="btn-ghost !px-3 !py-1.5 text-sm">Security</a>
             <a href="#faq" className="btn-ghost !px-3 !py-1.5 text-sm">FAQ</a>
             <Link to={primaryHref} className="btn-primary !px-4 !py-1.5 text-sm ml-2">
@@ -96,6 +100,13 @@ export function LandingPage() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Features
+            </a>
+            <a
+              href="#pricing"
+              className="px-5 py-6 text-lg font-medium text-neutral-900 hover:bg-neutral-50 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Pricing
             </a>
             <a
               href="#security"
@@ -161,16 +172,21 @@ export function LandingPage() {
               <Link to={primaryHref} className="btn-primary !px-5 !py-2.5">
                 {primaryLabel}
               </Link>
-              <a href="#how" className="btn-secondary !px-5 !py-2.5">
-                See how it works
-              </a>
+              {secondaryHref && secondaryLabel ? (
+                <Link to={secondaryHref} className="btn-secondary !px-5 !py-2.5">
+                  {secondaryLabel}
+                </Link>
+              ) : (
+                <a href="#how" className="btn-secondary !px-5 !py-2.5">
+                  See how it works
+                </a>
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-4 pt-6 text-xs text-neutral-500">
-              <span>Bring your own AI key</span>
+              {!user && <><span>14-day Pro trial</span><span className="text-neutral-300">·</span></>}
+              <span>No credit card to start</span>
               <span className="text-neutral-300">·</span>
-              <span>Free providers supported</span>
-              <span className="text-neutral-300">·</span>
-              <span>No lock-in</span>
+              <span>Cancel anytime</span>
             </div>
           </div>
 
@@ -412,6 +428,21 @@ export function LandingPage() {
         </div>
       </section>
 
+      <section id="pricing" className="border-b border-neutral-200">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24">
+          <div className="mb-10 text-center">
+            <span className="label">Pricing</span>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
+              Simple plans. Start free.
+            </h2>
+            <p className="text-neutral-600 mt-3 max-w-xl mx-auto">
+              Every new account gets a 14-day Pro trial. No credit card required to sign up.
+            </p>
+          </div>
+          <PricingGrid loginRedirect="/login" callbackUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing`} />
+        </div>
+      </section>
+
       <section id="faq" className="border-b border-neutral-200">
         <div className="max-w-4xl mx-auto px-5 md:px-8 py-16 md:py-24">
           <div className="mb-10">
@@ -451,7 +482,27 @@ export function LandingPage() {
             />
             <Faq
               q="Can I export my data?"
-              a="Everything is in your MongoDB. You own it. Export at any time via mongodump or the collection-level queries — nothing is locked inside proprietary formats."
+              a="Yes. Business-plan accounts get one-click JSON and CSV exports of everything — products, sales, payments, expenses — from the Billing settings. On any plan the data remains yours and can be pulled directly from MongoDB if you need it."
+            />
+            <Faq
+              q="Is there a free trial?"
+              a="Every new account gets 14 days of Pro access, automatically. No credit card required to sign up. When the trial ends, you stay on Free (50 products, 200 sales/month, no AI) unless you upgrade."
+            />
+            <Faq
+              q="What's the difference between Pro and Business?"
+              a="Pro ($15/mo) unlocks the AI Assistant, imports, Reports, and unlimited records — everything a solo operator needs. Business ($39/mo) adds priority email support, a 30-minute onboarding call, on-demand data exports, and early access to new features — for owners who want a human in the loop."
+            />
+            <Faq
+              q="How am I charged?"
+              a="Payments are processed by Paystack in USD. You'll be billed monthly on the same day you subscribed. You can cancel at any time from Settings → Billing — you keep Pro access until the end of the current period."
+            />
+            <Faq
+              q="Can I switch plans?"
+              a="Yes. Upgrade from Free to Pro or Business whenever you're ready. Downgrades take effect at the end of your current billing period."
+            />
+            <Faq
+              q="What happens if my payment fails?"
+              a="You stay on your plan in a past-due state for a grace window while we retry. If the retries don't clear, the subscription is canceled and your account drops to Free — your data is never deleted."
             />
           </div>
         </div>
@@ -495,6 +546,7 @@ export function LandingPage() {
           <div>
             <div className="label mb-3">More</div>
             <ul className="space-y-2 text-sm text-neutral-600">
+              <li><a href="#pricing" className="hover:text-neutral-900">Pricing</a></li>
               <li><a href="#security" className="hover:text-neutral-900">Security</a></li>
               <li><a href="#faq" className="hover:text-neutral-900">FAQ</a></li>
               <li><Link to={primaryHref} className="hover:text-neutral-900">{primaryLabel}</Link></li>

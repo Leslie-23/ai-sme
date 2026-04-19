@@ -1,11 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { Business, IBusiness, normalizeFeatures } from '../models/Business';
+import {
+  Business,
+  IBusiness,
+  backfillSubscriptionIfMissing,
+  hasProAccess,
+  normalizeFeatures,
+  normalizeSubscription,
+} from '../models/Business';
 import { HttpError } from '../middleware/error';
 
 async function ensureBusiness(businessId: IBusiness['_id'], userId: IBusiness['_id']) {
   const existing = await Business.findById(businessId);
-  if (existing) return existing;
+  if (existing) {
+    if (backfillSubscriptionIfMissing(existing)) await existing.save();
+    return existing;
+  }
   // Self-heal: the JWT's businessId references a Business that no longer exists
   // (e.g. DB was purged while the user's token / User record survived). Create
   // a default Business with the same ID so the app stays usable.
@@ -19,6 +29,7 @@ async function ensureBusiness(businessId: IBusiness['_id'], userId: IBusiness['_
 }
 
 function serialize(b: IBusiness) {
+  const sub = normalizeSubscription(b.subscription);
   return {
     id: b._id.toString(),
     name: b.name,
@@ -27,6 +38,14 @@ function serialize(b: IBusiness) {
     features: normalizeFeatures(b.features),
     terminology: b.terminology || 'product',
     categories: Array.isArray(b.categories) ? b.categories : [],
+    subscription: {
+      plan: sub.plan,
+      status: sub.status,
+      trialEndsAt: sub.trialEndsAt ? sub.trialEndsAt.toISOString() : null,
+      currentPeriodEnd: sub.currentPeriodEnd ? sub.currentPeriodEnd.toISOString() : null,
+      cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+      hasProAccess: hasProAccess(sub),
+    },
     createdAt: b.createdAt.toISOString(),
     updatedAt: b.updatedAt.toISOString(),
   };

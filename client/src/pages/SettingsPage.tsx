@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { api, ApiError } from '../lib/api';
-import { useAuth, BusinessFeatures, DEFAULT_FEATURES, Terminology } from '../context/AuthContext';
+import { useAuth, BusinessFeatures, DEFAULT_FEATURES, Terminology, SubscriptionInfo } from '../context/AuthContext';
+import { BillingSection } from '../components/BillingSection';
 
 type Provider = 'openai' | 'anthropic' | 'google' | 'groq' | 'openrouter' | 'mistral' | 'cohere';
 
@@ -95,6 +96,7 @@ export function SettingsPage() {
     features: BusinessFeatures;
     terminology: Terminology;
     categories: string[];
+    subscription: SubscriptionInfo;
     createdAt: string;
     updatedAt: string;
   };
@@ -137,6 +139,7 @@ export function SettingsPage() {
         features: updated.features,
         terminology: updated.terminology,
         categories: updated.categories,
+        subscription: updated.subscription,
       });
       setBizInfo({ id: updated.id, createdAt: updated.createdAt, updatedAt: updated.updatedAt });
       setBizStatus('Saved.');
@@ -210,6 +213,8 @@ export function SettingsPage() {
           Only the business owner can update these settings.
         </div>
       )}
+
+      <BillingSection />
 
       <form onSubmit={onSaveBusiness} className="card">
         <div className="px-5 py-3 border-b border-neutral-200 section-title">Business</div>

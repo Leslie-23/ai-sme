@@ -4,7 +4,9 @@
       "Bash(npm install *)",
       "Bash(echo \"exit=$?\")",
       "Bash(npx tsc *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npx --prefix /c/Users/Administrator/ai-sme/client tsc -p /c/Users/Administrator/ai-sme/client --noEmit)",
+      "Bash(npx --prefix /c/Users/Administrator/ai-sme/server tsc -p /c/Users/Administrator/ai-sme/server --noEmit)"
     ]
   }
 }

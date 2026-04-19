@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { SubscriptionBanner } from './SubscriptionBanner';
 
 type NavItem = {
   to: string;
@@ -14,7 +15,9 @@ const navItems: NavItem[] = [
   { to: '/sales', label: 'Sales', icon: IconCart },
   { to: '/inventory', label: 'Inventory', icon: IconBox },
   { to: '/import', label: 'Import', icon: IconUpload, feature: 'imports' },
+  { to: '/reports', label: 'Reports', icon: IconReport, feature: 'chat' },
   { to: '/chat', label: 'AI Assistant', icon: IconSpark, feature: 'chat' },
+  { to: '/pricing', label: 'Pricing', icon: IconTag },
   { to: '/settings', label: 'Settings', icon: IconGear },
 ];
 
@@ -23,7 +26,9 @@ const pageTitles: Record<string, string> = {
   '/sales': 'Sales',
   '/inventory': 'Inventory',
   '/import': 'Import',
+  '/reports': 'Reports',
   '/chat': 'AI Assistant',
+  '/pricing': 'Pricing',
   '/settings': 'Settings',
 };
 
@@ -208,6 +213,7 @@ export function Layout() {
             </span>
           </div>
         </header>
+        <SubscriptionBanner />
         <main className="flex-1 px-4 md:px-6 lg:px-8 py-4 md:py-6 overflow-x-hidden">
           <Outlet />
         </main>
@@ -293,6 +299,23 @@ function IconUpload() {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <path d="M17 8l-5-5-5 5" />
       <path d="M12 3v12" />
+    </svg>
+  );
+}
+function IconTag() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0">
+      <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z" />
+      <circle cx="8" cy="8" r="1.5" />
+    </svg>
+  );
+}
+function IconReport() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0">
+      <path d="M4 4h12l4 4v12a0 0 0 0 1 0 0H4z" />
+      <path d="M16 4v4h4" />
+      <path d="M8 13v4M12 11v6M16 14v3" />
     </svg>
   );
 }

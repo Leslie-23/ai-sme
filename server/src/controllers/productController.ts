@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { Product } from '../models/Product';
 import { HttpError } from '../middleware/error';
+import { assertCanAddProduct } from '../services/planLimits';
 
 const createSchema = z.object({
   name: z.string().min(1),
@@ -27,6 +28,7 @@ export async function listProducts(req: Request, res: Response, next: NextFuncti
 export async function createProduct(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const input = createSchema.parse(req.body);
+    await assertCanAddProduct(req.auth!.businessId);
     const product = await Product.create({ ...input, businessId: req.auth!.businessId });
     res.status(201).json(product);
   } catch (err) {

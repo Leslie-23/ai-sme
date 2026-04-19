@@ -24,6 +24,27 @@ export const DEFAULT_FEATURES: BusinessFeatures = {
   payments: true,
 };
 
+export type SubscriptionPlan = 'free' | 'pro' | 'business';
+export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled' | 'none';
+
+export interface SubscriptionInfo {
+  plan: SubscriptionPlan;
+  status: SubscriptionStatus;
+  trialEndsAt: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  hasProAccess: boolean;
+}
+
+const DEFAULT_SUBSCRIPTION: SubscriptionInfo = {
+  plan: 'free',
+  status: 'none',
+  trialEndsAt: null,
+  currentPeriodEnd: null,
+  cancelAtPeriodEnd: false,
+  hasProAccess: false,
+};
+
 export interface AuthBusiness {
   id: string;
   name: string;
@@ -31,6 +52,7 @@ export interface AuthBusiness {
   features: BusinessFeatures;
   terminology: Terminology;
   categories: string[];
+  subscription: SubscriptionInfo;
 }
 
 function normalizeBusiness(raw: Partial<AuthBusiness> & { id: string; name: string; currency: string }): AuthBusiness {
@@ -41,6 +63,7 @@ function normalizeBusiness(raw: Partial<AuthBusiness> & { id: string; name: stri
     features: { ...DEFAULT_FEATURES, ...(raw.features || {}) },
     terminology: raw.terminology || 'product',
     categories: Array.isArray(raw.categories) ? raw.categories : [],
+    subscription: { ...DEFAULT_SUBSCRIPTION, ...(raw.subscription || {}) },
   };
 }
 

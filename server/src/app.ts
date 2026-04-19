@@ -14,6 +14,13 @@ import aiRoutes from './routes/ai';
 import configRoutes from './routes/config';
 import importRoutes from './routes/import';
 import businessRoutes from './routes/business';
+import reportRoutes from './routes/reports';
+import billingRoutes from './routes/billing';
+import exportRoutes from './routes/export';
+import { getPlans } from './controllers/billingController';
+import { paystackWebhook } from './controllers/paystackWebhookController';
+import { requirePro } from './middleware/requirePro';
+import { requireBusiness } from './middleware/requireBusiness';
 
 function parseOrigins(raw: string | undefined): string[] {
   if (!raw) return [];
@@ -62,6 +69,11 @@ function buildCors() {
 export function createApp(): Express {
   const app = express();
   app.use(buildCors());
+
+  // Paystack webhook must see the raw bytes to verify the HMAC signature, so
+  // register it BEFORE express.json() swallows the body.
+  app.post('/api/webhooks/paystack', express.raw({ type: '*/*' }), paystackWebhook);
+
   app.use(express.json({ limit: '1mb' }));
 
   // Public health — reachable at root and under /api for both the platform
@@ -73,16 +85,21 @@ export function createApp(): Express {
   app.get('/api', (_req, res) => res.json({ message: 'AI SME API' }));
 
   app.use('/api/auth', authRoutes);
+  // Public pricing — landing page needs this without a JWT.
+  app.get('/api/billing/plans', getPlans);
+  app.use('/api/billing', requireAuth, billingRoutes);
   app.use('/api/products', requireAuth, productRoutes);
   app.use('/api/sales', requireAuth, salesRoutes);
   app.use('/api/inventory', requireAuth, inventoryRoutes);
   app.use('/api/payments', requireAuth, paymentRoutes);
   app.use('/api/expenses', requireAuth, expenseRoutes);
   app.use('/api/dashboard', requireAuth, dashboardRoutes);
-  app.use('/api/ai', requireAuth, aiRoutes);
+  app.use('/api/ai', requireAuth, requirePro, aiRoutes);
   app.use('/api/config', requireAuth, configRoutes);
-  app.use('/api/import', requireAuth, importRoutes);
+  app.use('/api/import', requireAuth, requirePro, importRoutes);
   app.use('/api/business', requireAuth, businessRoutes);
+  app.use('/api/reports', requireAuth, requirePro, reportRoutes);
+  app.use('/api/export', requireAuth, requireBusiness, exportRoutes);
 
   app.use(errorHandler);
   return app;

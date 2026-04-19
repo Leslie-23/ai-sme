@@ -11,7 +11,10 @@ import { SalesPage } from './pages/SalesPage';
 import { InventoryPage } from './pages/InventoryPage';
 import { ChatPage } from './pages/ChatPage';
 import { ImportPage } from './pages/ImportPage';
+import { ReportsPage } from './pages/ReportsPage';
+import { PricingPage } from './pages/PricingPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { Paywall } from './components/Paywall';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -31,8 +34,31 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/sales" element={<SalesPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/import" element={<ImportPage />} />
+            <Route
+              path="/chat"
+              element={
+                <Paywall feature="AI Assistant" blurb="Ask questions about your business and get AI-powered answers.">
+                  <ChatPage />
+                </Paywall>
+              }
+            />
+            <Route
+              path="/import"
+              element={
+                <Paywall feature="AI Import" blurb="Paste or upload data and let AI classify and import it for you.">
+                  <ImportPage />
+                </Paywall>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <Paywall feature="Reports" blurb="All-time performance analysis with AI-generated insights.">
+                  <ReportsPage />
+                </Paywall>
+              }
+            />
+            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

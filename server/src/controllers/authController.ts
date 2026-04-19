@@ -3,11 +3,19 @@ import bcrypt from 'bcryptjs';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 import { User } from '../models/User';
-import { Business, IBusiness, normalizeFeatures } from '../models/Business';
+import {
+  Business,
+  IBusiness,
+  backfillSubscriptionIfMissing,
+  hasProAccess,
+  normalizeFeatures,
+  normalizeSubscription,
+} from '../models/Business';
 import { signToken } from '../middleware/auth';
 import { HttpError } from '../middleware/error';
 
 function serializeBusiness(b: IBusiness) {
+  const sub = normalizeSubscription(b.subscription);
   return {
     id: b._id.toString(),
     name: b.name,
@@ -15,6 +23,14 @@ function serializeBusiness(b: IBusiness) {
     features: normalizeFeatures(b.features),
     terminology: b.terminology || 'product',
     categories: Array.isArray(b.categories) ? b.categories : [],
+    subscription: {
+      plan: sub.plan,
+      status: sub.status,
+      trialEndsAt: sub.trialEndsAt ? sub.trialEndsAt.toISOString() : null,
+      currentPeriodEnd: sub.currentPeriodEnd ? sub.currentPeriodEnd.toISOString() : null,
+      cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+      hasProAccess: hasProAccess(sub),
+    },
   };
 }
 
@@ -93,6 +109,9 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
         currency: 'USD',
         timezone: 'UTC',
       });
+    } else if (backfillSubscriptionIfMissing(business)) {
+      // Business existed before the subscription schema — grant them a trial.
+      await business.save();
     }
 
     const token = signToken({

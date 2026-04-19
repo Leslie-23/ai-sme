@@ -5,6 +5,7 @@ import { Sale } from '../models/Sale';
 import { Product } from '../models/Product';
 import { InventoryRecord } from '../models/InventoryRecord';
 import { HttpError } from '../middleware/error';
+import { assertCanAddSale } from '../services/planLimits';
 
 const createSaleSchema = z.object({
   items: z
@@ -22,6 +23,7 @@ export async function createSale(req: Request, res: Response, next: NextFunction
   try {
     const input = createSaleSchema.parse(req.body);
     const businessId = req.auth!.businessId;
+    await assertCanAddSale(businessId);
 
     const productIds = input.items.map((i) => new Types.ObjectId(i.productId));
     const products = await Product.find({ _id: { $in: productIds }, businessId });
