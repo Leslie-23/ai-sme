@@ -450,6 +450,88 @@ export function LandingPage() {
         </div>
       </section>
 
+      <section id="how-it-works" className={`border-b border-neutral-200 ${HORIZONTAL_LINES}`}>
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24">
+          <div className="mb-12">
+            <span className="label">See it live</span>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
+              Watch Intellexa across your day.
+            </h2>
+            <p className="text-neutral-600 mt-3 max-w-2xl">
+              Three short walk-throughs: getting product data in, making sense of the week,
+              and keeping your team's access honest.
+            </p>
+          </div>
+          <div className="space-y-16 md:space-y-24">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <span className="label">01 · Conversational import</span>
+                <h3 className="text-2xl md:text-3xl font-semibold tracking-tight mt-2 mb-4">
+                  Paste a list. Confirm. Done.
+                </h3>
+                <p className="text-neutral-700 text-sm md:text-base leading-relaxed">
+                  Chat your product sheet in — raw text from Excel, WhatsApp, or dictation.
+                  The AI extracts name, SKU, and price, and you get a preview to tweak
+                  before anything writes to the database.
+                </p>
+                <ul className="mt-5 space-y-2 text-sm text-neutral-600">
+                  <Bullet>Handles messy formatting, stray dashes, mixed currencies.</Bullet>
+                  <Bullet>Always previewed — never silent writes.</Bullet>
+                  <Bullet>SKUs auto-generated; edit before saving.</Bullet>
+                </ul>
+              </div>
+              <ImportDemo />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <ReportsDemo />
+              <div>
+                <span className="label">02 · Reports & comparisons</span>
+                <h3 className="text-2xl md:text-3xl font-semibold tracking-tight mt-2 mb-4">
+                  This week vs last. In one glance.
+                </h3>
+                <p className="text-neutral-700 text-sm md:text-base leading-relaxed">
+                  Revenue, profit, and expenses rolled up by day, week, or month. Compare
+                  periods to catch trends early. Ask "why was Wednesday slow?" and Intellexa
+                  checks payment mix and stock-outs for you.
+                </p>
+                <ul className="mt-5 space-y-2 text-sm text-neutral-600">
+                  <Bullet>Day / week / month aggregations out of the box.</Bullet>
+                  <Bullet>Period-over-period deltas with direction and magnitude.</Bullet>
+                  <Bullet>Export any view to CSV on the Business plan.</Bullet>
+                </ul>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <span className="label">03 · Team & permissions</span>
+                <h3 className="text-2xl md:text-3xl font-semibold tracking-tight mt-2 mb-4">
+                  Staff see what they need. Nothing more.
+                </h3>
+                <p className="text-neutral-700 text-sm md:text-base leading-relaxed">
+                  Invite staff and toggle per-role permissions — record sales, manage
+                  inventory, view reports, log expenses. Your cashier rings up customers;
+                  your accountant sees the books. Credentials stay with you.
+                </p>
+                <ul className="mt-5 space-y-2 text-sm text-neutral-600">
+                  <Bullet>Six granular permission flags, not just a single role.</Bullet>
+                  <Bullet>Owner always full; legacy staff kept compatible.</Bullet>
+                  <Bullet>Changes take effect without a relogin.</Bullet>
+                </ul>
+              </div>
+              <TeamDemo />
+            </div>
+          </div>
+          <div className="mt-16 flex flex-wrap gap-3 justify-center">
+            <Link to={primaryHref} className="btn-primary !px-5 !py-2.5">
+              {primaryLabel}
+            </Link>
+            <a href="#pricing" className="btn-secondary !px-5 !py-2.5">
+              See pricing
+            </a>
+          </div>
+        </div>
+      </section>
+
       <section id="faq" className="border-b border-neutral-200">
         <div className="max-w-4xl mx-auto px-5 md:px-8 py-16 md:py-24">
           <div className="mb-10">
@@ -671,17 +753,18 @@ const CHAT_SCRIPT: ChatTurn[] = [
 function MockChat() {
   const [step, setStep] = useState(0);
   const [typed, setTyped] = useState('');
-  const [thinking, setThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Drive the scripted conversation: type user msgs char-by-char, show an
-  // "assistant is thinking" pause, then reveal assistant replies all at once.
+  const current = step < CHAT_SCRIPT.length ? CHAT_SCRIPT[step] : null;
+  // Thinking is derived so the effect never sets it — avoids a self-triggered
+  // re-render cancelling the reveal timeout via the cleanup.
+  const thinking = current?.role === 'assistant' && typed === '';
+
   useEffect(() => {
     if (step >= CHAT_SCRIPT.length) {
       const t = setTimeout(() => {
         setStep(0);
         setTyped('');
-        setThinking(false);
       }, 2800);
       return () => clearTimeout(t);
     }
@@ -697,13 +780,8 @@ function MockChat() {
       }, 450);
       return () => clearTimeout(t);
     }
-    // assistant: thinking pause, then reveal whole message, then hold before next
-    if (!thinking && typed === '') {
-      setThinking(true);
-      const t = setTimeout(() => {
-        setThinking(false);
-        setTyped(turn.text);
-      }, turn.thinkMs);
+    if (typed === '') {
+      const t = setTimeout(() => setTyped(turn.text), turn.thinkMs);
       return () => clearTimeout(t);
     }
     if (typed === turn.text) {
@@ -713,15 +791,14 @@ function MockChat() {
       }, 2200);
       return () => clearTimeout(t);
     }
-  }, [step, typed, thinking]);
+  }, [step, typed]);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [step, typed, thinking]);
+  }, [step, typed]);
 
   const history = CHAT_SCRIPT.slice(0, step);
-  const current = step < CHAT_SCRIPT.length ? CHAT_SCRIPT[step] : null;
 
   return (
     <div className="card shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
@@ -980,6 +1057,261 @@ function StaffSnippet() {
         >
           {recording ? 'Recorded ✓' : 'Record sale'}
         </div>
+      </div>
+    </div>
+  );
+}
+
+const IMPORT_LINES = [
+  'TCL Smart TV 50" - €4,500',
+  'Samsung Microwave - €1,850',
+  'Nasco Fridge/Freezer - €2,795',
+  'Midea A/C Split - €2,400',
+];
+
+const IMPORT_ROWS = [
+  { sku: 'TV-TCL-50', name: 'TCL Smart TV 50"', price: 4500 },
+  { sku: 'MW-SAM-01', name: 'Samsung Microwave', price: 1850 },
+  { sku: 'FR-NAS-01', name: 'Nasco Fridge/Freezer', price: 2795 },
+  { sku: 'AC-MID-SP', name: 'Midea A/C Split', price: 2400 },
+];
+
+function ImportDemo() {
+  const [phase, setPhase] = useState<'typing' | 'parsing' | 'revealed'>('typing');
+  const [lineIdx, setLineIdx] = useState(0);
+  const [revealed, setRevealed] = useState(0);
+
+  useEffect(() => {
+    if (phase === 'typing') {
+      if (lineIdx < IMPORT_LINES.length) {
+        const t = setTimeout(() => setLineIdx((i) => i + 1), 520);
+        return () => clearTimeout(t);
+      }
+      const t = setTimeout(() => setPhase('parsing'), 500);
+      return () => clearTimeout(t);
+    }
+    if (phase === 'parsing') {
+      const t = setTimeout(() => setPhase('revealed'), 750);
+      return () => clearTimeout(t);
+    }
+    if (revealed < IMPORT_ROWS.length) {
+      const t = setTimeout(() => setRevealed((r) => r + 1), 320);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => {
+      setPhase('typing');
+      setLineIdx(0);
+      setRevealed(0);
+    }, 3600);
+    return () => clearTimeout(t);
+  }, [phase, lineIdx, revealed]);
+
+  return (
+    <div className="card shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+      <div className="px-4 py-3 border-b border-neutral-200 flex items-center justify-between">
+        <div className="section-title">Import</div>
+        <span className="chip">AI-assisted</span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="p-4 md:border-r border-neutral-200 border-b md:border-b-0">
+          <div className="label mb-2">Paste raw list</div>
+          <div className="font-mono text-[11px] leading-relaxed text-neutral-700 min-h-[136px]">
+            {IMPORT_LINES.slice(0, lineIdx).map((ln, i) => (
+              <div key={i} className="animate-fade-in">{ln}</div>
+            ))}
+            {phase === 'typing' && lineIdx < IMPORT_LINES.length && (
+              <span className="inline-block w-[6px] h-[12px] align-middle bg-neutral-900 animate-caret" />
+            )}
+          </div>
+          <div
+            className={`btn-primary !px-3 !py-1.5 text-xs mt-3 select-none inline-block transition-transform ${
+              phase === 'parsing' ? 'scale-[0.97] opacity-90' : ''
+            }`}
+          >
+            {phase === 'parsing' ? 'Parsing…' : 'Parse & preview'}
+          </div>
+        </div>
+        <div className="p-4">
+          <div className="label mb-2">Structured preview</div>
+          <div className="space-y-1.5 min-h-[136px]">
+            {phase === 'typing' && (
+              <div className="text-xs text-neutral-400 italic pt-10 text-center">Awaiting paste…</div>
+            )}
+            {phase !== 'typing' &&
+              IMPORT_ROWS.slice(0, revealed).map((r, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between text-xs animate-slide-in border-b border-neutral-100 pb-1.5"
+                >
+                  <div>
+                    <div className="font-medium">{r.name}</div>
+                    <div className="text-[10px] font-mono text-neutral-400">{r.sku}</div>
+                  </div>
+                  <span className="tabular-nums font-semibold">€{r.price.toLocaleString()}</span>
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const REPORT_SCENES = [
+  {
+    label: 'This week',
+    revenue: 19340,
+    change: 12.4,
+    bars: [3200, 4100, 2800, 5200, 4600, 3900, 2400],
+  },
+  {
+    label: 'Last week',
+    revenue: 17200,
+    change: -3.1,
+    bars: [2800, 3600, 3100, 4400, 3900, 4200, 2100],
+  },
+  {
+    label: 'Last month',
+    revenue: 74820,
+    change: 8.2,
+    bars: [10400, 12200, 9800, 13400, 11900, 10800, 6320],
+  },
+];
+
+const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+function ReportsDemo() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % REPORT_SCENES.length), 4200);
+    return () => clearInterval(t);
+  }, []);
+  const scene = REPORT_SCENES[idx];
+  const revenue = useCounter(scene.revenue);
+  const maxBar = Math.max(...scene.bars);
+  const positive = scene.change >= 0;
+
+  return (
+    <div className="card p-5 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center justify-between mb-3">
+        <span className="label flex items-center gap-2">
+          <span key={scene.label} className="inline-block animate-fade-in">
+            Revenue · {scene.label}
+          </span>
+        </span>
+        <span className="chip">EUR</span>
+      </div>
+      <div className="flex items-baseline justify-between mb-4">
+        <div className="text-2xl font-semibold tabular-nums">€{revenue.toLocaleString()}</div>
+        <div
+          className={`text-xs tabular-nums font-medium ${
+            positive ? 'text-emerald-700' : 'text-amber-700'
+          }`}
+        >
+          {positive ? '▲' : '▼'} {Math.abs(scene.change).toFixed(1)}% vs prior
+        </div>
+      </div>
+      <div className="flex items-end justify-between gap-1.5 h-24 px-1">
+        {scene.bars.map((v, i) => {
+          const h = Math.round((v / maxBar) * 100);
+          return (
+            <div key={`${idx}-${i}`} className="flex-1 flex flex-col items-center gap-1">
+              <div
+                className="w-full bg-neutral-900 animate-slide-in"
+                style={{ height: `${h}%`, animationDelay: `${i * 60}ms` }}
+              />
+              <div className="text-[10px] text-neutral-400 font-mono">{WEEKDAYS[i]}</div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="grid grid-cols-3 gap-0 border border-neutral-200 mt-4 [&>*]:p-3 [&>*:not(:last-child)]:border-r [&>*]:border-neutral-200">
+        <div>
+          <div className="label">Avg / day</div>
+          <div className="text-sm font-semibold mt-1 tabular-nums">
+            €{Math.round(scene.revenue / 7).toLocaleString()}
+          </div>
+        </div>
+        <div>
+          <div className="label">Best day</div>
+          <div className="text-sm font-semibold mt-1 tabular-nums">
+            €{Math.max(...scene.bars).toLocaleString()}
+          </div>
+        </div>
+        <div>
+          <div className="label">Orders</div>
+          <div className="text-sm font-semibold mt-1 tabular-nums">
+            {Math.round(scene.revenue / 420)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const TEAM_ROWS: {
+  name: string;
+  role: string;
+  perms: { Sales: boolean; Inventory: boolean; Reports: boolean; Expenses: boolean };
+}[] = [
+  { name: 'Amaka O.', role: 'Sales rep', perms: { Sales: true, Inventory: false, Reports: false, Expenses: false } },
+  { name: 'Tunde A.', role: 'Accountant', perms: { Sales: false, Inventory: false, Reports: true, Expenses: true } },
+  { name: 'Kwame B.', role: 'Inventory manager', perms: { Sales: true, Inventory: true, Reports: false, Expenses: false } },
+];
+
+function TeamDemo() {
+  const [revealed, setRevealed] = useState(0);
+  useEffect(() => {
+    if (revealed < TEAM_ROWS.length) {
+      const t = setTimeout(() => setRevealed((r) => r + 1), 900);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setRevealed(0), 3600);
+    return () => clearTimeout(t);
+  }, [revealed]);
+
+  return (
+    <div className="card p-5 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center justify-between mb-3">
+        <span className="label">Team · Permissions</span>
+        <span className="chip">Owner only</span>
+      </div>
+      <div className="border border-neutral-200">
+        <div className="grid grid-cols-[1.3fr_1fr_1.4fr] gap-2 px-3 py-2 bg-neutral-50 text-[10px] uppercase tracking-wider text-neutral-500 font-medium">
+          <div>Staff</div>
+          <div>Role</div>
+          <div>Permissions</div>
+        </div>
+        {revealed === 0 && (
+          <div className="px-3 py-8 text-xs text-neutral-400 text-center">
+            Invite your first staff member…
+          </div>
+        )}
+        {TEAM_ROWS.slice(0, revealed).map((r, i) => (
+          <div
+            key={i}
+            className="grid grid-cols-[1.3fr_1fr_1.4fr] gap-2 px-3 py-3 border-t border-neutral-200 text-sm animate-slide-in items-center"
+          >
+            <div className="font-medium">{r.name}</div>
+            <div className="text-neutral-600 text-xs">{r.role}</div>
+            <div className="flex flex-wrap gap-1">
+              {Object.entries(r.perms)
+                .filter(([, v]) => v)
+                .map(([k]) => (
+                  <span
+                    key={k}
+                    className="text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-sm"
+                  >
+                    {k}
+                  </span>
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-between mt-3 text-[11px] text-neutral-500">
+        <span>Credentials stay with the owner.</span>
+        <span className="chip !text-[10px]">+ Add staff</span>
       </div>
     </div>
   );
