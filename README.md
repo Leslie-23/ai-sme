@@ -11,7 +11,7 @@ Full-stack business intelligence app for small/medium businesses, with a natural
 ## Project layout
 ```
 /server   Express + TypeScript API, Mongoose models, AI provider layer
-/client   Vite + React frontend (added in next phase)
+/client   Vite + React frontend 
 ```
 
 ## Server setup
