@@ -1,6 +1,6 @@
 # AI-SME — AI-powered BI for SMEs
 
-Full-stack business intelligence app for small/medium businesses, with a natural-language AI assistant that answers questions about real sales, inventory, and expense data.
+Full-stack business intelligence app for small to medium businesses, with a natural-language AI assistant that answers questions about real sales, inventory, and expense data.
 
 ## Stack
 - **Client**: React + Vite + Tailwind CSS
