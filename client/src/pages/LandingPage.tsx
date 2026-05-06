@@ -15,7 +15,7 @@ const DARK_DOTS =
 export function LandingPage() {
   const { user } = useAuth();
   const primaryHref = user ? '/dashboard' : '/login?mode=register';
-  const primaryLabel = user ? 'Go to dashboard' : 'Start free';
+  const primaryLabel = user ? 'Go to dashboard' : 'Start pilot';
   const secondaryHref = user ? null : '/login';
   const secondaryLabel = user ? null : 'Sign in';
 
@@ -51,11 +51,11 @@ export function LandingPage() {
       >
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-3 md:py-4 flex items-center justify-between">
           <Link to="/" className="flex items-baseline gap-3" onClick={() => setMobileMenuOpen(false)}>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">AI · SME</span>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">AI / SME</span>
             <span className="text-xl font-semibold tracking-tight">Intellexa</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
-            <a href="#product" className="btn-ghost !px-3 !py-1.5 text-sm">Product</a>
+            <a href="#product" className="btn-ghost !px-3 !py-1.5 text-sm">Solutions</a>
             <a href="#how" className="btn-ghost !px-3 !py-1.5 text-sm">How it works</a>
             <a href="#features" className="btn-ghost !px-3 !py-1.5 text-sm">Features</a>
             <a href="#pricing" className="btn-ghost !px-3 !py-1.5 text-sm">Pricing</a>
@@ -85,7 +85,7 @@ export function LandingPage() {
               className="px-5 py-6 text-lg font-medium text-neutral-900 hover:bg-neutral-50 transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Product
+              Solutions
             </a>
             <a
               href="#how"
@@ -128,16 +128,16 @@ export function LandingPage() {
             <div>
               <div className="label mb-2">Why Intellexa</div>
               <ul className="space-y-2">
-                <li className="text-sm text-neutral-600">No setup time • Live in an afternoon</li>
-                <li className="text-sm text-neutral-600">You own all your data • Full export anytime</li>
-                <li className="text-sm text-neutral-600">Transparent pricing • No surprises</li>
+                <li className="text-sm text-neutral-600">No setup time / Live in an afternoon</li>
+                <li className="text-sm text-neutral-600">You own all your data / Full export anytime</li>
+                <li className="text-sm text-neutral-600">Transparent pricing / No surprises</li>
               </ul>
             </div>
             <div>
-              <div className="label mb-2">Providers</div>
+              <div className="label mb-2">Pilot focus</div>
               <div className="text-xs text-neutral-600 space-y-1">
-                <div>OpenAI • Anthropic • Google Gemini</div>
-                <div>Groq • OpenRouter • Mistral • Cohere</div>
+                <div>Retail stores, pharmacies, salons</div>
+                <div>Sales, stock, expenses, weekly reports</div>
               </div>
             </div>
           </div>
@@ -157,16 +157,16 @@ export function LandingPage() {
       <section className={`relative border-b border-neutral-200 ${DOT_GRID} pt-24 md:pt-28 ${mobileMenuOpen ? 'overflow-hidden' : ''}`}>
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-12 md:py-20 grid grid-cols-1 lg:grid-cols-5 gap-10 relative">
           <div className="lg:col-span-3 space-y-6">
-            <span className="chip bg-white/80 backdrop-blur">AI-native business intelligence</span>
+            <span className="chip bg-white/80 backdrop-blur">Built for inventory-heavy SMEs</span>
             <h1 className="text-4xl md:text-6xl font-semibold tracking-tight leading-[1.05]">
-              Your business,
+              Know what sold,
               <br />
-              when you ask.
+              what is low, and what to do next.
             </h1>
             <p className="text-lg md:text-xl text-neutral-600 max-w-2xl">
-              Intellexa turns your day-to-day sales, stock, and spending into a conversation. Ask in plain
-              words — "what sold today?", "am I low on anything?" — and get honest numbers back,
-              grounded on your live data.
+              Intellexa helps small retailers, pharmacies, salons, and wholesalers turn daily sales,
+              stock, and expenses into owner-ready answers. See fast sellers, stockout risks, profit leaks,
+              and weekly actions without chasing spreadsheets.
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link to={primaryHref} className="btn-primary !px-5 !py-2.5">
@@ -183,10 +183,10 @@ export function LandingPage() {
               )}
             </div>
             <div className="flex flex-wrap items-center gap-4 pt-6 text-xs text-neutral-500">
-              {!user && <><span>14-day Pro trial</span><span className="text-neutral-300">·</span></>}
-              <span>No credit card to start</span>
-              <span className="text-neutral-300">·</span>
-              <span>Cancel anytime</span>
+              {!user && <><span>14-day Pro trial</span><span className="text-neutral-300">/</span></>}
+              <span>Assisted pilot setup</span>
+              <span className="text-neutral-300">/</span>
+              <span>Retail-ready demo data</span>
             </div>
           </div>
 
@@ -199,19 +199,19 @@ export function LandingPage() {
       <section id="product" className="border-b border-neutral-200">
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-20 grid grid-cols-1 md:grid-cols-3 gap-0 [&>*]:border-neutral-200 md:[&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-b md:[&>*:not(:last-child)]:border-b-0">
           <ValueProp
-            label="Talk, don't dashboard"
-            title="Ask in plain English."
-            body="“What were my top 3 products this week?” “Am I low on anything?” “How does today compare to last Friday?” Intellexa answers with real figures from your books."
+            label="Sales intelligence"
+            title="See what is actually moving."
+            body="Know today's revenue, top products, slow sellers, staff activity, and payment mix without waiting for someone to prepare a spreadsheet."
           />
           <ValueProp
-            label="Grounded, never guessed"
-            title="No hallucinated numbers."
-            body="Every answer is computed from your live MongoDB via aggregation pipelines, then phrased by the model. If the data isn't there, Intellexa says so."
+            label="Inventory control"
+            title="Restock before stockouts hurt."
+            body="Spot low-stock items, dead stock, and product trends early so owners know what to reorder, discount, or stop buying."
           />
           <ValueProp
-            label="Runs on your AI"
-            title="Pick any model you like."
-            body="Plug in OpenAI, Anthropic, Google, Groq, OpenRouter, Mistral, or Cohere. Keys encrypted at rest. Swap providers in one click."
+            label="Profit monitoring"
+            title="Find where money is leaking."
+            body="Track expenses against revenue, understand monthly net profit, and turn reports into plain-English actions for the owner."
           />
         </div>
       </section>
@@ -222,24 +222,24 @@ export function LandingPage() {
             <div>
               <span className="label">Workflow</span>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
-                From notebook to conversational BI in an afternoon.
+                From notebook or Excel to owner-ready insight in an afternoon.
               </h2>
             </div>
             <p className="text-neutral-600 max-w-md">
-              Intellexa wraps a minimal CRUD layer — sales, inventory, expenses — with a chat-first AI.
-              Owners ask; staff record. Numbers align by construction.
+              The product stays simple: record sales, manage stock, log expenses, then ask owner questions.
+              For pilots, the setup is assisted so users reach their first useful insight quickly.
             </p>
           </div>
           <ol className="grid grid-cols-1 md:grid-cols-4 gap-0 [&>*]:border-neutral-200 md:[&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-b md:[&>*:not(:last-child)]:border-b-0 bg-white border border-neutral-200">
-            <Step n={1} title="Sign up" body="Create a business in 30 seconds. Owner accounts are role-gated." />
-            <Step n={2} title="Import" body="Chat your product list in. Paste from Excel, WhatsApp, or dictate — the AI extracts and you confirm." />
-            <Step n={3} title="Operate" body="Staff record sales through the point-of-sale view; stock decrements atomically under concurrent writes." />
-            <Step n={4} title="Ask" body="Open the Assistant and ask. Dashboards are there too, but the chat does the thinking." />
+            <Step n={1} title="Pick a use case" body="Start with one shop workflow: sales visibility, stock control, profit monitoring, or weekly owner reports." />
+            <Step n={2} title="Load real data" body="Import products, opening stock, recent sales, and expenses from Excel, POS exports, or manual records." />
+            <Step n={3} title="Run the shop" body="Staff record sales and stock changes while the owner watches trends update in the dashboard." />
+            <Step n={4} title="Act" body="Ask the Assistant for restock lists, profit leaks, top products, and next-week actions." />
           </ol>
                     <div className="mt-10 flex justify-center">
             <a href="#how-it-works" className="btn-secondary !px-5 !py-2.5 inline-flex items-center gap-2">
               View live in action
-              <span aria-hidden>→</span>
+              <span aria-hidden>{'->'}</span>
             </a>
           </div>
 
@@ -252,13 +252,13 @@ export function LandingPage() {
             <div>
               <span className="label">For the owner</span>
               <h3 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2 mb-6">
-                Stop chasing spreadsheets. Ask the business a question.
+                Stop chasing spreadsheets. Find the next action.
               </h3>
               <ul className="space-y-3 text-neutral-700">
-                <Bullet>Revenue, profit, and expenses grouped however you phrase it.</Bullet>
-                <Bullet>Stock alerts surfaced in the same chat, not a separate report.</Bullet>
-                <Bullet>Compare this week vs last, month over month, channel vs channel.</Bullet>
-                <Bullet>Get the answer in your currency, your timezone, your language.</Bullet>
+                <Bullet>Know what sold today, this week, and this month.</Bullet>
+                <Bullet>See low-stock risks before customers ask for missing products.</Bullet>
+                <Bullet>Compare revenue, expenses, and net profit in owner language.</Bullet>
+                <Bullet>Turn the numbers into restock, pricing, and cost-control actions.</Bullet>
               </ul>
             </div>
             <OwnerSnippet />
@@ -273,13 +273,13 @@ export function LandingPage() {
             <div>
               <span className="label">For the staff</span>
               <h3 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2 mb-6">
-                A point-of-sale that doesn't fight you.
+                A simple counter workflow for real staff.
               </h3>
               <ul className="space-y-3 text-neutral-700">
                 <Bullet>Search, tap, ring up. Four payment methods, one screen.</Bullet>
-                <Bullet>Stock snapshots at sale time — no retroactive price drift.</Bullet>
-                <Bullet>Sales history filters by date and method out of the box.</Bullet>
-                <Bullet>Role-gated — only owners see sensitive settings.</Bullet>
+                <Bullet>Stock updates immediately when a sale is recorded.</Bullet>
+                <Bullet>Owners can review sales history by date and payment method.</Bullet>
+                <Bullet>Staff get the tools they need without exposing sensitive settings.</Bullet>
               </ul>
             </div>
           </div>
@@ -289,21 +289,21 @@ export function LandingPage() {
       <section id="features" className="border-b border-neutral-200">
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24">
           <div className="mb-10">
-            <span className="label">What's inside</span>
+            <span className="label">Solution modules</span>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
-              Enough surface for a real shop. No more.
+              One product, packaged around owner problems.
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border border-neutral-200 [&>*]:border-neutral-200 [&>*]:p-6 md:[&>*:nth-child(odd)]:border-r lg:[&>*:nth-child(3n+1)]:border-r lg:[&>*:nth-child(3n+2)]:border-r lg:[&>*:nth-child(3n)]:border-r-0 [&>*]:border-b lg:[&>*:nth-last-child(-n+3)]:border-b-0">
-            <Feature title="Point-of-sale" body="Search products, build a cart, take cash / card / momo / transfer. Atomic stock updates via $inc." />
-            <Feature title="Inventory" body="SKU-scoped catalog with cost + selling price, stock levels, low-stock thresholds per product." />
-            <Feature title="Sales history" body="Filter by date, payment method. Every line item keeps a snapshot of price at sale time." />
-            <Feature title="Expenses & payments" body="Log costs by category. Payment ledger separates gross receipts from fees and losses." />
-            <Feature title="Dashboard" body="Today / week / month totals, top products, low stock, payment breakdown, net profit." />
-            <Feature title="Conversational import" body="Paste a raw product list; the AI maps it to your schema and shows a preview before writing." />
-            <Feature title="Chat sessions" body="Every question persists. Start new threads, clear the current one, or switch between topics." />
-            <Feature title="Multi-tenant & secure" body="JWT auth, bcrypt hashing, businessId scoping, AES-256-GCM for provider API keys." />
-            <Feature title="Multi-currency" body="USD, EUR, GBP, NGN, GHS, KES, ZAR, XAF, XOF, and more. Owner sets it in Settings." />
+            <Feature title="Sales intelligence" body="Daily, weekly, and monthly revenue, order counts, payment mix, recent sales, and best-selling products." />
+            <Feature title="Inventory control" body="SKU catalog, current stock, low-stock thresholds, restock adjustments, and stockout risk visibility." />
+            <Feature title="Profit monitoring" body="Expense logging, monthly expenses, net profit, and payment records to show where cash is going." />
+            <Feature title="Owner reports" body="AI-generated summaries that explain performance, risks, and practical next actions." />
+            <Feature title="Assisted import" body="Paste product lists, sales notes, payments, or expenses and preview structured records before saving." />
+            <Feature title="Team workflow" body="Owner and staff access so cashiers can record sales while owners keep control of reports and settings." />
+            <Feature title="AI assistant" body="Ask questions like top products, low stock, week-over-week changes, and profit risks in plain English." />
+            <Feature title="Demo-ready pilots" body="Use sample data for demos, then swap in a pilot customer's real products and recent transactions." />
+            <Feature title="Secure business data" body="JWT auth, business-level data scoping, encrypted provider keys, and export paths for paid accounts." />
           </div>
         </div>
       </section>
@@ -312,23 +312,23 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-20 relative">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
             <div>
-              <span className="label !text-neutral-400">Provider-agnostic</span>
+              <span className="label !text-neutral-400">Pilot packages</span>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
-                Seven AI providers. One abstraction.
+                Demo the business outcome, not the model menu.
               </h2>
             </div>
             <p className="text-neutral-400 max-w-md">
-              Intellexa talks to whichever model makes sense for you today — free tier for bootstrapping,
-              frontier for the heavy questions. Switch at any time in Settings.
+              Use the same app to sell focused solutions: sales intelligence, inventory control,
+              profit monitoring, and weekly owner reports.
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-0 [&>*]:border-neutral-800 [&>*]:border-r [&>*]:border-b bg-neutral-950/80">
-            {['OpenAI', 'Anthropic', 'Google Gemini', 'Groq', 'OpenRouter', 'Mistral', 'Cohere'].map(
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-0 [&>*]:border-neutral-800 [&>*]:border-r [&>*]:border-b bg-neutral-950/80">
+            {['Sales visibility', 'Stock control', 'Profit leaks', 'Owner reports'].map(
               (p, i) => (
                 <div
                   key={p}
                   className={`px-4 py-5 text-center text-sm font-medium tracking-tight ${
-                    i === 6 ? 'lg:border-r-0' : ''
+                    i === 3 ? 'md:border-r-0' : ''
                   }`}
                 >
                   {p}
@@ -337,8 +337,8 @@ export function LandingPage() {
             )}
           </div>
           <div className="mt-6 text-xs text-neutral-500 max-w-3xl">
-            Free-tier tip: Groq gives you Llama-3.3-70b at ~600 tokens/sec. Google Gemini is free up to a
-            very generous daily quota. Either will answer dashboard questions in under a second.
+            The AI provider stays configurable in Settings, but the sales conversation should lead with
+            the operator's problems: stockouts, slow sellers, unclear profit, and lack of owner-ready reports.
           </div>
         </div>
       </section>
@@ -349,17 +349,17 @@ export function LandingPage() {
             <SecurityBlock
               label="01"
               title="Isolated by construction"
-              body="Every document carries a businessId. Every query filters by it, pulled from the JWT — not from the request body. Cross-tenant reads aren't possible by policy or by code."
+              body="Every document carries a businessId. Every query filters by it, pulled from the JWT - not from the request body. Cross-tenant reads aren't possible by policy or by code."
             />
             <SecurityBlock
               label="02"
               title="Encrypted provider keys"
-              body="AI provider API keys are stored in Config with AES-256-GCM — random IV + auth tag per record. Decrypted in-memory only for the outbound provider call; never returned to the browser."
+              body="AI provider API keys are stored in Config with AES-256-GCM - random IV + auth tag per record. Decrypted in-memory only for the outbound provider call; never returned to the browser."
             />
             <SecurityBlock
               label="03"
               title="Minimal prompt surface"
-              body="The AI never sees raw customer or transaction detail — only the aggregation summary needed for the current question. If a figure isn't in the snapshot, the prompt instructs the model to say so."
+              body="The AI never sees raw customer or transaction detail - only the aggregation summary needed for the current question. If a figure isn't in the snapshot, the prompt instructs the model to say so."
             />
           </div>
         </div>
@@ -368,12 +368,13 @@ export function LandingPage() {
       <section className={`relative border-b border-neutral-200 bg-neutral-50`}>
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24">
           <div className="mb-12">
-            <span className="label">Why choose Intellexa</span>
+            <span className="label">Why pilots convert</span>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
-              Built for you, not against you.
+              Users see value before the setup gets heavy.
             </h2>
             <p className="text-neutral-600 mt-3 max-w-2xl">
-              We've cut the noise and kept what matters. No complicated setup, no vendor lock-in, no surprises on your bill.
+              Early SME users need a fast path to one useful business insight. Intellexa keeps onboarding
+              practical: load real data, show the owner what changed, then turn it into action.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -383,8 +384,8 @@ export function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Start in minutes</h3>
-              <p className="text-sm text-neutral-600">No month-long implementation. Sign up, import your products, invite your staff. You're live in an afternoon.</p>
+              <h3 className="font-semibold text-lg mb-2">Assisted setup</h3>
+              <p className="text-sm text-neutral-600">Start with a real catalog, opening stock, recent sales, and expenses so the first demo reflects the owner's business.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
               <div className="w-8 h-8 mb-3 text-neutral-900">
@@ -392,8 +393,8 @@ export function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">You own your data</h3>
-              <p className="text-sm text-neutral-600">Everything lives in your MongoDB. Export whenever you want, via standard tools. No proprietary formats, no escape clauses.</p>
+              <h3 className="font-semibold text-lg mb-2">Retail-ready</h3>
+              <p className="text-sm text-neutral-600">Built around products, stock, sales, payments, expenses, and staff workflow rather than generic analytics dashboards.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
               <div className="w-8 h-8 mb-3 text-neutral-900">
@@ -401,8 +402,8 @@ export function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">No surprises</h3>
-              <p className="text-sm text-neutral-600">Pay only for what you use. Bring your own AI key and pay the provider directly. No hidden markup, no seat licenses.</p>
+              <h3 className="font-semibold text-lg mb-2">Insight first</h3>
+              <p className="text-sm text-neutral-600">The goal is a useful owner moment: what sold, what is low, what cost too much, and what to do next week.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
               <div className="w-8 h-8 mb-3 text-neutral-900">
@@ -410,8 +411,8 @@ export function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Seriously private</h3>
-              <p className="text-sm text-neutral-600">Your sales, stock, and costs never leave your server. The AI sees only what's needed for the current question.</p>
+              <h3 className="font-semibold text-lg mb-2">Controlled data</h3>
+              <p className="text-sm text-neutral-600">Business records are scoped per account, provider keys are encrypted, and paid accounts can export operational data.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
               <div className="w-8 h-8 mb-3 text-neutral-900">
@@ -419,8 +420,8 @@ export function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Switch providers anytime</h3>
-              <p className="text-sm text-neutral-600">Locked into OpenAI? Leave. Found a cheaper option? Go. Change AI providers in one click, keep all your data.</p>
+              <h3 className="font-semibold text-lg mb-2">Flexible AI</h3>
+              <p className="text-sm text-neutral-600">The model provider can change later. The solution stays anchored on sales, inventory, expenses, and reports.</p>
             </div>
             <div className="bg-white border border-neutral-200 p-6 rounded-lg">
               <div className="w-8 h-8 mb-3 text-neutral-900">
@@ -428,8 +429,8 @@ export function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Built by makers</h3>
-              <p className="text-sm text-neutral-600">We run small businesses too. We got tired of fancy tools that didn't fit. This is what we built for ourselves.</p>
+              <h3 className="font-semibold text-lg mb-2">Pilot friendly</h3>
+              <p className="text-sm text-neutral-600">Use demo data for sales calls, then onboard real users by importing their existing records and walking through prepared questions.</p>
             </div>
           </div>
         </div>
@@ -440,10 +441,11 @@ export function LandingPage() {
           <div className="mb-10 text-center">
             <span className="label">Pricing</span>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
-              Simple plans. Start free.
+              Simple plans for pilots and growing shops.
             </h2>
             <p className="text-neutral-600 mt-3 max-w-xl mx-auto">
-              Every new account gets a 14-day Pro trial. No credit card required to sign up.
+              Start with a demo or assisted pilot, then upgrade when the owner depends on AI reports,
+              imports, and unlimited operating records.
             </p>
           </div>
           <PricingGrid loginRedirect="/login" callbackUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing`} />
@@ -455,29 +457,29 @@ export function LandingPage() {
           <div className="mb-12">
             <span className="label">See it live</span>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
-              Watch Intellexa across your day.
+              Watch the pilot workflow.
             </h2>
             <p className="text-neutral-600 mt-3 max-w-2xl">
-              Three short walk-throughs: getting product data in, making sense of the week,
-              and keeping your team's access honest.
+              Three short walk-throughs: load the owner's data, reveal the business pattern,
+              and give staff the right operating access.
             </p>
           </div>
           <div className="space-y-16 md:space-y-24">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
-                <span className="label">01 · Conversational import</span>
+                <span className="label">01 - Assisted import</span>
                 <h3 className="text-2xl md:text-3xl font-semibold tracking-tight mt-2 mb-4">
                   Paste a list. Confirm. Done.
                 </h3>
                 <p className="text-neutral-700 text-sm md:text-base leading-relaxed">
-                  Chat your product sheet in — raw text from Excel, WhatsApp, or dictation.
-                  The AI extracts name, SKU, and price, and you get a preview to tweak
+                  Bring the product sheet in from Excel, WhatsApp, POS exports, or manual notes.
+                  The AI extracts name, SKU, stock, and price, and you get a preview to tweak
                   before anything writes to the database.
                 </p>
                 <ul className="mt-5 space-y-2 text-sm text-neutral-600">
-                  <Bullet>Handles messy formatting, stray dashes, mixed currencies.</Bullet>
-                  <Bullet>Always previewed — never silent writes.</Bullet>
-                  <Bullet>SKUs auto-generated; edit before saving.</Bullet>
+                  <Bullet>Handles messy formatting, notes, and partial product lists.</Bullet>
+                  <Bullet>Always previewed before anything is saved.</Bullet>
+                  <Bullet>Good enough for demo data, practical enough for real pilots.</Bullet>
                 </ul>
               </div>
               <ImportDemo />
@@ -485,30 +487,29 @@ export function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <ReportsDemo />
               <div>
-                <span className="label">02 · Reports & comparisons</span>
+                <span className="label">02 - Owner reports</span>
                 <h3 className="text-2xl md:text-3xl font-semibold tracking-tight mt-2 mb-4">
-                  This week vs last. In one glance.
+                  This week vs last, with actions.
                 </h3>
                 <p className="text-neutral-700 text-sm md:text-base leading-relaxed">
-                  Revenue, profit, and expenses rolled up by day, week, or month. Compare
-                  periods to catch trends early. Ask "why was Wednesday slow?" and Intellexa
-                  checks payment mix and stock-outs for you.
+                  Revenue, profit, and expenses roll up by day, week, or month. The owner can ask
+                  what changed, which products drove it, and what needs attention before next week.
                 </p>
                 <ul className="mt-5 space-y-2 text-sm text-neutral-600">
-                  <Bullet>Day / week / month aggregations out of the box.</Bullet>
-                  <Bullet>Period-over-period deltas with direction and magnitude.</Bullet>
-                  <Bullet>Export any view to CSV on the Business plan.</Bullet>
+                  <Bullet>Daily, weekly, and monthly summaries out of the box.</Bullet>
+                  <Bullet>Highlights top products, low stock, and expense pressure.</Bullet>
+                  <Bullet>Turns the report into restock and cost-control actions.</Bullet>
                 </ul>
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
-                <span className="label">03 · Team & permissions</span>
+                <span className="label">03 - Team workflow</span>
                 <h3 className="text-2xl md:text-3xl font-semibold tracking-tight mt-2 mb-4">
                   Staff see what they need. Nothing more.
                 </h3>
                 <p className="text-neutral-700 text-sm md:text-base leading-relaxed">
-                  Invite staff and toggle per-role permissions — record sales, manage
+                  Invite staff and toggle per-role permissions - record sales, manage
                   inventory, view reports, log expenses. Your cashier rings up customers;
                   your accountant sees the books. Credentials stay with you.
                 </p>
@@ -537,29 +538,29 @@ export function LandingPage() {
           <div className="mb-10">
             <span className="label">FAQ</span>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
-              Answers to the usual worries.
+              Questions from early business users.
             </h2>
           </div>
           <div className="divide-y divide-neutral-200 border-y border-neutral-200">
             <Faq
-              q="Does Intellexa send my sales data to OpenAI?"
-              a="Only the minimal business snapshot needed to answer the current question — sales totals, top products, low stock — is included in the prompt. Raw customer details are never sent. You can also pick an open-weights provider like Groq/OpenRouter if you want to keep data away from closed-API vendors."
+              q="Who should we onboard first?"
+              a="Start with inventory-heavy small businesses: retail stores, pharmacies, beauty supply shops, salons with products, restaurants, and small wholesalers. They feel stockouts, slow sellers, and unclear profit quickly."
             />
             <Faq
-              q="Can the AI make up numbers?"
-              a="No. The numbers are computed server-side via MongoDB aggregations before the model sees anything. The model only phrases the answer. If a figure isn't in the snapshot, the prompt instructs it to say so."
+              q="What should the first pilot prove?"
+              a="Within 15 minutes, the owner should see one useful insight they did not already know: a fast seller, low-stock risk, weak margin pattern, expense spike, or weekly action list."
             />
             <Faq
-              q="Is my provider API key safe?"
-              a="Keys are encrypted with AES-256-GCM (random IV + auth tag) before hitting the database. They are decrypted in-memory only when making a provider call, and never returned to the browser."
+              q="Do users need to configure AI first?"
+              a="For demos and early pilots, keep AI configuration out of the sales conversation. Configure the provider behind the scenes, then show the owner the sales, stock, profit, and report outcomes."
             />
             <Faq
-              q="Can I try it without a paid AI key?"
-              a="Yes. Groq, Google Gemini, OpenRouter, Mistral, and Cohere all offer free tiers that work out of the box. Gemini and Groq are the fastest to set up."
+              q="What data do we need for onboarding?"
+              a="A product list, opening stock, recent sales, and a few expense categories are enough. Existing Excel sheets, POS exports, notebooks, or WhatsApp-style notes can be imported or keyed in."
             />
             <Faq
-              q="Who is this for?"
-              a="Small retailers and service businesses — shops with 1–20 staff and a handful to a few hundred SKUs. If your operations fit in a WhatsApp group and a notebook today, Intellexa is sized for you."
+              q="What should we demo?"
+              a="Demo sales intelligence, inventory control, profit monitoring, and owner reports. Avoid leading with model providers, settings, or infrastructure unless the buyer is technical."
             />
             <Faq
               q="Can multiple staff log in?"
@@ -567,11 +568,11 @@ export function LandingPage() {
             />
             <Faq
               q="What happens if I change currency later?"
-              a="Future totals render in the new currency. Existing totals aren't converted — the underlying numbers stay, only the symbol changes. Most owners only change this once, at setup."
+              a="Future totals render in the new currency. Existing totals aren't converted - the underlying numbers stay, only the symbol changes. Most owners only change this once, at setup."
             />
             <Faq
               q="Can I export my data?"
-              a="Yes. Business-plan accounts get one-click JSON and CSV exports of everything — products, sales, payments, expenses — from the Billing settings. On any plan the data remains yours and can be pulled directly from MongoDB if you need it."
+              a="Yes. Business-plan accounts get one-click JSON and CSV exports of everything - products, sales, payments, expenses - from the Billing settings. On any plan the data remains yours and can be pulled directly from MongoDB if you need it."
             />
             <Faq
               q="Is there a free trial?"
@@ -579,11 +580,11 @@ export function LandingPage() {
             />
             <Faq
               q="What's the difference between Pro and Business?"
-              a="Pro ($15/mo) unlocks the AI Assistant, imports, Reports, and unlimited records — everything a solo operator needs. Business ($39/mo) adds priority email support, a 30-minute onboarding call, on-demand data exports, and early access to new features — for owners who want a human in the loop."
+              a="Pro ($15/mo) unlocks the AI Assistant, imports, Reports, and unlimited records - everything a solo operator needs. Business ($39/mo) adds priority email support, a 30-minute onboarding call, on-demand data exports, and early access to new features - for owners who want a human in the loop."
             />
             <Faq
               q="How am I charged?"
-              a="Payments are processed by Paystack in USD. You'll be billed monthly on the same day you subscribed. You can cancel at any time from Settings → Billing — you keep Pro access until the end of the current period."
+              a="Payments are processed by Paystack in USD. You'll be billed monthly on the same day you subscribed. You can cancel at any time from Settings -> Billing - you keep Pro access until the end of the current period."
             />
             <Faq
               q="Can I switch plans?"
@@ -591,7 +592,7 @@ export function LandingPage() {
             />
             <Faq
               q="What happens if my payment fails?"
-              a="You stay on your plan in a past-due state for a grace window while we retry. If the retries don't clear, the subscription is canceled and your account drops to Free — your data is never deleted."
+              a="You stay on your plan in a past-due state for a grace window while we retry. If the retries don't clear, the subscription is canceled and your account drops to Free - your data is never deleted."
             />
           </div>
         </div>
@@ -600,9 +601,10 @@ export function LandingPage() {
       <section className={`${DIAGONAL_LINES}`}>
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight">Ready to ask?</h2>
+            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight">Ready to run a pilot?</h2>
             <p className="text-neutral-600 mt-3 max-w-xl">
-              Sign in, bring your AI key, and you'll be chatting with your business data in minutes.
+              Start with demo data, onboard one real business, and prove the owner can act on sales,
+              stock, profit, and weekly report insights.
             </p>
           </div>
           <div className="flex gap-3">
@@ -617,11 +619,11 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <div className="flex items-baseline gap-3">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">AI · SME</span>
+              <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">AI / SME</span>
               <span className="text-lg font-semibold">Intellexa</span>
             </div>
             <p className="text-sm text-neutral-600 mt-3 max-w-sm">
-              AI-native business intelligence, sized for the shop around the corner.
+              Sales, inventory, profit, and AI reports for inventory-heavy small businesses.
             </p>
           </div>
           <div>
@@ -644,7 +646,7 @@ export function LandingPage() {
         </div>
         <div className="border-t border-neutral-200">
           <div className="max-w-6xl mx-auto px-5 md:px-8 py-5 text-xs text-neutral-500">
-            © {new Date().getFullYear()} Intellexa. Built for small businesses.
+            (c) {new Date().getFullYear()} Intellexa. Built for small businesses.
           </div>
         </div>
       </footer>
@@ -734,19 +736,19 @@ type ChatTurn =
   | { role: 'assistant'; text: string; thinkMs: number };
 
 const CHAT_SCRIPT: ChatTurn[] = [
-  { role: 'user', text: 'What were my top 3 products this month?' },
+  { role: 'user', text: 'What should I restock before the weekend?' },
   {
     role: 'assistant',
     thinkMs: 300,
     text:
-      'This month so far:\n• TCL Smart TV 50" — €13,500 (3 units)\n• Nasco Fridge/Freezer — €5,590 (2 units)\n• Midea A/C — €4,800 (1 unit)',
+      'Restock first:\n- Samsung Microwave: 1 left, threshold 2\n- Midea A/C: 1 left, threshold 2\n- Counting Machine: 1 left, threshold 2\nTCL TVs are selling fastest, but stock is still healthy.',
   },
-  { role: 'user', text: 'Am I low on anything?' },
+  { role: 'user', text: 'What should I tell the owner this week?' },
   {
     role: 'assistant',
     thinkMs: 300,
     text:
-      'Three SKUs below threshold: Samsung Microwave (1/2), Midea A/C (1/2), Counting Machine (1/2). Want me to draft a restock list?',
+      'Owner summary: revenue is up, TVs drove most sales, and three SKUs need restock. Watch appliance expenses next week because they are eating into net profit.',
   },
 ];
 
@@ -756,7 +758,7 @@ function MockChat() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const current = step < CHAT_SCRIPT.length ? CHAT_SCRIPT[step] : null;
-  // Thinking is derived so the effect never sets it — avoids a self-triggered
+  // Thinking is derived so the effect never sets it - avoids a self-triggered
   // re-render cancelling the reveal timeout via the cleanup.
   const thinking = current?.role === 'assistant' && typed === '';
 
@@ -811,7 +813,7 @@ function MockChat() {
               <span className="relative rounded-full bg-emerald-500 h-2 w-2" />
             </span>
           </div>
-          <div className="text-[10px] text-neutral-500 mt-0.5">Grounded on live data</div>
+          <div className="text-[10px] text-neutral-500 mt-0.5">Owner-ready answers</div>
         </div>
         <span className="chip">Live demo</span>
       </div>
@@ -832,7 +834,7 @@ function MockChat() {
       </div>
       <div className="border-t border-neutral-200 p-3 flex gap-2">
         <div className="input flex-1 text-neutral-400 select-none">
-          {current?.role === 'user' ? typed + (typed ? '' : '') : 'Ask about your business…'}
+          {current?.role === 'user' ? typed + (typed ? '' : '') : 'Ask about your business...'}
         </div>
         <div className="btn-primary !px-4 text-sm select-none">Send</div>
       </div>
@@ -859,7 +861,7 @@ function ChatBubble({ role, text, caret }: { role: 'user' | 'assistant'; text: s
         ))}
         {caret && <span className="inline-block w-[7px] h-[14px] align-middle bg-white/80 ml-0.5 animate-caret" />}
         {role === 'assistant' && !caret && (
-          <div className="text-[10px] uppercase tracking-wider mt-2 opacity-60">gpt-4o</div>
+          <div className="text-[10px] uppercase tracking-wider mt-2 opacity-60">grounded answer</div>
         )}
       </div>
     </div>
@@ -939,18 +941,18 @@ function OwnerSnippet() {
     <div className="card p-5 space-y-3 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between">
         <span className="label flex items-center gap-2">
-          <span key={scene.month} className="inline-block animate-fade-in">Overview · {scene.month}</span>
+          <span key={scene.month} className="inline-block animate-fade-in">Overview / {scene.month}</span>
         </span>
         <span className="chip">EUR</span>
       </div>
       <div className="grid grid-cols-3 gap-0 border border-neutral-200 [&>*]:p-4 [&>*:not(:last-child)]:border-r [&>*]:border-neutral-200">
         <div>
           <div className="label">Revenue</div>
-          <div className="text-xl font-semibold mt-1 tabular-nums">€{revenue.toLocaleString()}</div>
+          <div className="text-xl font-semibold mt-1 tabular-nums">EUR {revenue.toLocaleString()}</div>
         </div>
         <div>
           <div className="label">Net profit</div>
-          <div className="text-xl font-semibold mt-1 tabular-nums">€{profit.toLocaleString()}</div>
+          <div className="text-xl font-semibold mt-1 tabular-nums">EUR {profit.toLocaleString()}</div>
         </div>
         <div>
           <div className="label">Low stock</div>
@@ -965,7 +967,7 @@ function OwnerSnippet() {
             style={{ animationDelay: `${i * 80}ms` }}
           >
             <span className="text-neutral-700">{r.name}</span>
-            <span className="tabular-nums font-semibold">€{r.value.toLocaleString()}</span>
+            <span className="tabular-nums font-semibold">EUR {r.value.toLocaleString()}</span>
           </div>
         ))}
       </div>
@@ -999,7 +1001,7 @@ function StaffSnippet() {
       const t = setTimeout(() => setRevealed((r) => r + 1), 700);
       return () => clearTimeout(t);
     }
-    // Cart is complete — flash the "Record sale" button, then reset.
+    // Cart is complete - flash the "Record sale" button, then reset.
     const t1 = setTimeout(() => setRecording(true), 1200);
     const t2 = setTimeout(() => {
       setRecording(false);
@@ -1024,7 +1026,7 @@ function StaffSnippet() {
       </div>
       <div className="border border-neutral-200 min-h-[148px]">
         {items.length === 0 && (
-          <div className="px-3 py-6 text-xs text-neutral-400 text-center">Scanning items…</div>
+          <div className="px-3 py-6 text-xs text-neutral-400 text-center">Scanning items...</div>
         )}
         {items.map((it, i) => (
           <div
@@ -1032,9 +1034,9 @@ function StaffSnippet() {
             className={`px-3 py-2 text-sm border-b border-neutral-200 flex items-center justify-between animate-slide-in`}
           >
             <span>{it.name}</span>
-            <span className="tabular-nums text-neutral-500">×{it.qty}</span>
+            <span className="tabular-nums text-neutral-500">x{it.qty}</span>
             <span className="tabular-nums font-semibold w-20 text-right">
-              €{(it.qty * it.unit).toLocaleString()}
+              EUR {(it.qty * it.unit).toLocaleString()}
             </span>
           </div>
         ))}
@@ -1043,7 +1045,7 @@ function StaffSnippet() {
             <span className="font-medium">Total</span>
             <span></span>
             <span className="tabular-nums font-semibold w-20 text-right">
-              €{animatedTotal.toLocaleString()}
+              EUR {animatedTotal.toLocaleString()}
             </span>
           </div>
         )}
@@ -1055,7 +1057,7 @@ function StaffSnippet() {
             recording ? 'scale-[0.97] opacity-80' : ''
           }`}
         >
-          {recording ? 'Recorded ✓' : 'Record sale'}
+          {recording ? 'Recorded ' : 'Record sale'}
         </div>
       </div>
     </div>
@@ -1063,10 +1065,10 @@ function StaffSnippet() {
 }
 
 const IMPORT_LINES = [
-  'TCL Smart TV 50" - €4,500',
-  'Samsung Microwave - €1,850',
-  'Nasco Fridge/Freezer - €2,795',
-  'Midea A/C Split - €2,400',
+  'TCL Smart TV 50" - EUR 4,500',
+  'Samsung Microwave - EUR 1,850',
+  'Nasco Fridge/Freezer - EUR 2,795',
+  'Midea A/C Split - EUR 2,400',
 ];
 
 const IMPORT_ROWS = [
@@ -1128,14 +1130,14 @@ function ImportDemo() {
               phase === 'parsing' ? 'scale-[0.97] opacity-90' : ''
             }`}
           >
-            {phase === 'parsing' ? 'Parsing…' : 'Parse & preview'}
+            {phase === 'parsing' ? 'Parsing...' : 'Parse & preview'}
           </div>
         </div>
         <div className="p-4">
           <div className="label mb-2">Structured preview</div>
           <div className="space-y-1.5 min-h-[136px]">
             {phase === 'typing' && (
-              <div className="text-xs text-neutral-400 italic pt-10 text-center">Awaiting paste…</div>
+              <div className="text-xs text-neutral-400 italic pt-10 text-center">Awaiting paste...</div>
             )}
             {phase !== 'typing' &&
               IMPORT_ROWS.slice(0, revealed).map((r, i) => (
@@ -1147,7 +1149,7 @@ function ImportDemo() {
                     <div className="font-medium">{r.name}</div>
                     <div className="text-[10px] font-mono text-neutral-400">{r.sku}</div>
                   </div>
-                  <span className="tabular-nums font-semibold">€{r.price.toLocaleString()}</span>
+                  <span className="tabular-nums font-semibold">EUR {r.price.toLocaleString()}</span>
                 </div>
               ))}
           </div>
@@ -1196,19 +1198,19 @@ function ReportsDemo() {
       <div className="flex items-center justify-between mb-3">
         <span className="label flex items-center gap-2">
           <span key={scene.label} className="inline-block animate-fade-in">
-            Revenue · {scene.label}
+            Revenue / {scene.label}
           </span>
         </span>
         <span className="chip">EUR</span>
       </div>
       <div className="flex items-baseline justify-between mb-4">
-        <div className="text-2xl font-semibold tabular-nums">€{revenue.toLocaleString()}</div>
+        <div className="text-2xl font-semibold tabular-nums">EUR {revenue.toLocaleString()}</div>
         <div
           className={`text-xs tabular-nums font-medium ${
             positive ? 'text-emerald-700' : 'text-amber-700'
           }`}
         >
-          {positive ? '▲' : '▼'} {Math.abs(scene.change).toFixed(1)}% vs prior
+          {positive ? 'up' : 'down'} {Math.abs(scene.change).toFixed(1)}% vs prior
         </div>
       </div>
       <div className="flex items-end justify-between gap-1.5 h-24 px-1">
@@ -1229,13 +1231,13 @@ function ReportsDemo() {
         <div>
           <div className="label">Avg / day</div>
           <div className="text-sm font-semibold mt-1 tabular-nums">
-            €{Math.round(scene.revenue / 7).toLocaleString()}
+            EUR {Math.round(scene.revenue / 7).toLocaleString()}
           </div>
         </div>
         <div>
           <div className="label">Best day</div>
           <div className="text-sm font-semibold mt-1 tabular-nums">
-            €{Math.max(...scene.bars).toLocaleString()}
+            EUR {Math.max(...scene.bars).toLocaleString()}
           </div>
         </div>
         <div>
@@ -1273,7 +1275,7 @@ function TeamDemo() {
   return (
     <div className="card p-5 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between mb-3">
-        <span className="label">Team · Permissions</span>
+        <span className="label">Team / Permissions</span>
         <span className="chip">Owner only</span>
       </div>
       <div className="border border-neutral-200">
@@ -1284,7 +1286,7 @@ function TeamDemo() {
         </div>
         {revealed === 0 && (
           <div className="px-3 py-8 text-xs text-neutral-400 text-center">
-            Invite your first staff member…
+            Invite your first staff member...
           </div>
         )}
         {TEAM_ROWS.slice(0, revealed).map((r, i) => (

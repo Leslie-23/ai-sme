@@ -54,11 +54,11 @@ export function PricingPage() {
       <div className="text-center space-y-2">
         <div className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">Pricing</div>
         <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-neutral-900">
-          Choose the plan that fits your business
+          Choose the plan for your pilot or shop
         </h1>
         <p className="text-sm text-neutral-600 max-w-xl mx-auto">
-          Start free, unlock AI and unlimited records on Pro, or scale up to Business when your team
-          grows. Cancel anytime.
+          Start with tracking, unlock AI reports and imports on Pro, or use Business when you want
+          onboarding help and export support for real customers.
         </p>
       </div>
 

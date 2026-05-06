@@ -64,7 +64,7 @@ export function ReportsPage() {
     void load();
   }, []);
 
-  if (loading && !data) return <div className="text-neutral-500 text-sm">Building report…</div>;
+  if (loading && !data) return <div className="text-neutral-500 text-sm">Building report...</div>;
   if (error && !data) {
     return (
       <div className="space-y-3">
@@ -86,10 +86,10 @@ export function ReportsPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">All-time report</div>
+          <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner report</div>
           <div className="text-xs text-neutral-500 mt-1">
-            Generated {formatDate(generatedAt)} · Model {modelUsed}
-            {stats.firstActivity ? ` · Since ${formatDate(stats.firstActivity).split(',')[0]}` : ''}
+            Generated {formatDate(generatedAt)} / Model {modelUsed}
+            {stats.firstActivity ? ` / Since ${formatDate(stats.firstActivity).split(',')[0]}` : ''}
           </div>
         </div>
         <button
@@ -98,7 +98,7 @@ export function ReportsPage() {
           disabled={loading}
           className="btn-ghost !px-3 !py-1.5 !border !border-neutral-200 text-sm disabled:opacity-50"
         >
-          {loading ? 'Regenerating…' : 'Regenerate'}
+          {loading ? 'Regenerating...' : 'Regenerate'}
         </button>
       </div>
 
@@ -126,7 +126,7 @@ export function ReportsPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 card p-0 overflow-hidden">
           <div className="px-5 py-3 border-b border-neutral-200 flex items-center justify-between">
-            <div className="section-title">AI insights</div>
+            <div className="section-title">Owner insights</div>
             <span className="text-[10px] uppercase tracking-wider text-neutral-400">{modelUsed}</span>
           </div>
           <div className="p-5 text-sm text-neutral-800 whitespace-pre-wrap leading-relaxed">
@@ -145,7 +145,7 @@ export function ReportsPage() {
                     <span className="text-neutral-800 capitalize truncate pr-2">{p.method}</span>
                     <span className="tabular-nums text-neutral-900">
                       {formatMoney(p.total, currency)}
-                      <span className="text-neutral-400"> · {p.pct.toFixed(0)}%</span>
+                      <span className="text-neutral-400"> / {p.pct.toFixed(0)}%</span>
                     </span>
                   </li>
                 ))}
@@ -169,7 +169,7 @@ export function ReportsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Panel title="Top products">
+        <Panel title="Fast sellers">
           {stats.topProducts.length === 0 ? (
             <Empty text="No product sales yet." />
           ) : (
@@ -179,7 +179,7 @@ export function ReportsPage() {
                   <span className="text-neutral-800 truncate pr-2">{p.productName}</span>
                   <span className="tabular-nums text-neutral-900">
                     {formatMoney(p.revenue, currency)}
-                    <span className="text-neutral-400"> · {p.units}u</span>
+                    <span className="text-neutral-400"> / {p.units}u</span>
                   </span>
                 </li>
               ))}
@@ -197,7 +197,7 @@ export function ReportsPage() {
                   <span className="text-neutral-800 capitalize truncate pr-2">{e.category}</span>
                   <span className="tabular-nums text-neutral-900">
                     {formatMoney(e.total, currency)}
-                    <span className="text-neutral-400"> · {e.pct.toFixed(0)}%</span>
+                    <span className="text-neutral-400"> / {e.pct.toFixed(0)}%</span>
                   </span>
                 </li>
               ))}
@@ -207,7 +207,7 @@ export function ReportsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Panel title="Low stock" badge={stats.lowStock.length.toString()}>
+        <Panel title="Restock risks" badge={stats.lowStock.length.toString()}>
           {stats.lowStock.length === 0 ? (
             <Empty text="All stocked." />
           ) : (
@@ -236,7 +236,7 @@ export function ReportsPage() {
                     <div
                       className="w-full bg-neutral-900"
                       style={{ height: `${h}px` }}
-                      title={`${formatMoney(d.revenue, currency)} · ${d.orders} orders`}
+                      title={`${formatMoney(d.revenue, currency)} / ${d.orders} orders`}
                     />
                   </div>
                   <div className="text-[10px] text-neutral-500">{d.day}</div>

@@ -29,12 +29,12 @@ export function ChatPanel({
   sessionId,
   heightClass = 'h-[480px]',
   showDateRange = false,
-  placeholder = 'Ask about your business…',
+  placeholder = 'Ask what sold, what is low, or what to do next...',
   suggestions = [
-    'What were my top 3 products this month?',
-    'Which payment method drives the most revenue?',
-    'Am I running low on any stock?',
-    'How does this week compare to last?',
+    'What should I restock this week?',
+    'Which products are selling fastest?',
+    'Where is profit leaking this month?',
+    'Write an owner summary for this week.',
   ],
   onMessagesChange,
   headerExtras,
@@ -141,9 +141,9 @@ export function ChatPanel({
     <div className={`card flex flex-col ${heightClass}`}>
       <div className="px-4 sm:px-5 py-3 border-b border-neutral-200 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <div className="section-title">AI Assistant</div>
+          <div className="section-title">Owner Assistant</div>
           <div className="text-[11px] text-neutral-500 mt-0.5">
-            Grounded on your live business data
+            Sales, stock, expenses, and next actions
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -155,7 +155,7 @@ export function ChatPanel({
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
               />
-              <span className="text-neutral-400 text-xs">→</span>
+              <span className="text-neutral-400 text-xs">to</span>
               <input
                 type="date"
                 className="input !py-1 !px-2 text-xs flex-1 sm:w-36 sm:flex-none"
@@ -172,7 +172,7 @@ export function ChatPanel({
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center">
             <div className="text-sm text-neutral-500 mb-4">
-              Start a conversation with your business data.
+              Ask for a restock list, profit check, sales summary, or next-week action plan.
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-xl">
               {suggestions.map((s) => (
@@ -209,7 +209,7 @@ export function ChatPanel({
         {sending && (
           <div className="flex justify-start">
             <div className="border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-500">
-              <span className="inline-block animate-pulse">thinking…</span>
+              <span className="inline-block animate-pulse">thinking...</span>
             </div>
           </div>
         )}

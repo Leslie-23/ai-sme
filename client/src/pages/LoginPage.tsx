@@ -60,16 +60,16 @@ export function LoginPage() {
         <div>
           <div className="text-[10px] uppercase tracking-[0.2em] text-neutral-500">AI-SME</div>
           <div className="mt-3 text-3xl font-semibold tracking-tight">
-            Business intelligence,
+            Sales, stock, and profit insight,
             <br />
-            grounded in your data.
+            ready for real shop owners.
           </div>
         </div>
         <div className="space-y-3">
           {[
-            'Real-time sales, inventory, and expense tracking',
-            'Natural-language answers from your own numbers',
-            'Pluggable AI — pick from seven providers',
+            'Track sales, inventory, expenses, and payments',
+            'Spot stockout risks and fast-selling products',
+            'Generate owner summaries and next actions',
           ].map((t) => (
             <div key={t} className="flex items-start gap-3 text-sm text-neutral-300">
               <span className="mt-1 block h-1.5 w-1.5 bg-white" />
@@ -78,7 +78,7 @@ export function LoginPage() {
           ))}
         </div>
         <div className="text-[11px] uppercase tracking-[0.2em] text-neutral-600">
-          © {new Date().getFullYear()}
+          (c) {new Date().getFullYear()}
         </div>
       </div>
 
@@ -92,8 +92,8 @@ export function LoginPage() {
           </h1>
           <p className="text-sm text-neutral-500 mt-1 mb-6">
             {mode === 'login'
-              ? 'Welcome back to your dashboard.'
-              : 'Register your business in less than a minute.'}
+              ? 'Welcome back to your operating dashboard.'
+              : 'Create a pilot workspace for a real business or demo account.'}
           </p>
           <form onSubmit={onSubmit} className="space-y-4">
             {mode === 'register' && (
@@ -116,7 +116,7 @@ export function LoginPage() {
                   >
                     {CURRENCIES.map((c) => (
                       <option key={c.code} value={c.code}>
-                        {c.code} — {c.label}
+                        {c.code} - {c.label}
                       </option>
                     ))}
                   </select>
@@ -150,7 +150,7 @@ export function LoginPage() {
               </div>
             )}
             <button type="submit" className="btn-primary w-full" disabled={submitting}>
-              {submitting ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
+              {submitting ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create account'}
             </button>
           </form>
           <button

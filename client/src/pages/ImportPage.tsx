@@ -82,24 +82,24 @@ const TAB_LABELS: Record<Kind, string> = {
 };
 
 const PLACEHOLDERS: Record<Kind, string> = {
-  auto: 'Paste, describe, or attach — AI figures out what it is',
-  products: 'Paste a product catalog — name, SKU, price, stock…',
-  sales: 'Describe sales — items + qty + payment method',
-  payments: 'Describe non-sale money in — deposits, refunds, top-ups',
-  expenses: 'Describe expenses — rent, utilities, restocking, fees…',
+  auto: 'Paste products, sales, expenses, or notes from a pilot business',
+  products: 'Paste a product catalog with name, SKU, price, and stock',
+  sales: 'Paste recent sales with items, quantities, and payment method',
+  payments: 'Paste deposits, refunds, transfers, or other money in',
+  expenses: 'Paste rent, utilities, restocking, fees, or other expenses',
 };
 
 const INTROS: Record<Kind, string> = {
   auto:
-    "Hi! I'm your universal import assistant. Paste or attach anything — I'll classify each row into products, sales, payments, or expenses automatically. Or use a tab above to focus on one kind.",
+    "Paste a pilot customer's products, recent sales, payments, or expenses. I will classify each row so the first demo starts with real operating data.",
   products:
-    "Let's import products. Paste a catalog, describe items, or attach a CSV — if you mix in sales or expenses, I'll still route them to the right bucket.",
+    "Paste the product catalog from Excel, POS export, WhatsApp, or manual notes. I will structure it for review before saving.",
   sales:
-    "Let's log sales. Tell me what sold, quantity, and payment method. I'll match items to your known SKUs — anything that's not a sale will still be classified correctly.",
+    "Paste recent sales so the owner can immediately see top products, payment mix, and stock movement.",
   payments:
-    "Let's record non-sale money in: deposits, refunds, transfers. Mixed data is fine — I'll sort anything that isn't a payment into the right bucket.",
+    "Let's record non-sale money in: deposits, refunds, transfers. Mixed data is fine - I'll sort anything that isn't a payment into the right bucket.",
   expenses:
-    "Let's log expenses — rent, utilities, marketing, restocking. Mixed data is fine; I'll classify anything that isn't an expense correctly.",
+    "Let's log expenses - rent, utilities, marketing, restocking. Mixed data is fine; I'll classify anything that isn't an expense correctly.",
 };
 
 export function ImportPage() {
@@ -164,7 +164,7 @@ export function ImportPage() {
   function switchKind(next: Kind) {
     if (next === kind) return;
     setKind(next);
-    // Pending records persist across tab changes — the tab only hints focus
+    // Pending records persist across tab changes - the tab only hints focus
     // to the AI. Append a small system note so the chat reflects the switch.
     setMessages((m) => [
       ...m,
@@ -173,8 +173,8 @@ export function ImportPage() {
         role: 'assistant',
         text:
           next === 'auto'
-            ? 'Switched to Auto — I\'ll classify whatever you send across all four buckets.'
-            : `Focusing on ${TAB_LABELS[next].toLowerCase()}. Mixed data is still fine — I\'ll route anything that isn\'t ${TAB_LABELS[next].toLowerCase()} to the right bucket.`,
+            ? 'Switched to Auto - I\'ll classify whatever you send across all four buckets.'
+            : `Focusing on ${TAB_LABELS[next].toLowerCase()}. Mixed data is still fine - I\'ll route anything that isn\'t ${TAB_LABELS[next].toLowerCase()} to the right bucket.`,
       },
     ]);
   }
@@ -248,7 +248,7 @@ export function ImportPage() {
       if (res.sales.inserted) parts.push(`${res.sales.inserted} sales`);
       if (res.payments.inserted) parts.push(`${res.payments.inserted} payments`);
       if (res.expenses.inserted) parts.push(`${res.expenses.inserted} expenses`);
-      const summary = parts.length > 0 ? `Saved — ${parts.join(', ')}.` : 'Nothing saved.';
+      const summary = parts.length > 0 ? `Saved - ${parts.join(', ')}.` : 'Nothing saved.';
       setStatus(summary);
       setPending(emptyBuckets());
       setMessages((m) => [
@@ -275,8 +275,8 @@ export function ImportPage() {
               <div className="section-title">Import assistant</div>
               <div className="text-[11px] text-neutral-500 mt-0.5">
                 {kind === 'auto'
-                  ? `Auto-classifies into products · sales${showPayments ? ' · payments' : ''}${showExpenses ? ' · expenses' : ''}.`
-                  : `Focused on ${TAB_LABELS[kind].toLowerCase()} — mixed data still routes correctly.`}
+                  ? `Auto-classifies into products / sales${showPayments ? ' / payments' : ''}${showExpenses ? ' / expenses' : ''}.`
+                  : `Focused on ${TAB_LABELS[kind].toLowerCase()} - mixed data still routes correctly.`}
               </div>
             </div>
             <button
@@ -322,7 +322,7 @@ export function ImportPage() {
           {sending && (
             <div className="flex justify-start">
               <div className="border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-500">
-                <span className="inline-block animate-pulse">classifying…</span>
+                <span className="inline-block animate-pulse">classifying...</span>
               </div>
             </div>
           )}
@@ -426,7 +426,7 @@ export function ImportPage() {
             onClick={apply}
             disabled={applying || total === 0}
           >
-            {applying ? 'Saving…' : `Save ${total || ''}`.trim()}
+            {applying ? 'Saving...' : `Save ${total || ''}`.trim()}
           </button>
         </div>
       </div>
@@ -495,7 +495,7 @@ function ProductsTable({
             <td className="px-4 py-2">
               <div className="font-medium text-neutral-900 truncate max-w-[180px]">{p.name}</div>
               <div className="text-[10px] text-neutral-500">
-                {p.sku} · {p.category}
+                {p.sku} / {p.category}
               </div>
             </td>
             <td className="py-2 text-right tabular-nums">{p.currentStock}</td>
@@ -538,7 +538,7 @@ function SalesTable({
             <td className="px-4 py-2">
               {s.items.map((it, j) => (
                 <div key={j} className="text-neutral-800">
-                  {it.quantity}× <span className="font-mono text-[10px]">{it.sku}</span>
+                  {it.quantity}x <span className="font-mono text-[10px]">{it.sku}</span>
                 </div>
               ))}
             </td>
@@ -583,7 +583,7 @@ function PaymentsTable({
               {formatMoney(p.amount, currency)}
             </td>
             <td className="py-2 text-neutral-700">{p.method}</td>
-            <td className="py-2 text-neutral-500 truncate max-w-[180px]">{p.reference || '—'}</td>
+            <td className="py-2 text-neutral-500 truncate max-w-[180px]">{p.reference || '-'}</td>
             <td className="py-2 text-neutral-500 text-[10px]">
               {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'now'}
             </td>
@@ -624,7 +624,7 @@ function ExpensesTable({
               {formatMoney(e.amount, currency)}
             </td>
             <td className="py-2 text-neutral-700">{e.category}</td>
-            <td className="py-2 text-neutral-500 truncate max-w-[180px]">{e.description || '—'}</td>
+            <td className="py-2 text-neutral-500 truncate max-w-[180px]">{e.description || '-'}</td>
             <td className="py-2 text-neutral-500 text-[10px]">
               {e.createdAt ? new Date(e.createdAt).toLocaleDateString() : 'now'}
             </td>
@@ -646,7 +646,7 @@ function RemoveBtn({ onClick }: { onClick: () => void }): JSX.Element {
       className="text-neutral-400 hover:text-red-600 text-xs"
       aria-label="Remove"
     >
-      ×
+      x
     </button>
   );
 }

@@ -55,6 +55,14 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <div className="card p-5">
+        <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner snapshot</div>
+        <h1 className="text-2xl font-semibold tracking-tight mt-1">Sales, stock, profit, and next actions</h1>
+        <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
+          Use this view in demos to show the owner what sold, what needs attention, and what to ask next.
+        </p>
+      </div>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
         <KpiCard
           label="Revenue today"
@@ -85,7 +93,7 @@ export function DashboardPage() {
         </div>
 
         <div className="space-y-6">
-          <Panel title="Low stock" badge={summary.lowStockProducts.length.toString()}>
+          <Panel title="Restock risks" badge={summary.lowStockProducts.length.toString()}>
             {summary.lowStockProducts.length === 0 ? (
               <Empty text="All stocked." />
             ) : (
@@ -103,7 +111,7 @@ export function DashboardPage() {
             )}
           </Panel>
 
-          <Panel title="Top products">
+          <Panel title="Fast sellers">
             {summary.topProducts.length === 0 ? (
               <Empty text="No sales yet." />
             ) : (

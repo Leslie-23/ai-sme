@@ -17,7 +17,7 @@ const navItems: NavItem[] = [
   { to: '/inventory', label: 'Inventory', icon: IconBox },
   { to: '/import', label: 'Import', icon: IconUpload, feature: 'imports', requires: 'manageInventory' },
   { to: '/reports', label: 'Reports', icon: IconReport, feature: 'chat', requires: 'viewReports' },
-  { to: '/chat', label: 'AI Assistant', icon: IconSpark, feature: 'chat', requires: 'useAI' },
+  { to: '/chat', label: 'Owner Assistant', icon: IconSpark, feature: 'chat', requires: 'useAI' },
   { to: '/pricing', label: 'Pricing', icon: IconTag },
   { to: '/settings', label: 'Settings', icon: IconGear },
 ];
@@ -28,7 +28,7 @@ const pageTitles: Record<string, string> = {
   '/inventory': 'Inventory',
   '/import': 'Import',
   '/reports': 'Reports',
-  '/chat': 'AI Assistant',
+  '/chat': 'Owner Assistant',
   '/pricing': 'Pricing',
   '/settings': 'Settings',
 };
