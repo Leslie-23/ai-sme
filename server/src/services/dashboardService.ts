@@ -33,6 +33,7 @@ export interface DashboardSummary {
     currentStock: number;
     lowStockThreshold: number;
   }[];
+  productCount: number;
   expensesMonth: number;
   netProfitMonth: number;
 }
@@ -43,7 +44,7 @@ export async function buildDashboardSummary(businessId: Types.ObjectId): Promise
   const week = startOfWeek(now);
   const month = startOfMonth(now);
 
-  const [totalsAgg, paymentAgg, topProductsAgg, lowStock, expensesAgg] = await Promise.all([
+  const [totalsAgg, paymentAgg, topProductsAgg, lowStock, expensesAgg, productCount] = await Promise.all([
     Sale.aggregate([
       { $match: { businessId, createdAt: { $gte: month } } },
       {
@@ -108,6 +109,7 @@ export async function buildDashboardSummary(businessId: Types.ObjectId): Promise
       { $match: { businessId, createdAt: { $gte: month } } },
       { $group: { _id: null, total: { $sum: '$amount' } } },
     ]),
+    Product.countDocuments({ businessId }),
   ]);
 
   const totals = totalsAgg[0] || {
@@ -140,6 +142,7 @@ export async function buildDashboardSummary(businessId: Types.ObjectId): Promise
       currentStock: p.currentStock,
       lowStockThreshold: p.lowStockThreshold,
     })),
+    productCount,
     expensesMonth,
     netProfitMonth: totals.monthTotal - expensesMonth,
   };

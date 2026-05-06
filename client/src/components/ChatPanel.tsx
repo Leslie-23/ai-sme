@@ -14,6 +14,7 @@ import {
   FileAttach,
   formatAttachmentsForPrompt,
 } from './FileAttach';
+import { FeedbackBox } from './FeedbackBox';
 
 interface ChatPanelProps {
   sessionId: string;
@@ -198,9 +199,14 @@ export function ChatPanel({
               >
                 {m.text}
                 {m.modelUsed && (
-                  <div className="text-[10px] uppercase tracking-wider mt-2 opacity-60">
-                    {m.modelUsed}
-                  </div>
+                  <>
+                    <div className="text-[10px] uppercase tracking-wider mt-2 opacity-60">
+                      {m.modelUsed}
+                    </div>
+                    <div className="mt-3 border-t border-neutral-100 pt-2">
+                      <FeedbackBox surface={`chat:${sessionId}:${m.id}`} compact />
+                    </div>
+                  </>
                 )}
               </div>
             </div>

@@ -122,7 +122,7 @@ export function SalesPage() {
           <div className="p-5 space-y-4">
             <input
               className="input"
-              placeholder="Search products by name or SKU…"
+              placeholder="Search products by name or SKU..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -136,7 +136,7 @@ export function SalesPage() {
                 >
                   <div className="text-sm font-medium text-neutral-900 truncate">{p.name}</div>
                   <div className="text-xs text-neutral-500 mt-0.5">
-                    {formatMoney(p.unitPrice, currency)} · stock {p.currentStock}
+                    {formatMoney(p.unitPrice, currency)} / stock {p.currentStock}
                   </div>
                 </button>
               ))}
@@ -144,7 +144,9 @@ export function SalesPage() {
 
             <form onSubmit={submitSale} className="space-y-3 pt-3 border-t border-neutral-200">
               {cart.length === 0 ? (
-                <p className="text-sm text-neutral-500">Add products to start a sale.</p>
+                <p className="text-sm text-neutral-500">
+                  Add products to start a sale. If this is a pilot, record 5-10 recent sales so the owner can see fast sellers and stock movement.
+                </p>
               ) : (
                 <div className="space-y-2">
                   {cart.map((line) => {
@@ -189,7 +191,7 @@ export function SalesPage() {
                   className="btn-primary w-full sm:w-auto"
                   disabled={submitting || cart.length === 0}
                 >
-                  {submitting ? 'Saving…' : 'Record sale'}
+                  {submitting ? 'Saving...' : 'Record sale'}
                 </button>
               </div>
               {error && (
@@ -246,7 +248,15 @@ export function SalesPage() {
         <div className="px-5 py-3 border-b border-neutral-200 section-title">Sales history</div>
         <div className="overflow-x-auto">
           {sales.length === 0 ? (
-            <p className="text-sm text-neutral-500 p-5">No sales for the selected filters.</p>
+            <div className="p-5">
+              <div className="text-sm font-medium text-neutral-900">No sales found for this view.</div>
+              <p className="text-sm text-neutral-500 mt-1">
+                Record a sale or import recent sales to unlock fast sellers, payment mix, and owner summaries.
+              </p>
+              <a href="/import" className="btn-secondary !px-3 !py-1.5 text-sm mt-4 inline-flex">
+                Import recent sales
+              </a>
+            </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
@@ -264,7 +274,7 @@ export function SalesPage() {
                       {formatDate(s.createdAt)}
                     </td>
                     <td className="py-2.5 text-neutral-800 max-w-lg truncate">
-                      {s.items.map((i) => `${i.productName} ×${i.quantity}`).join(', ')}
+                      {s.items.map((i) => `${i.productName} x${i.quantity}`).join(', ')}
                     </td>
                     <td className="py-2.5">
                       <span className="chip">{s.paymentMethod}</span>

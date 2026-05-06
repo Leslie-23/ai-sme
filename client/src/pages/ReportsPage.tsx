@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { formatMoney, formatDate } from '../lib/format';
+import { FeedbackBox } from '../components/FeedbackBox';
 
 interface ReportStats {
   businessName: string;
@@ -135,6 +136,9 @@ export function ReportsPage() {
         </div>
 
         <div className="space-y-6">
+          <OwnerActionList stats={stats} currency={currency} />
+          <FeedbackBox surface={`report:${generatedAt}`} />
+
           <Panel title="Payment mix">
             {stats.paymentMix.length === 0 ? (
               <Empty text="No sales yet." />
@@ -301,6 +305,47 @@ function Kpi({
       {sub && <div className="text-[11px] text-neutral-500 mt-1 truncate">{sub}</div>}
     </div>
   );
+}
+
+function OwnerActionList({ stats, currency }: { stats: ReportStats; currency: string }) {
+  const actions = buildReportActions(stats, currency);
+  return (
+    <Panel title="Next owner actions" badge={actions.length.toString()}>
+      <ul className="divide-y divide-neutral-100">
+        {actions.map((a) => (
+          <li key={a} className="py-2 text-sm text-neutral-700">
+            {a}
+          </li>
+        ))}
+      </ul>
+    </Panel>
+  );
+}
+
+function buildReportActions(stats: ReportStats, currency: string): string[] {
+  const actions: string[] = [];
+  if (stats.lowStock.length > 0) {
+    actions.push(`Restock ${stats.lowStock.slice(0, 3).map((p) => p.name).join(', ')} before the next busy period.`);
+  }
+  if (stats.topProducts.length > 0) {
+    actions.push(`Protect stock and pricing for ${stats.topProducts[0].productName}, the strongest seller in this report.`);
+  }
+  if (stats.expenseBreakdown.length > 0) {
+    const topExpense = stats.expenseBreakdown[0];
+    actions.push(`Review ${topExpense.category} because it accounts for ${topExpense.pct.toFixed(0)}% of logged expenses.`);
+  } else {
+    actions.push('Add expenses so the next report can explain true profit pressure, not only revenue.');
+  }
+  if (stats.recentTrend.changePct != null && stats.recentTrend.changePct < 0) {
+    actions.push(`Investigate the ${Math.abs(stats.recentTrend.changePct).toFixed(1)}% revenue drop versus the previous 30 days.`);
+  }
+  if (stats.totals.netProfit < 0) {
+    actions.push(`Cut or explain losses: net profit is ${formatMoney(stats.totals.netProfit, currency)} across the report period.`);
+  }
+  if (actions.length === 0) {
+    actions.push('Ask the Owner Assistant for a weekly restock list and one expense-control recommendation.');
+  }
+  return actions.slice(0, 5);
 }
 
 function Panel({

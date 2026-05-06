@@ -137,10 +137,10 @@ export function InventoryPage() {
             <div>
               <label className="label">Product</label>
               <select className="input mt-1.5" value={adjust.productId} required onChange={(e) => setAdjust({ ...adjust, productId: e.target.value })}>
-                <option value="">Select product…</option>
+                <option value="">Select product...</option>
                 {products.map((p) => (
                   <option key={p._id} value={p._id}>
-                    {p.name} ({p.sku}) — stock {p.currentStock}
+                    {p.name} ({p.sku}) - stock {p.currentStock}
                   </option>
                 ))}
               </select>
@@ -176,7 +176,15 @@ export function InventoryPage() {
         <div className="px-5 py-3 border-b border-neutral-200 section-title">Products</div>
         <div className="overflow-x-auto">
           {products.length === 0 ? (
-            <p className="text-sm text-neutral-500 p-5">No products yet.</p>
+            <div className="p-5">
+              <div className="text-sm font-medium text-neutral-900">Load products to unlock stock insights.</div>
+              <p className="text-sm text-neutral-500 mt-1">
+                Add the first product here, or use Import to paste a catalog from Excel, POS exports, or notes.
+              </p>
+              <a href="/import" className="btn-secondary !px-3 !py-1.5 text-sm mt-4 inline-flex">
+                Import product list
+              </a>
+            </div>
           ) : (
             <table className="w-full text-sm">
               <thead>

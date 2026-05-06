@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
   { to: '/reports', label: 'Reports', icon: IconReport, feature: 'chat', requires: 'viewReports' },
   { to: '/chat', label: 'Owner Assistant', icon: IconSpark, feature: 'chat', requires: 'useAI' },
   { to: '/pricing', label: 'Pricing', icon: IconTag },
+  { to: '/privacy', label: 'Privacy', icon: IconShield },
   { to: '/settings', label: 'Settings', icon: IconGear },
 ];
 
@@ -30,6 +31,7 @@ const pageTitles: Record<string, string> = {
   '/reports': 'Reports',
   '/chat': 'Owner Assistant',
   '/pricing': 'Pricing',
+  '/privacy': 'Privacy',
   '/settings': 'Settings',
 };
 
@@ -61,7 +63,7 @@ export function Layout() {
     };
   }, [mobileOpen]);
 
-  const userInitial = user?.email.charAt(0).toUpperCase() || '·';
+  const userInitial = user?.email.charAt(0).toUpperCase() || '/';
   const businessInitial = business?.name.charAt(0).toUpperCase() || 'A';
 
   return (
@@ -100,7 +102,7 @@ export function Layout() {
           <div className={collapsed ? 'md:hidden' : ''}>
             <div className="text-[10px] uppercase tracking-[0.2em] text-neutral-500">AI-SME</div>
             <div className="font-semibold text-sm mt-1 truncate max-w-[160px]">
-              {business?.name || '—'}
+              {business?.name || '-'}
             </div>
           </div>
           <button
@@ -178,7 +180,7 @@ export function Layout() {
                 navigate('/login');
               }}
             >
-              → Sign out
+              Sign out
             </button>
           </div>
         </div>
@@ -318,6 +320,14 @@ function IconReport() {
       <path d="M4 4h12l4 4v12a0 0 0 0 1 0 0H4z" />
       <path d="M16 4v4h4" />
       <path d="M8 13v4M12 11v6M16 14v3" />
+    </svg>
+  );
+}
+function IconShield() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0">
+      <path d="M12 3 20 6v6c0 5-3.3 8.2-8 9-4.7-.8-8-4-8-9V6l8-3z" />
+      <path d="m9 12 2 2 4-5" />
     </svg>
   );
 }
