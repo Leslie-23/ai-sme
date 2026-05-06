@@ -35,6 +35,7 @@ function serialize(b: IBusiness) {
     name: b.name,
     currency: b.currency,
     timezone: b.timezone,
+    businessType: b.businessType || 'retail',
     features: normalizeFeatures(b.features),
     terminology: b.terminology || 'product',
     categories: Array.isArray(b.categories) ? b.categories : [],
@@ -79,6 +80,9 @@ const updateSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   currency: z.string().min(3).max(5).optional(),
   timezone: z.string().min(1).max(100).optional(),
+  businessType: z
+    .enum(['retail', 'pharmacy', 'salon_beauty', 'restaurant_cafe', 'wholesaler', 'services', 'other'])
+    .optional(),
   features: featuresSchema.optional(),
   terminology: z.enum(['product', 'item', 'service']).optional(),
   categories: z.array(z.string().min(1).max(80)).max(200).optional(),
@@ -98,6 +102,7 @@ export async function updateBusiness(
     if (input.name !== undefined) patch.name = input.name.trim();
     if (input.currency !== undefined) patch.currency = input.currency.trim().toUpperCase();
     if (input.timezone !== undefined) patch.timezone = input.timezone.trim();
+    if (input.businessType !== undefined) patch.businessType = input.businessType;
     if (input.terminology !== undefined) patch.terminology = input.terminology;
     if (input.categories !== undefined) {
       const cleaned = Array.from(

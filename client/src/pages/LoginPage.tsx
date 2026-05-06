@@ -1,7 +1,8 @@
 import { FormEvent, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { BusinessType, useAuth } from '../context/AuthContext';
 import { ApiError } from '../lib/api';
+import { track } from '../lib/analytics';
 
 const CURRENCIES: { code: string; label: string }[] = [
   { code: 'USD', label: 'US Dollar' },
@@ -19,6 +20,16 @@ const CURRENCIES: { code: string; label: string }[] = [
   { code: 'INR', label: 'Indian Rupee' },
 ];
 
+const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
+  { value: 'retail', label: 'Retail store' },
+  { value: 'pharmacy', label: 'Pharmacy' },
+  { value: 'salon_beauty', label: 'Salon / beauty retail' },
+  { value: 'restaurant_cafe', label: 'Restaurant / cafe' },
+  { value: 'wholesaler', label: 'Wholesaler' },
+  { value: 'services', label: 'Services' },
+  { value: 'other', label: 'Other' },
+];
+
 export function LoginPage() {
   const { user, login, register } = useAuth();
   const navigate = useNavigate();
@@ -29,6 +40,7 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [businessName, setBusinessName] = useState('');
+  const [businessType, setBusinessType] = useState<BusinessType>('retail');
   const [currency, setCurrency] = useState('USD');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -43,7 +55,8 @@ export function LoginPage() {
       if (mode === 'login') {
         await login(email, password);
       } else {
-        await register({ email, password, businessName, currency });
+        track('signup_started', { businessType });
+        await register({ email, password, businessName, currency, businessType });
       }
       navigate('/dashboard');
     } catch (err) {
@@ -106,6 +119,20 @@ export function LoginPage() {
                     onChange={(e) => setBusinessName(e.target.value)}
                     required
                   />
+                </div>
+                <div>
+                  <label className="label">Business type</label>
+                  <select
+                    className="input mt-1.5"
+                    value={businessType}
+                    onChange={(e) => setBusinessType(e.target.value as BusinessType)}
+                  >
+                    {BUSINESS_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="label">Currency</label>

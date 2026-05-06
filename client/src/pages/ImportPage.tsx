@@ -8,6 +8,7 @@ import {
   FileAttach,
   formatAttachmentsForPrompt,
 } from '../components/FileAttach';
+import { track } from '../lib/analytics';
 
 type PaymentMethod = 'CASH' | 'MOMO' | 'CARD' | 'TRANSFER';
 type Kind = 'auto' | 'products' | 'sales' | 'payments' | 'expenses';
@@ -194,6 +195,7 @@ export function ImportPage() {
     setAttached([]);
     setSending(true);
     setError(null);
+    track('import_started', { kind, hasAttachment: attached.length > 0 });
     try {
       const res = await api<ExtractResponse>('/import/extract', {
         method: 'POST',
@@ -207,6 +209,8 @@ export function ImportPage() {
           alreadyExtracted: counts,
         },
       });
+      const extracted = countBuckets(res.records);
+      track('import_preview_generated', { kind, ...extracted });
       setMessages((m) => [
         ...m,
         { id: crypto.randomUUID(), role: 'assistant', text: res.reply },
@@ -240,6 +244,12 @@ export function ImportPage() {
       const res = await api<ApplyAutoResponse>('/import/apply', {
         method: 'POST',
         body: { kind: 'auto', records: pending },
+      });
+      track('import_applied', {
+        products: res.products.inserted + (res.products.updated ?? 0),
+        sales: res.sales.inserted,
+        payments: res.payments.inserted,
+        expenses: res.expenses.inserted,
       });
       const parts: string[] = [];
       if (res.products.inserted || res.products.updated) {
@@ -432,6 +442,15 @@ export function ImportPage() {
       </div>
     </div>
   );
+}
+
+function countBuckets(records: Buckets): Record<string, number> {
+  return {
+    products: records.products.length,
+    sales: records.sales.length,
+    payments: records.payments.length,
+    expenses: records.expenses.length,
+  };
 }
 
 function mergeBuckets(existing: Buckets, incoming: Buckets): Buckets {

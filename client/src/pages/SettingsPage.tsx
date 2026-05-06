@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { api, ApiError } from '../lib/api';
-import { useAuth, BusinessFeatures, DEFAULT_FEATURES, Terminology, SubscriptionInfo } from '../context/AuthContext';
+import { useAuth, BusinessFeatures, BusinessType, DEFAULT_FEATURES, Terminology, SubscriptionInfo } from '../context/AuthContext';
 import { BillingSection } from '../components/BillingSection';
 import { TeamSection } from '../components/TeamSection';
 
@@ -46,6 +46,16 @@ const CURRENCIES: { code: string; label: string }[] = [
   { code: 'INR', label: 'Indian Rupee' },
 ];
 
+const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
+  { value: 'retail', label: 'Retail store' },
+  { value: 'pharmacy', label: 'Pharmacy' },
+  { value: 'salon_beauty', label: 'Salon / beauty retail' },
+  { value: 'restaurant_cafe', label: 'Restaurant / cafe' },
+  { value: 'wholesaler', label: 'Wholesaler' },
+  { value: 'services', label: 'Services' },
+  { value: 'other', label: 'Other' },
+];
+
 interface ConfigResponse {
   provider: Provider;
   model: string | null;
@@ -56,13 +66,13 @@ interface ConfigResponse {
 }
 
 const FREE_TIER_HINTS: Record<Provider, string> = {
-  openai: 'platform.openai.com/api-keys — paid after free trial',
-  anthropic: 'console.anthropic.com — paid',
-  google: 'aistudio.google.com/app/apikey — free (use gemini-1.5-flash for highest quota)',
-  groq: 'console.groq.com/keys — free, very fast',
-  openrouter: 'openrouter.ai/keys — free models end in ":free"',
-  mistral: 'console.mistral.ai — free tier on La Plateforme',
-  cohere: 'dashboard.cohere.com/api-keys — trial credits',
+  openai: 'platform.openai.com/api-keys - paid after free trial',
+  anthropic: 'console.anthropic.com - paid',
+  google: 'aistudio.google.com/app/apikey - free (use gemini-1.5-flash for highest quota)',
+  groq: 'console.groq.com/keys - free, very fast',
+  openrouter: 'openrouter.ai/keys - free models end in ":free"',
+  mistral: 'console.mistral.ai - free tier on La Plateforme',
+  cohere: 'dashboard.cohere.com/api-keys - trial credits',
 };
 
 export function SettingsPage() {
@@ -77,6 +87,7 @@ export function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [bizName, setBizName] = useState(business?.name || '');
   const [bizCurrency, setBizCurrency] = useState(business?.currency || 'USD');
+  const [bizType, setBizType] = useState<BusinessType>(business?.businessType || 'retail');
   const [bizTimezone, setBizTimezone] = useState('UTC');
   const [bizInfo, setBizInfo] = useState<{ id: string; createdAt: string; updatedAt: string } | null>(
     null
@@ -94,6 +105,7 @@ export function SettingsPage() {
     name: string;
     currency: string;
     timezone: string;
+    businessType: BusinessType;
     features: BusinessFeatures;
     terminology: Terminology;
     categories: string[];
@@ -107,6 +119,7 @@ export function SettingsPage() {
       .then((b) => {
         setBizName(b.name);
         setBizCurrency(b.currency);
+        setBizType(b.businessType || 'retail');
         setBizTimezone(b.timezone);
         setFeatures({ ...DEFAULT_FEATURES, ...(b.features || {}) });
         setTerminology(b.terminology || 'product');
@@ -128,6 +141,7 @@ export function SettingsPage() {
           name: bizName,
           currency: bizCurrency,
           timezone: bizTimezone,
+          businessType: bizType,
           features,
           terminology,
           categories,
@@ -137,6 +151,7 @@ export function SettingsPage() {
         id: updated.id,
         name: updated.name,
         currency: updated.currency,
+        businessType: updated.businessType,
         features: updated.features,
         terminology: updated.terminology,
         categories: updated.categories,
@@ -205,7 +220,7 @@ export function SettingsPage() {
     }
   }
 
-  if (!config) return <div className="text-neutral-500 text-sm">Loading settings…</div>;
+  if (!config) return <div className="text-neutral-500 text-sm">Loading settings...</div>;
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -231,6 +246,24 @@ export function SettingsPage() {
               disabled={readOnly}
             />
           </div>
+          <div>
+            <label className="label">Business type</label>
+            <select
+              className="input mt-1.5"
+              value={bizType}
+              onChange={(e) => setBizType(e.target.value as BusinessType)}
+              disabled={readOnly}
+            >
+              {BUSINESS_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-neutral-500 mt-1.5">
+              Used for activation analytics and future industry-specific templates.
+            </p>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Currency</label>
@@ -242,12 +275,12 @@ export function SettingsPage() {
               >
                 {CURRENCIES.map((c) => (
                   <option key={c.code} value={c.code}>
-                    {c.code} — {c.label}
+                    {c.code} - {c.label}
                   </option>
                 ))}
               </select>
               <p className="text-xs text-neutral-500 mt-1.5">
-                Existing totals aren't converted — only the symbol changes.
+                Existing totals aren't converted - only the symbol changes.
               </p>
             </div>
             <div>
@@ -290,7 +323,7 @@ export function SettingsPage() {
               ))}
             </div>
             <p className="text-xs text-neutral-500 mt-1.5">
-              What you sell — labels adapt across the app (e.g. "Add product" vs "Add service").
+              What you sell - labels adapt across the app (e.g. "Add product" vs "Add service").
             </p>
           </div>
 
@@ -346,7 +379,7 @@ export function SettingsPage() {
                       className="text-neutral-400 hover:text-red-600"
                       aria-label={`Remove ${c}`}
                     >
-                      ×
+                      x
                     </button>
                   )}
                 </span>
@@ -391,7 +424,7 @@ export function SettingsPage() {
               <div>
                 <dt className="label">Owner</dt>
                 <dd className="text-xs text-neutral-700 mt-1.5 truncate" title={user?.email}>
-                  {user?.email} <span className="text-neutral-400">· {user?.role}</span>
+                  {user?.email} <span className="text-neutral-400">/ {user?.role}</span>
                 </dd>
               </div>
               <div>
@@ -414,7 +447,7 @@ export function SettingsPage() {
             </div>
           )}
           <button type="submit" className="btn-primary" disabled={bizSaving || readOnly}>
-            {bizSaving ? 'Saving…' : 'Save business'}
+            {bizSaving ? 'Saving...' : 'Save business'}
           </button>
         </div>
       </form>
@@ -432,7 +465,7 @@ export function SettingsPage() {
             >
               {config.providers.map((p) => (
                 <option key={p} value={p}>
-                  {config.providerLabels[p]} — default {config.defaultModels[p]}
+                  {config.providerLabels[p]} - default {config.defaultModels[p]}
                 </option>
               ))}
             </select>
@@ -494,7 +527,7 @@ export function SettingsPage() {
           )}
 
           <button type="submit" className="btn-primary" disabled={saving || readOnly}>
-            {saving ? 'Saving…' : 'Save settings'}
+            {saving ? 'Saving...' : 'Save settings'}
           </button>
         </div>
       </form>

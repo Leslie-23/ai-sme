@@ -15,6 +15,7 @@ import {
   formatAttachmentsForPrompt,
 } from './FileAttach';
 import { FeedbackBox } from './FeedbackBox';
+import { track } from '../lib/analytics';
 
 interface ChatPanelProps {
   sessionId: string;
@@ -102,6 +103,11 @@ export function ChatPanel({
     setAttached([]);
     setSending(true);
     setError(null);
+    track('assistant_question_asked', {
+      sessionId,
+      hasAttachment: attached.length > 0,
+      hasDateRange: Boolean(from || to),
+    });
     try {
       const payload: { userQuery: string; dateRange?: { from?: string; to?: string } } = {
         userQuery: fullQuery,
@@ -116,6 +122,7 @@ export function ChatPanel({
         method: 'POST',
         body: payload,
       });
+      track('assistant_answer_received', { sessionId, modelUsed: res.modelUsed });
       setMessages((m) => [
         ...m,
         {

@@ -31,6 +31,7 @@ function serializeBusiness(b: IBusiness) {
     id: b._id.toString(),
     name: b.name,
     currency: b.currency,
+    businessType: b.businessType || 'retail',
     features: normalizeFeatures(b.features),
     terminology: b.terminology || 'product',
     categories: Array.isArray(b.categories) ? b.categories : [],
@@ -51,6 +52,9 @@ const registerSchema = z.object({
   businessName: z.string().min(1),
   currency: z.string().optional(),
   timezone: z.string().optional(),
+  businessType: z
+    .enum(['retail', 'pharmacy', 'salon_beauty', 'restaurant_cafe', 'wholesaler', 'services', 'other'])
+    .optional(),
 });
 
 const loginSchema = z.object({
@@ -82,6 +86,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
       owner: userId,
       currency: input.currency || 'USD',
       timezone: input.timezone || 'UTC',
+      businessType: input.businessType || 'retail',
     });
 
     const token = signToken({
@@ -121,7 +126,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
         timezone: 'UTC',
       });
     } else if (backfillSubscriptionIfMissing(business)) {
-      // Business existed before the subscription schema — grant them a trial.
+      // Business existed before the subscription schema - grant them a trial.
       await business.save();
     }
 
@@ -142,7 +147,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
   }
 }
 
-// Lightweight session refresh — returns the current user (including live
+// Lightweight session refresh - returns the current user (including live
 // permissions) without issuing a new JWT. The client calls this on boot so
 // permission edits applied by the owner take effect next page load even
 // if the staff's JWT predates them.

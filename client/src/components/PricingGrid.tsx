@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { track } from '../lib/analytics';
 
 export interface Plan {
   id: 'free' | 'pro' | 'business';
@@ -74,6 +75,7 @@ export function PricingGrid({
     }
     setCheckingOut(planId);
     setError(null);
+    track('checkout_started', { planId });
     try {
       const r = await api<CheckoutResponse>('/billing/checkout', {
         method: 'POST',

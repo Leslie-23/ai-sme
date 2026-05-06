@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { PricingGrid } from '../components/PricingGrid';
+import { track } from '../lib/analytics';
 
 interface VerifyResponse {
   ok: boolean;
@@ -26,15 +27,20 @@ export function PricingPage() {
     }
   }
 
-  // If Paystack redirected back with ?reference=… verify it and refresh state.
+  useEffect(() => {
+    track('pricing_viewed');
+  }, []);
+
+  // If Paystack redirected back with ?reference=... verify it and refresh state.
   useEffect(() => {
     const ref = params.get('reference') || params.get('trxref');
     if (!ref) return;
-    setVerifyMsg('Confirming your payment…');
+    setVerifyMsg('Confirming your payment...');
     api<VerifyResponse>('/billing/verify', { method: 'POST', body: { reference: ref } })
       .then(async (r) => {
         if (r.ok) {
-          setVerifyMsg(`You're now on ${r.plan === 'business' ? 'Business' : 'Pro'} — welcome aboard.`);
+          setVerifyMsg(`You're now on ${r.plan === 'business' ? 'Business' : 'Pro'} - welcome aboard.`);
+          track('subscription_activated', { plan: r.plan });
           await refreshBusiness();
           setTimeout(() => navigate('/dashboard'), 1200);
         } else {

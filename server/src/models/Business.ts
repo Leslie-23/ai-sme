@@ -1,6 +1,14 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export type Terminology = 'product' | 'item' | 'service';
+export type BusinessType =
+  | 'retail'
+  | 'pharmacy'
+  | 'salon_beauty'
+  | 'restaurant_cafe'
+  | 'wholesaler'
+  | 'services'
+  | 'other';
 
 export interface IBusinessFeatures {
   chat: boolean;
@@ -30,6 +38,7 @@ export interface IBusiness extends Document {
   owner: Types.ObjectId;
   currency: string;
   timezone: string;
+  businessType: BusinessType;
   features: IBusinessFeatures;
   terminology: Terminology;
   categories: string[];
@@ -90,6 +99,11 @@ const BusinessSchema = new Schema<IBusiness>(
     owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     currency: { type: String, default: 'USD', uppercase: true },
     timezone: { type: String, default: 'UTC' },
+    businessType: {
+      type: String,
+      enum: ['retail', 'pharmacy', 'salon_beauty', 'restaurant_cafe', 'wholesaler', 'services', 'other'],
+      default: 'retail',
+    },
     features: {
       type: FeaturesSchema,
       default: () => ({ chat: true, imports: true, expenses: true, payments: true }),

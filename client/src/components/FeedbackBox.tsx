@@ -1,35 +1,8 @@
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { api } from '../lib/api';
+import { track } from '../lib/analytics';
 
 type FeedbackRating = 'useful' | 'not_useful';
-
-interface StoredFeedback {
-  id: string;
-  businessId: string | null;
-  userId: string | null;
-  surface: string;
-  rating: FeedbackRating;
-  note: string;
-  createdAt: string;
-}
-
-const FEEDBACK_KEY = 'ai_sme_feedback';
-
-function loadFeedback(): StoredFeedback[] {
-  try {
-    const raw = localStorage.getItem(FEEDBACK_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveFeedback(item: StoredFeedback): void {
-  const next = [item, ...loadFeedback()].slice(0, 100);
-  localStorage.setItem(FEEDBACK_KEY, JSON.stringify(next));
-}
 
 export function FeedbackBox({
   surface,
@@ -38,23 +11,32 @@ export function FeedbackBox({
   surface: string;
   compact?: boolean;
 }) {
-  const { user, business } = useAuth();
   const [rating, setRating] = useState<FeedbackRating | null>(null);
   const [note, setNote] = useState('');
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function submit(nextRating: FeedbackRating) {
+  async function submit(nextRating: FeedbackRating) {
     setRating(nextRating);
-    saveFeedback({
-      id: crypto.randomUUID(),
-      businessId: business?.id || null,
-      userId: user?.id || null,
-      surface,
-      rating: nextRating,
-      note: note.trim(),
-      createdAt: new Date().toISOString(),
-    });
-    setSaved(true);
+    setError(null);
+    try {
+      await api('/feedback', {
+        method: 'POST',
+        body: {
+          surface,
+          rating: nextRating,
+          note: note.trim(),
+        },
+      });
+      track(surface.startsWith('report:') ? 'report_feedback_submitted' : 'assistant_feedback_submitted', {
+        surface,
+        rating: nextRating,
+        hasNote: note.trim().length > 0,
+      });
+      setSaved(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Feedback failed');
+    }
   }
 
   return (
@@ -94,9 +76,10 @@ export function FeedbackBox({
       )}
       {saved && (
         <div className="text-xs text-emerald-700">
-          Saved locally for pilot review.
+          Saved for pilot review.
         </div>
       )}
+      {error && <div className="text-xs text-red-600">{error}</div>}
     </div>
   );
 }

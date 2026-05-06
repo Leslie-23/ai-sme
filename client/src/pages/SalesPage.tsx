@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, formatMoney } from '../lib/format';
+import { track } from '../lib/analytics';
 
 interface Product {
   _id: string;
@@ -105,6 +106,7 @@ export function SalesPage() {
         method: 'POST',
         body: { items: cart, paymentMethod: method },
       });
+      track('sale_recorded', { itemCount: cart.length, paymentMethod: method, total: cartTotal });
       setCart([]);
       await refresh();
     } catch (err) {

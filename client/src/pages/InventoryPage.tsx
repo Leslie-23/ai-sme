@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { formatMoney } from '../lib/format';
+import { track } from '../lib/analytics';
 
 interface Product {
   _id: string;
@@ -58,6 +59,7 @@ export function InventoryPage() {
           currentStock: newProduct.currentStock ? parseInt(newProduct.currentStock, 10) : 0,
         },
       });
+      track('product_created', { source: 'manual', category: newProduct.category || null });
       setNewProduct({ name: '', sku: '', category: '', unitPrice: '', costPrice: '', currentStock: '' });
       await refresh();
     } catch (err) {

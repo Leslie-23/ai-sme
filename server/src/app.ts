@@ -18,6 +18,9 @@ import reportRoutes from './routes/reports';
 import billingRoutes from './routes/billing';
 import exportRoutes from './routes/export';
 import teamRoutes from './routes/team';
+import feedbackRoutes from './routes/feedback';
+import analyticsRoutes from './routes/analytics';
+import adminRoutes from './routes/admin';
 import { getPlans } from './controllers/billingController';
 import { paystackWebhook } from './controllers/paystackWebhookController';
 import { requirePro } from './middleware/requirePro';
@@ -50,7 +53,7 @@ function buildCors() {
 
   // If the user set CORS_ORIGINS=* we accept everything. Otherwise we also
   // auto-accept any *.vercel.app origin because this app is deployed on
-  // Vercel and will have sibling frontend(s) there — avoids the whole
+  // Vercel and will have sibling frontend(s) there - avoids the whole
   // "works locally, 404/CORS in prod" dance when the env var is missing.
   const autoAllowVercel = !allowAll;
 
@@ -78,7 +81,7 @@ export function createApp(): Express {
 
   app.use(express.json({ limit: '1mb' }));
 
-  // Public health — reachable at root and under /api for both the platform
+  // Public health - reachable at root and under /api for both the platform
   // (uptime checks at /health) and in-app calls (/api/health).
   app.get('/health', (_req, res) => res.json({ ok: true }));
   app.get('/api/health', (_req, res) => res.json({ ok: true }));
@@ -87,7 +90,7 @@ export function createApp(): Express {
   app.get('/api', (_req, res) => res.json({ message: 'AI SME API' }));
 
   app.use('/api/auth', authRoutes);
-  // Public pricing — landing page needs this without a JWT.
+  // Public pricing - landing page needs this without a JWT.
   app.get('/api/billing/plans', getPlans);
   app.use('/api/billing', requireAuth, billingRoutes);
   app.use('/api/products', requireAuth, productRoutes);
@@ -103,6 +106,9 @@ export function createApp(): Express {
   app.use('/api/reports', requireAuth, requirePro, requirePermission('viewReports'), reportRoutes);
   app.use('/api/export', requireAuth, requireBusiness, exportRoutes);
   app.use('/api/team', requireAuth, teamRoutes);
+  app.use('/api/feedback', requireAuth, feedbackRoutes);
+  app.use('/api/analytics', requireAuth, analyticsRoutes);
+  app.use('/api/admin', requireAuth, adminRoutes);
 
   app.use(errorHandler);
   return app;

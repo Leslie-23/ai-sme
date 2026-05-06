@@ -3,6 +3,7 @@ import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, formatMoney } from '../lib/format';
 import { ChatPanel } from '../components/ChatPanel';
+import { track } from '../lib/analytics';
 
 interface DashboardSummary {
   totals: { today: number; week: number; month: number };
@@ -284,6 +285,7 @@ function OnboardingChecklist({ summary }: { summary: DashboardSummary }) {
           <a
             key={step.label}
             href={step.href}
+            onClick={() => track('onboarding_step_clicked', { step: step.label, done: step.done })}
             className={`border p-3 text-sm transition-colors ${
               step.done
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-900'

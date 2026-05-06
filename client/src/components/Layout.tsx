@@ -9,6 +9,7 @@ type NavItem = {
   icon: () => JSX.Element;
   feature?: 'chat' | 'imports' | 'expenses' | 'payments';
   requires?: keyof AuthPermissions;
+  ownerOnly?: boolean;
 };
 
 const navItems: NavItem[] = [
@@ -20,6 +21,7 @@ const navItems: NavItem[] = [
   { to: '/chat', label: 'Owner Assistant', icon: IconSpark, feature: 'chat', requires: 'useAI' },
   { to: '/pricing', label: 'Pricing', icon: IconTag },
   { to: '/privacy', label: 'Privacy', icon: IconShield },
+  { to: '/admin', label: 'Admin', icon: IconChart, ownerOnly: true },
   { to: '/settings', label: 'Settings', icon: IconGear },
 ];
 
@@ -32,6 +34,7 @@ const pageTitles: Record<string, string> = {
   '/chat': 'Owner Assistant',
   '/pricing': 'Pricing',
   '/privacy': 'Privacy',
+  '/admin': 'Admin Analytics',
   '/settings': 'Settings',
 };
 
@@ -119,6 +122,7 @@ export function Layout() {
           {navItems
             .filter((n) => !n.feature || business?.features?.[n.feature] !== false)
             .filter((n) => !n.requires || user?.permissions?.[n.requires] !== false)
+            .filter((n) => !n.ownerOnly || user?.role === 'OWNER')
             .map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
@@ -328,6 +332,17 @@ function IconShield() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0">
       <path d="M12 3 20 6v6c0 5-3.3 8.2-8 9-4.7-.8-8-4-8-9V6l8-3z" />
       <path d="m9 12 2 2 4-5" />
+    </svg>
+  );
+}
+function IconChart() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0">
+      <path d="M4 19V5" />
+      <path d="M4 19h16" />
+      <path d="M8 16v-5" />
+      <path d="M12 16V8" />
+      <path d="M16 16v-3" />
     </svg>
   );
 }

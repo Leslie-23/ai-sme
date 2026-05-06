@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 import { api, clearToken, getToken, setToken } from '../lib/api';
 import { clearAllChatData, setChatScope } from '../lib/chatStore';
+import { identifyAnalytics, track } from '../lib/analytics';
 
 export interface AuthPermissions {
   recordSales: boolean;
@@ -38,11 +39,19 @@ function normalizeUser(raw: Partial<AuthUser> & { id: string; email: string; rol
     roleLabel: raw.roleLabel ?? null,
     permissions: raw.permissions
       ? { ...ALL_PERMISSIONS, ...raw.permissions }
-      : ALL_PERMISSIONS, // legacy session — assume everything until /auth/me refreshes it
+      : ALL_PERMISSIONS, // legacy session - assume everything until /auth/me refreshes it
   };
 }
 
 export type Terminology = 'product' | 'item' | 'service';
+export type BusinessType =
+  | 'retail'
+  | 'pharmacy'
+  | 'salon_beauty'
+  | 'restaurant_cafe'
+  | 'wholesaler'
+  | 'services'
+  | 'other';
 
 export interface BusinessFeatures {
   chat: boolean;
@@ -83,6 +92,7 @@ export interface AuthBusiness {
   id: string;
   name: string;
   currency: string;
+  businessType: BusinessType;
   features: BusinessFeatures;
   terminology: Terminology;
   categories: string[];
@@ -94,6 +104,7 @@ function normalizeBusiness(raw: Partial<AuthBusiness> & { id: string; name: stri
     id: raw.id,
     name: raw.name,
     currency: raw.currency,
+    businessType: raw.businessType || 'retail',
     features: { ...DEFAULT_FEATURES, ...(raw.features || {}) },
     terminology: raw.terminology || 'product',
     categories: Array.isArray(raw.categories) ? raw.categories : [],
@@ -111,6 +122,7 @@ interface AuthContextValue {
     password: string;
     businessName: string;
     currency?: string;
+    businessType?: BusinessType;
   }) => Promise<void>;
   logout: () => void;
   setBusiness: (business: AuthBusiness) => void;
@@ -148,6 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(sess.user);
       setBusiness(sess.business);
       setChatScope(sess.user.id);
+      identifyAnalytics(sess.user, sess.business);
       // Best-effort refresh of user + business from the server so permission
       // edits and plan changes take effect without a manual logout/login.
       api<{ user: AuthUser; business: AuthBusiness }>('/auth/me')
@@ -156,6 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const normBiz = normalizeBusiness(fresh.business);
           setUser(normUser);
           setBusiness(normBiz);
+          identifyAnalytics(normUser, normBiz);
           saveSession(normUser, normBiz);
         })
         .catch(() => {
@@ -163,6 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
     } else {
       setChatScope(null);
+      identifyAnalytics(null, null);
     }
     setLoading(false);
   }, []);
@@ -176,6 +191,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem(SESSION_KEY);
       setUser(null);
       setBusiness(null);
+      identifyAnalytics(null, null);
     }
     window.addEventListener('auth:unauthorized', onUnauthorized);
     return () => window.removeEventListener('auth:unauthorized', onUnauthorized);
@@ -192,7 +208,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     saveSession(normUser, biz);
     setUser(normUser);
     setBusiness(biz);
+    identifyAnalytics(normUser, biz);
     setChatScope(normUser.id);
+    track(path === '/auth/register' ? 'signup_completed' : 'login_completed');
   }
 
   const value = useMemo<AuthContextValue>(
@@ -209,10 +227,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setChatScope(null);
         setUser(null);
         setBusiness(null);
+        identifyAnalytics(null, null);
       },
       setBusiness: (next: AuthBusiness) => {
         const biz = normalizeBusiness(next);
         setBusiness(biz);
+        identifyAnalytics(user, biz);
         if (user) saveSession(user, biz);
       },
     }),

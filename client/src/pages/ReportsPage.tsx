@@ -3,6 +3,7 @@ import { api, ApiError } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { formatMoney, formatDate } from '../lib/format';
 import { FeedbackBox } from '../components/FeedbackBox';
+import { track } from '../lib/analytics';
 
 interface ReportStats {
   businessName: string;
@@ -53,6 +54,7 @@ export function ReportsPage() {
     try {
       const r = await api<ReportResponse>('/reports');
       setData(r);
+      track('report_generated', { modelUsed: r.modelUsed });
     } catch (e) {
       const msg = e instanceof ApiError ? e.message : (e as Error).message;
       setError(msg);
