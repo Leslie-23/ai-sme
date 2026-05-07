@@ -17,6 +17,14 @@ type CatalogSeed = {
   lowStockThreshold: number;
 };
 
+type DemoSeedStatus = {
+  running: boolean;
+  progress: number;
+  message: string;
+  phase: string;
+  updatedAt: string;
+};
+
 const catalog: CatalogSeed[] = [
   { name: 'TCL Smart TV 50', sku: 'TV-TCL-50', category: 'Electronics', unitPrice: 4500, costPrice: 3550, openingStock: 7, lowStockThreshold: 3 },
   { name: 'Samsung Microwave', sku: 'MW-SAM-01', category: 'Appliances', unitPrice: 1850, costPrice: 1400, openingStock: 4, lowStockThreshold: 3 },
@@ -39,24 +47,48 @@ const monthlyExpenses = [
   { category: 'Fees', base: 160, delta: 8, note: 'Payment and bank charges' },
 ];
 
+const demoSeedStatus = new Map<string, DemoSeedStatus>();
+
+function setSeedStatus(businessId: Types.ObjectId, status: Partial<DemoSeedStatus>): void {
+  const key = businessId.toString();
+  const current = demoSeedStatus.get(key);
+  demoSeedStatus.set(key, {
+    running: status.running ?? current?.running ?? false,
+    progress: status.progress ?? current?.progress ?? 0,
+    message: status.message ?? current?.message ?? 'Ready to start.',
+    phase: status.phase ?? current?.phase ?? 'idle',
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+function getMonthName(seedStart: Date, monthOffset: number): string {
+  return new Date(seedStart.getFullYear(), monthOffset, 1).toLocaleString('en-US', { month: 'long' });
+}
+
 function seedStartDate(): Date {
   const now = new Date();
-  return new Date(now.getFullYear() - 1, now.getMonth(), 1);
+  return new Date(now.getFullYear() - 1, 0, 1);
 }
 
 function monthDate(seedStart: Date, monthOffset: number, day: number, hour = 10): Date {
-  return new Date(seedStart.getFullYear(), seedStart.getMonth() + monthOffset, day, hour, 15, 0, 0);
-}
-
-function yearMonthLabel(seedStart: Date, monthOffset: number): string {
-  return new Date(seedStart.getFullYear(), seedStart.getMonth() + monthOffset, 1).toLocaleString('en-US', {
-    month: 'short',
-    year: 'numeric',
-  });
+  return new Date(seedStart.getFullYear(), monthOffset, day, hour, 15, 0, 0);
 }
 
 function planQty(base: number, monthOffset: number, ramp = 0.2): number {
   return Math.max(1, Math.round(base + monthOffset * ramp));
+}
+
+export function getDemoSeedStatus(req: Request, res: Response): void {
+  const key = req.auth!.businessId.toString();
+  const current =
+    demoSeedStatus.get(key) || ({
+      running: false,
+      progress: 0,
+      message: 'Ready to start.',
+      phase: 'idle',
+      updatedAt: new Date().toISOString(),
+    } satisfies DemoSeedStatus);
+  res.json(current);
 }
 
 export async function seedDemoBusiness(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -65,6 +97,18 @@ export async function seedDemoBusiness(req: Request, res: Response, next: NextFu
     const userId = req.auth!.userId;
     const seedStart = seedStartDate();
     const stockBySku = new Map<string, number>(catalog.map((p) => [p.sku, p.openingStock]));
+    const bySku: Map<string, { _id: Types.ObjectId; name: string; unitPrice: number }> = new Map();
+    let salesCount = 0;
+    let expenseCount = 0;
+    let paymentCount = 0;
+    let inventoryCount = 0;
+
+    setSeedStatus(businessId, {
+      running: true,
+      progress: 2,
+      phase: 'clearing',
+      message: 'Clearing current workspace data.',
+    });
 
     await Promise.all([
       Product.deleteMany({ businessId }),
@@ -83,6 +127,13 @@ export async function seedDemoBusiness(req: Request, res: Response, next: NextFu
       },
     });
 
+    setSeedStatus(businessId, {
+      running: true,
+      progress: 12,
+      phase: 'catalog',
+      message: 'Creating the demo product catalog.',
+    });
+
     const created = await Product.insertMany(
       catalog.map((p) => ({
         _id: new Types.ObjectId(),
@@ -96,63 +147,28 @@ export async function seedDemoBusiness(req: Request, res: Response, next: NextFu
         businessId,
       }))
     );
-    const bySku = new Map(created.map((p) => [p.sku, p]));
-    const methods: PaymentMethod[] = ['CASH', 'CARD', 'TRANSFER', 'MOMO'];
+    created.forEach((p) => {
+      bySku.set(p.sku, { _id: p._id, name: p.name, unitPrice: p.unitPrice });
+    });
 
-    const sales: Array<{
-      items: { productId: Types.ObjectId; productName: string; quantity: number; unitPrice: number }[];
-      totalAmount: number;
-      paymentMethod: PaymentMethod;
-      staffId: Types.ObjectId;
-      businessId: Types.ObjectId;
-      createdAt: Date;
-      updatedAt: Date;
-    }> = [];
-    const expenseDocs: Array<{
-      category: string;
-      amount: number;
-      description?: string;
-      businessId: Types.ObjectId;
-      createdAt: Date;
-      updatedAt: Date;
-    }> = [];
-    const payments: Array<{
-      amount: number;
-      method: PaymentMethod;
-      reference: string;
-      businessId: Types.ObjectId;
-      createdAt: Date;
-      updatedAt: Date;
-    }> = [];
-    const inventoryLogs: Array<{
-      productId: Types.ObjectId;
-      quantity: number;
-      type: 'SALE' | 'RESTOCK' | 'ADJUSTMENT';
-      note?: string;
-      businessId: Types.ObjectId;
-      createdAt: Date;
-      updatedAt: Date;
-    }> = [];
+    const methods: PaymentMethod[] = ['CASH', 'CARD', 'TRANSFER', 'MOMO'];
+    const restockPlan = [
+      { sku: 'TV-TCL-50', qty: 3 },
+      { sku: 'FR-NAS-01', qty: 2 },
+      { sku: 'PB-ORA-20', qty: 12 },
+      { sku: 'EL-EXT-5M', qty: 24 },
+    ];
 
     for (let month = 0; month < 12; month += 1) {
+      const monthName = getMonthName(seedStart, month);
       const tvQty = planQty(month < 4 ? 1 : 1.5, month, 0.15) + (month >= 8 ? 1 : 0);
       const accessoryQty = planQty(2, month, 0.25);
       const applianceQty = month < 5 ? 1 : 2;
       const officeQty = month < 7 ? 1 : 2;
       const scale = 1 + month / 10;
 
-      const monthPlans: Array<{
-        day: number;
-        sku: string;
-        qty: number;
-        paymentMethod: PaymentMethod;
-      }> = [
-        {
-          day: 4,
-          sku: 'TV-TCL-50',
-          qty: tvQty,
-          paymentMethod: methods[month % methods.length],
-        },
+      const monthPlans: Array<{ day: number; sku: string; qty: number; paymentMethod: PaymentMethod }> = [
+        { day: 4, sku: 'TV-TCL-50', qty: tvQty, paymentMethod: methods[month % methods.length] },
         {
           day: 11,
           sku: month % 2 === 0 ? 'BL-BAR-02' : 'PB-ORA-20',
@@ -172,6 +188,41 @@ export async function seedDemoBusiness(req: Request, res: Response, next: NextFu
           paymentMethod: methods[(month + 3) % methods.length],
         },
       ];
+
+      const sales: Array<{
+        items: { productId: Types.ObjectId; productName: string; quantity: number; unitPrice: number }[];
+        totalAmount: number;
+        paymentMethod: PaymentMethod;
+        staffId: Types.ObjectId;
+        businessId: Types.ObjectId;
+        createdAt: Date;
+        updatedAt: Date;
+      }> = [];
+      const payments: Array<{
+        amount: number;
+        method: PaymentMethod;
+        reference: string;
+        businessId: Types.ObjectId;
+        createdAt: Date;
+        updatedAt: Date;
+      }> = [];
+      const inventoryLogs: Array<{
+        productId: Types.ObjectId;
+        quantity: number;
+        type: 'SALE' | 'RESTOCK' | 'ADJUSTMENT';
+        note?: string;
+        businessId: Types.ObjectId;
+        createdAt: Date;
+        updatedAt: Date;
+      }> = [];
+      const expenseDocs: Array<{
+        category: string;
+        amount: number;
+        description?: string;
+        businessId: Types.ObjectId;
+        createdAt: Date;
+        updatedAt: Date;
+      }> = [];
 
       for (const [index, plan] of monthPlans.entries()) {
         const product = bySku.get(plan.sku);
@@ -210,57 +261,87 @@ export async function seedDemoBusiness(req: Request, res: Response, next: NextFu
         });
       }
 
-      if (month % 3 === 2) {
-        const restockDate = monthDate(seedStart, month, 8, 8);
-        const restocks = [
-          { sku: 'TV-TCL-50', qty: 3 },
-          { sku: 'FR-NAS-01', qty: 2 },
-          { sku: 'PB-ORA-20', qty: 12 },
-          { sku: 'EL-EXT-5M', qty: 24 },
-        ];
-        for (const item of restocks) {
-          const product = bySku.get(item.sku);
-          if (!product) continue;
-          stockBySku.set(item.sku, (stockBySku.get(item.sku) || 0) + item.qty);
-          inventoryLogs.push({
-            productId: product._id,
-            quantity: item.qty,
-            type: 'RESTOCK',
-            note: `Quarterly restock for ${yearMonthLabel(seedStart, month)}`,
-            businessId,
-            createdAt: restockDate,
-            updatedAt: restockDate,
-          });
-        }
-      }
-
-      const categoryCost = monthlyExpenses.map((row, idx) => ({
-        category: row.category,
-        amount: row.base + month * row.delta + (idx === 2 && month >= 8 ? 180 : 0),
-        description: row.note,
-      }));
-      categoryCost.forEach((row, idx) => {
+      monthlyExpenses.forEach((row, idx) => {
         expenseDocs.push({
           category: row.category,
-          amount: row.amount,
-          description: row.description,
+          amount: row.base + month * row.delta + (idx === 2 && month >= 8 ? 180 : 0),
+          description: row.note,
           businessId,
           createdAt: monthDate(seedStart, month, 2 + idx * 4, 9),
           updatedAt: monthDate(seedStart, month, 2 + idx * 4, 9),
         });
       });
-
       if (month === 6) {
-        const repairDate = monthDate(seedStart, month, 16, 13);
         expenseDocs.push({
           category: 'Repairs',
           amount: 930,
           description: 'Generator service and floor light repairs',
           businessId,
-          createdAt: repairDate,
-          updatedAt: repairDate,
+          createdAt: monthDate(seedStart, month, 16, 13),
+          updatedAt: monthDate(seedStart, month, 16, 13),
         });
       }
+
+      setSeedStatus(businessId, {
+        running: true,
+        progress: 18 + Math.round((month / 12) * 62),
+        phase: `sales-${month + 1}`,
+        message: `${monthName} sales loaded.`,
+      });
+      await Sale.insertMany(sales);
+      await Payment.insertMany(payments);
+      await InventoryRecord.insertMany(inventoryLogs);
+      salesCount += sales.length;
+      paymentCount += payments.length;
+      inventoryCount += inventoryLogs.length;
+
+      setSeedStatus(businessId, {
+        running: true,
+        progress: 24 + Math.round((month / 12) * 62),
+        phase: `expenses-${month + 1}`,
+        message: `${monthName} expenses loaded.`,
+      });
+      await Expense.insertMany(expenseDocs);
+      expenseCount += expenseDocs.length;
+
+      if (month % 3 === 2) {
+        const restockDate = monthDate(seedStart, month, 8, 8);
+        const restockLogs: Array<{
+          productId: Types.ObjectId;
+          quantity: number;
+          type: 'SALE' | 'RESTOCK' | 'ADJUSTMENT';
+          note?: string;
+          businessId: Types.ObjectId;
+          createdAt: Date;
+          updatedAt: Date;
+        }> = [];
+        for (const item of restockPlan) {
+          const product = bySku.get(item.sku);
+          if (!product) continue;
+          stockBySku.set(item.sku, (stockBySku.get(item.sku) || 0) + item.qty);
+          restockLogs.push({
+            productId: product._id,
+            quantity: item.qty,
+            type: 'RESTOCK',
+            note: `Quarterly restock for ${monthName}`,
+            businessId,
+            createdAt: restockDate,
+            updatedAt: restockDate,
+          });
+        }
+        if (restockLogs.length > 0) {
+          await InventoryRecord.insertMany(restockLogs);
+          inventoryCount += restockLogs.length;
+          setSeedStatus(businessId, {
+            running: true,
+            progress: 30 + Math.round((month / 12) * 62),
+            phase: `restock-${month + 1}`,
+            message: `${monthName} restock movements saved.`,
+          });
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 75));
     }
 
     await Product.bulkWrite(
@@ -272,20 +353,29 @@ export async function seedDemoBusiness(req: Request, res: Response, next: NextFu
       }))
     );
 
-    await Promise.all([
-      Sale.insertMany(sales),
-      Payment.insertMany(payments),
-      Expense.insertMany(expenseDocs),
-      InventoryRecord.insertMany(inventoryLogs),
-    ]);
+    setSeedStatus(businessId, {
+      running: false,
+      progress: 100,
+      phase: 'done',
+      message: 'Sample shop is ready.',
+    });
 
     res.json({
       ok: true,
       products: created.length,
-      sales: sales.length,
-      expenses: expenseDocs.length,
+      sales: salesCount,
+      expenses: expenseCount,
+      payments: paymentCount,
+      inventoryLogs: inventoryCount,
     });
   } catch (err) {
+    if (req.auth?.businessId) {
+      setSeedStatus(req.auth.businessId, {
+        running: false,
+        phase: 'error',
+        message: err instanceof Error ? err.message : 'Demo setup failed',
+      });
+    }
     next(err);
   }
 }

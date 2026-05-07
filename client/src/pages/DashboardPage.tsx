@@ -31,6 +31,14 @@ interface Sale {
   createdAt: string;
 }
 
+interface DemoSeedStatus {
+  running: boolean;
+  progress: number;
+  message: string;
+  phase: string;
+  updatedAt: string;
+}
+
 export function DashboardPage() {
   const { business } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -38,6 +46,7 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [seedingDemo, setSeedingDemo] = useState(false);
+  const [seedStatus, setSeedStatus] = useState<DemoSeedStatus | null>(null);
   const [sampleShopReady, setSampleShopReady] = useState(() => localStorage.getItem('ai_sme_sample_shop') === '1');
   const currency = business?.currency || 'USD';
 
@@ -54,12 +63,37 @@ export function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (!seedingDemo) return;
+    let cancelled = false;
+
+    const refreshStatus = async () => {
+      try {
+        const status = await api<DemoSeedStatus>('/demo/status');
+        if (!cancelled) setSeedStatus(status);
+      } catch {
+        // The seed request is authoritative; this is just a live notice stream.
+      }
+    };
+
+    void refreshStatus();
+    const timer = window.setInterval(() => {
+      void refreshStatus();
+    }, 800);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [seedingDemo]);
+
   if (loading) return <div className="text-neutral-500 text-sm">Loading...</div>;
   if (error) return <div className="text-red-600 text-sm">Error: {error}</div>;
   if (!summary) return null;
 
   async function seedDemo() {
     if (!confirm('Replace this workspace with demo shop data? Existing products, sales, payments, expenses, and stock logs for this business will be cleared.')) return;
+    setSeedStatus(null);
     setSeedingDemo(true);
     setError(null);
     try {
@@ -75,85 +109,87 @@ export function DashboardPage() {
       setSales(freshSales);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Demo setup failed');
+    } finally {
       setSeedingDemo(false);
     }
   }
 
   return (
-    <div className="space-y-6">
-      {sampleShopReady ? (
-        <div className="card p-5">
-          <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner setup</div>
-          <h1 className="text-2xl font-semibold tracking-tight mt-1">Sample shop loaded</h1>
-          <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
-            The dashboard now shows a realistic demo business. Next, get the keys so the assistant
-            can answer owner questions with a live provider.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Link to="/help/keys" className="btn-primary !px-3 !py-1.5 text-sm">
-              Get the keys
-            </Link>
+    <div className="relative space-y-6">
+      <div className={seedingDemo ? 'blur-sm pointer-events-none select-none' : ''}>
+        {sampleShopReady ? (
+          <div className="card p-5">
+            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner setup</div>
+            <h1 className="text-2xl font-semibold tracking-tight mt-1">Sample shop loaded</h1>
+            <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
+              The dashboard now shows a realistic demo business. Next, get the keys so the assistant
+              can answer owner questions with a live provider.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link to="/help/keys" className="btn-primary !px-3 !py-1.5 text-sm">
+                Get the keys
+              </Link>
+              <button
+                type="button"
+                onClick={seedDemo}
+                disabled={seedingDemo}
+                className="btn-secondary !px-3 !py-1.5 text-sm"
+              >
+                {seedingDemo ? 'Preparing demo...' : 'Reseed sample shop'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="card p-5">
+            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner snapshot</div>
+            <h1 className="text-2xl font-semibold tracking-tight mt-1">Sales, stock, profit, and next actions</h1>
+            <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
+              Use this view in demos to show the owner what sold, what needs attention, and what to ask next.
+            </p>
             <button
               type="button"
               onClick={seedDemo}
               disabled={seedingDemo}
-              className="btn-secondary !px-3 !py-1.5 text-sm"
+              className="btn-secondary !px-3 !py-1.5 text-sm mt-4"
             >
-              {seedingDemo ? 'Preparing demo...' : 'Reseed sample shop'}
+              {seedingDemo ? 'Preparing demo...' : 'Try sample shop'}
             </button>
           </div>
-        </div>
-      ) : (
-        <div className="card p-5">
-          <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner snapshot</div>
-          <h1 className="text-2xl font-semibold tracking-tight mt-1">Sales, stock, profit, and next actions</h1>
-          <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
-            Use this view in demos to show the owner what sold, what needs attention, and what to ask next.
-          </p>
-          <button
-            type="button"
-            onClick={seedDemo}
-            disabled={seedingDemo}
-            className="btn-secondary !px-3 !py-1.5 text-sm mt-4"
-          >
-            {seedingDemo ? 'Preparing demo...' : 'Try sample shop'}
-          </button>
-        </div>
-      )}
+        )}
 
-      {!sampleShopReady && <OnboardingChecklist summary={summary} />}
+        {!sampleShopReady && <OnboardingChecklist summary={summary} />}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
-        <KpiCard
-          label="Revenue today"
-          value={formatMoney(summary.totals.today, currency)}
-          sub={`${summary.salesCount.today} orders`}
-        />
-        <KpiCard
-          label="This week"
-          value={formatMoney(summary.totals.week, currency)}
-          sub={`${summary.salesCount.week} orders`}
-        />
-        <KpiCard
-          label="This month"
-          value={formatMoney(summary.totals.month, currency)}
-          sub={`${summary.salesCount.month} orders`}
-        />
-        <KpiCard
-          label="Net profit (month)"
-          value={formatMoney(summary.netProfitMonth, currency)}
-          sub={`${formatMoney(summary.expensesMonth, currency)} expenses`}
-          tone={summary.netProfitMonth < 0 ? 'warn' : 'normal'}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2">
-          <ChatPanel sessionId="dashboard" heightClass="h-[70vh] xl:h-[560px]" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
+          <KpiCard
+            label="Revenue today"
+            value={formatMoney(summary.totals.today, currency)}
+            sub={`${summary.salesCount.today} orders`}
+          />
+          <KpiCard
+            label="This week"
+            value={formatMoney(summary.totals.week, currency)}
+            sub={`${summary.salesCount.week} orders`}
+          />
+          <KpiCard
+            label="This month"
+            value={formatMoney(summary.totals.month, currency)}
+            sub={`${summary.salesCount.month} orders`}
+          />
+          <KpiCard
+            label="Net profit (month)"
+            value={formatMoney(summary.netProfitMonth, currency)}
+            sub={`${formatMoney(summary.expensesMonth, currency)} expenses`}
+            tone={summary.netProfitMonth < 0 ? 'warn' : 'normal'}
+          />
         </div>
 
-        <div className="space-y-6">
-          <AttentionPanel summary={summary} currency={currency} />
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div className="xl:col-span-2">
+            <ChatPanel sessionId="dashboard" heightClass="h-[70vh] xl:h-[560px]" />
+          </div>
+
+          <div className="space-y-6">
+            <AttentionPanel summary={summary} currency={currency} />
 
           <Panel title="Restock risks" badge={summary.lowStockProducts.length.toString()}>
             {summary.lowStockProducts.length === 0 ? (
@@ -253,6 +289,38 @@ export function DashboardPage() {
           )}
         </Panel>
       </div>
+      </div>
+
+      {seedingDemo && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+          <div className="w-full max-w-xl border border-neutral-200 bg-white shadow-sm px-6 py-5">
+            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Preparing sample shop</div>
+            <div className="mt-1 text-2xl font-semibold tracking-tight text-neutral-900">Loading demo data</div>
+            <p className="mt-2 text-sm text-neutral-600">
+              This seeds a year of activity, so the dashboard and reports look like a real business.
+            </p>
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="font-medium text-neutral-900">
+                  {seedStatus?.message || 'Waiting for the first seed update...'}
+                </span>
+                <span className="text-xs text-neutral-500 tabular-nums">
+                  {Math.max(1, Math.min(seedStatus?.progress || 0, 100))}%
+                </span>
+              </div>
+              <div className="h-1.5 bg-neutral-100 overflow-hidden">
+                <div
+                  className="h-full bg-neutral-900 transition-all duration-500"
+                  style={{ width: `${Math.max(1, Math.min(seedStatus?.progress || 1, 100))}%` }}
+                />
+              </div>
+              <div className="text-xs text-neutral-500">
+                {seedStatus?.phase ? `Phase: ${seedStatus.phase}` : 'Phase: initializing'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
