@@ -75,6 +75,7 @@ export function DashboardPage() {
   const [sampleShopReady, setSampleShopReady] = useState(() => localStorage.getItem('ai_sme_sample_shop') === '1');
   const [modal, setModal] = useState<ModalState>(null);
   const currency = business?.currency || 'USD';
+  const showOnboardingChecklist = !sampleShopReady;
 
   useEffect(() => {
     Promise.all([
@@ -239,7 +240,7 @@ export function DashboardPage() {
           </div>
         ) : null}
 
-        {!sampleShopReady && <OnboardingChecklist summary={summary} />}
+        {showOnboardingChecklist && <OnboardingChecklist summary={summary} />}
 
         <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
           <KpiCard

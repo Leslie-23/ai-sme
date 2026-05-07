@@ -57,6 +57,7 @@ const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
 ];
 
 const REAL_BACKUP_KEY = 'ai_sme_real_workspace_snapshot';
+type WorkspaceAction = 'seed' | 'restore' | 'fresh';
 
 interface ConfigResponse {
   provider: Provider;
@@ -127,6 +128,7 @@ export function SettingsPage() {
   const [bizSaving, setBizSaving] = useState(false);
   const [bizStatus, setBizStatus] = useState<string | null>(null);
   const [bizError, setBizError] = useState<string | null>(null);
+  const [workspaceAction, setWorkspaceAction] = useState<WorkspaceAction | null>(null);
 
   type BusinessDto = {
     id: string;
@@ -294,7 +296,47 @@ export function SettingsPage() {
     }
   }
 
+  function openWorkspaceAction(action: WorkspaceAction) {
+    setWorkspaceAction(action);
+  }
+
   if (!config) return <div className="text-neutral-500 text-sm">Loading settings...</div>;
+
+  const workspaceCopy: Record<WorkspaceAction, { title: string; body: string; confirm: string }> = {
+    seed: {
+      title: 'Load sample shop?',
+      body:
+        'This will swap the current workspace to the demo shop. Your current business data is backed up locally first so you can restore it later.',
+      confirm: 'Load sample shop',
+    },
+    restore: {
+      title: 'Restore former data?',
+      body:
+        'This will bring back the saved workspace from before the demo. Use it to continue with your real business data.',
+      confirm: 'Restore data',
+    },
+    fresh: {
+      title: 'Start afresh?',
+      body:
+        'This will clear the current workspace and leave it blank for a clean real-business setup.',
+      confirm: 'Start afresh',
+    },
+  };
+
+  async function confirmWorkspaceAction() {
+    if (!workspaceAction) return;
+    const action = workspaceAction;
+    setWorkspaceAction(null);
+    if (action === 'seed') {
+      await loadSampleWorkspace();
+      return;
+    }
+    if (action === 'restore') {
+      await restoreRealWorkspace();
+      return;
+    }
+    await startFreshWorkspace();
+  }
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -571,13 +613,25 @@ export function SettingsPage() {
             on this browser.
           </p>
           <div className="flex flex-wrap gap-2">
-            <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={loadSampleWorkspace}>
+            <button
+              type="button"
+              className="btn-secondary !px-3 !py-1.5 text-sm"
+              onClick={() => openWorkspaceAction('seed')}
+            >
               Try sample shop
             </button>
-            <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={restoreRealWorkspace}>
+            <button
+              type="button"
+              className="btn-secondary !px-3 !py-1.5 text-sm"
+              onClick={() => openWorkspaceAction('restore')}
+            >
               Restore former data
             </button>
-            <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={startFreshWorkspace}>
+            <button
+              type="button"
+              className="btn-secondary !px-3 !py-1.5 text-sm"
+              onClick={() => openWorkspaceAction('fresh')}
+            >
               Start afresh
             </button>
           </div>
@@ -586,6 +640,34 @@ export function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {workspaceAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg border border-neutral-200 bg-white shadow-xl px-6 py-5">
+            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Workspace action</div>
+            <div className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">
+              {workspaceCopy[workspaceAction].title}
+            </div>
+            <p className="mt-2 text-sm text-neutral-600">{workspaceCopy[workspaceAction].body}</p>
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                className="btn-secondary !px-3 !py-1.5 text-sm"
+                onClick={() => setWorkspaceAction(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn-primary !px-3 !py-1.5 text-sm"
+                onClick={confirmWorkspaceAction}
+              >
+                {workspaceCopy[workspaceAction].confirm}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={onSave} className="card">
         <div className="px-5 py-3 border-b border-neutral-200 flex items-center justify-between">
