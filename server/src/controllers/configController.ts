@@ -47,7 +47,7 @@ export async function getConfig(req: Request, res: Response, next: NextFunction)
     });
 
     res.json({
-      provider: provider || 'openai',
+      provider: provider || 'groq',
       model: model || null,
       defaultModels: DEFAULT_MODELS,
       providerLabels: PROVIDER_LABELS,

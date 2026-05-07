@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import { Config } from '../models/Config';
+import { env } from '../utils/env';
 import { encrypt, decrypt } from '../utils/crypto';
 import { AIProviderName } from './ai';
 
@@ -79,11 +80,16 @@ export async function getActiveProviderConfig(businessId: Types.ObjectId): Promi
   model: string | null;
   apiKey: string;
 }> {
-  const provider = ((await getRaw(businessId, CONFIG_KEYS.aiProvider)) as AIProviderName) || 'openai';
+  const provider = ((await getRaw(businessId, CONFIG_KEYS.aiProvider)) as AIProviderName) || 'groq';
   const model = await getRaw(businessId, CONFIG_KEYS.aiModel);
-  const apiKey = await getEncryptedConfig(businessId, API_KEY_CONFIG[provider]);
+  const apiKey = (await getEncryptedConfig(businessId, API_KEY_CONFIG[provider])) || fallbackApiKey(provider);
   if (!apiKey) {
     throw new Error(`No API key configured for provider ${provider}`);
   }
   return { provider, model, apiKey };
+}
+
+function fallbackApiKey(provider: AIProviderName): string {
+  if (provider === 'groq' && env.GROQ_API_KEY) return env.GROQ_API_KEY;
+  return '';
 }

@@ -12,5 +12,6 @@ export const env = {
   MONGODB_URI: required('MONGODB_URI'),
   JWT_SECRET: required('JWT_SECRET'),
   ENCRYPTION_KEY: required('ENCRYPTION_KEY'),
+  GROQ_API_KEY: process.env.GROQ_API_KEY || '',
   NODE_ENV: process.env.NODE_ENV || 'development',
 };
