@@ -430,7 +430,7 @@ export function DashboardPage() {
 
       <div className="fixed bottom-5 right-5 z-40">
         {helpBoxOpen ? (
-          <div className="w-[calc(100vw-2.5rem)] max-w-xs border border-neutral-200 bg-white/95 backdrop-blur-sm shadow-xl">
+          <div className="w-[calc(100vw-2.5rem)] max-w-xs border border-neutral-200 bg-white/95 backdrop-blur-sm shadow-xl animate-help-box-in">
             <div className="px-4 py-3 border-b border-neutral-200 flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="section-title">Need a hand?</div>
@@ -470,7 +470,7 @@ export function DashboardPage() {
         ) : (
           <button
             type="button"
-            className="h-10 w-10 border border-neutral-200 bg-white/95 backdrop-blur-sm shadow-xl text-sm font-semibold text-neutral-900 hover:border-neutral-900"
+            className="h-11 w-11 border border-neutral-900 bg-neutral-950 text-white shadow-xl text-lg font-black italic hover:bg-neutral-800 animate-help-icon-in"
             onClick={() => setHelpBoxOpen(true)}
             aria-label="Open help box"
             title="Need a hand?"
