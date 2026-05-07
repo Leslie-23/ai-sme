@@ -20,6 +20,7 @@ export function InventoryPage() {
   const currency = business?.currency || 'USD';
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [productSearch, setProductSearch] = useState('');
   const [newProduct, setNewProduct] = useState({
     name: '',
     sku: '',
@@ -97,6 +98,16 @@ export function InventoryPage() {
     }
   }
 
+  const selectedProduct = products.find((p) => p._id === adjust.productId) || null;
+  const filteredAdjustProducts = products.filter((p) => {
+    if (!productSearch.trim()) return true;
+    const q = productSearch.trim().toLowerCase();
+    return p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
+  });
+  const adjustProducts = selectedProduct
+    ? [selectedProduct, ...filteredAdjustProducts.filter((p) => p._id !== selectedProduct._id)]
+    : filteredAdjustProducts;
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -136,17 +147,43 @@ export function InventoryPage() {
         <form onSubmit={onAdjust} className="card">
           <div className="px-5 py-3 border-b border-neutral-200 section-title">Restock / adjust stock</div>
           <div className="p-5 space-y-4">
-            <div>
+            <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.8fr)] gap-3">
+              <div>
+                <label className="label">Search product</label>
+                <input
+                  className="input mt-1.5"
+                  placeholder="Name or SKU"
+                  value={productSearch}
+                  onChange={(e) => setProductSearch(e.target.value)}
+                />
+              </div>
+              <div>
               <label className="label">Product</label>
-              <select className="input mt-1.5" value={adjust.productId} required onChange={(e) => setAdjust({ ...adjust, productId: e.target.value })}>
-                <option value="">Select product...</option>
-                {products.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.name} ({p.sku}) - stock {p.currentStock}
-                  </option>
-                ))}
-              </select>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <select className="input flex-1" value={adjust.productId} required onChange={(e) => setAdjust({ ...adjust, productId: e.target.value })}>
+                    <option value="">Select product...</option>
+                    {adjustProducts.map((p) => (
+                      <option key={p._id} value={p._id}>
+                        {p.name} ({p.sku}) - stock {p.currentStock}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="btn-ghost !px-3 !py-2 !border !border-neutral-200 text-xs"
+                    onClick={() => setProductSearch('')}
+                    title="Clear search"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
             </div>
+            {productSearch.trim() && (
+              <div className="text-[11px] text-neutral-500">
+                Showing {adjustProducts.length - (adjust.productId ? 1 : 0)} matching products.
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label">Quantity delta</label>

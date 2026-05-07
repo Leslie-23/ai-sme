@@ -73,6 +73,11 @@ export function SalesPage() {
       .filter((p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q))
       .slice(0, 12);
   }, [products, search]);
+  const matchingCount = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return products.length;
+    return products.filter((p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)).length;
+  }, [products, search]);
 
   const productMap = useMemo(() => new Map(products.map((p) => [p._id, p])), [products]);
 
@@ -94,6 +99,10 @@ export function SalesPage() {
   function updateQty(productId: string, qty: number) {
     if (qty <= 0) setCart((prev) => prev.filter((l) => l.productId !== productId));
     else setCart((prev) => prev.map((l) => (l.productId === productId ? { ...l, quantity: qty } : l)));
+  }
+
+  function removeFromCart(productId: string) {
+    setCart((prev) => prev.filter((l) => l.productId !== productId));
   }
 
   async function submitSale(e: FormEvent) {
@@ -122,16 +131,34 @@ export function SalesPage() {
         <div className="xl:col-span-2 card">
           <div className="px-5 py-3 border-b border-neutral-200 section-title">New sale</div>
           <div className="p-5 space-y-4">
-            <input
-              className="input"
-              placeholder="Search products by name or SKU..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-2 items-end">
+              <div>
+                <label className="label">Search product</label>
+                <input
+                  className="input mt-1.5"
+                  placeholder="Name or SKU"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                className="btn-ghost !px-3 !py-2 !border !border-neutral-200 text-sm"
+                onClick={() => setSearch('')}
+              >
+                Clear
+              </button>
+            </div>
+            <div className="text-xs text-neutral-500">
+              {search.trim()
+                ? `${matchingCount} matching products`
+                : `${products.length} products available`}
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {filteredProducts.map((p) => (
                 <button
                   key={p._id}
+                  type="button"
                   className="border border-neutral-200 bg-white hover:border-neutral-900 p-3 text-left transition-colors disabled:opacity-40"
                   onClick={() => addToCart(p._id)}
                   disabled={p.currentStock <= 0}
@@ -159,6 +186,15 @@ export function SalesPage() {
                           <div className="text-sm font-medium truncate">{p.name}</div>
                           <div className="text-xs text-neutral-500">{formatMoney(p.unitPrice, currency)}</div>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(line.productId)}
+                          className="h-8 w-8 flex items-center justify-center border border-neutral-200 text-neutral-500 hover:border-neutral-900 hover:text-neutral-900"
+                          aria-label={`Remove ${p.name}`}
+                          title="Remove item"
+                        >
+                          x
+                        </button>
                         <input
                           type="number"
                           min={0}

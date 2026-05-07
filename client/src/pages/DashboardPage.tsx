@@ -67,7 +67,12 @@ export function DashboardPage() {
       track('demo_seeded');
       localStorage.setItem('ai_sme_sample_shop', '1');
       setSampleShopReady(true);
-      window.location.reload();
+      const [freshSummary, freshSales] = await Promise.all([
+        api<DashboardSummary>('/dashboard/summary'),
+        api<Sale[]>('/sales', { query: { limit: '6' } }),
+      ]);
+      setSummary(freshSummary);
+      setSales(freshSales);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Demo setup failed');
       setSeedingDemo(false);
@@ -344,10 +349,9 @@ function OnboardingChecklist({ summary }: { summary: DashboardSummary }) {
                 : 'border-neutral-200 bg-white hover:border-neutral-900'
             }`}
           >
-            <div className="text-[11px] uppercase tracking-wider text-neutral-500">
-              Step {idx + 1}
-            </div>
+            <div className="text-[11px] uppercase tracking-wider text-neutral-500">Step {idx + 1}</div>
             <div className="font-medium mt-1">{step.label}</div>
+            <div className="text-xs text-neutral-500 mt-1">{step.done ? 'Completed' : step.next}</div>
           </a>
         ))}
       </div>
