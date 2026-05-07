@@ -227,6 +227,10 @@ export function DashboardPage() {
     setModal({ type: 'real', snapshotAvailable: Boolean(localStorage.getItem(REAL_BACKUP_KEY)) });
   }
 
+  function openLexa() {
+    window.dispatchEvent(new CustomEvent('lexa:open'));
+  }
+
   function startNewDashboardChat() {
     const current = loadMessages('dashboard');
     if (current.length > 0) {
@@ -418,20 +422,31 @@ export function DashboardPage() {
       </div>
       </div>
 
-      <div className="fixed bottom-5 right-5 z-40">
-        {sampleShopReady ? (
-          <button
-            type="button"
-            onClick={openRealModal}
-            className="btn-primary !px-3 !py-2 text-xs shadow-lg"
-          >
-            Try with real business
+      <div className="fixed bottom-5 right-5 z-40 w-[calc(100vw-2.5rem)] max-w-xs border border-neutral-200 bg-white/95 backdrop-blur-sm shadow-xl">
+        <div className="px-4 py-3 border-b border-neutral-200">
+          <div className="section-title">Need a hand?</div>
+          <div className="text-[11px] text-neutral-500 mt-0.5">
+            Switch modes or ask Lexa for setup help.
+          </div>
+        </div>
+        <div className="p-3 grid grid-cols-1 gap-2">
+          {sampleShopReady ? (
+            <button
+              type="button"
+              onClick={openRealModal}
+              className="btn-primary !px-3 !py-2 text-xs w-full"
+            >
+              Try with real business
+            </button>
+          ) : (
+            <button type="button" onClick={openSetupModal} className="btn-primary !px-3 !py-2 text-xs w-full">
+              Book assisted setup
+            </button>
+          )}
+          <button type="button" onClick={openLexa} className="btn-secondary !px-3 !py-2 text-xs w-full">
+            Ask Lexa
           </button>
-        ) : (
-          <button type="button" onClick={openSetupModal} className="btn-primary !px-3 !py-2 text-xs shadow-lg">
-            Book assisted setup
-          </button>
-        )}
+        </div>
       </div>
 
       {seedingDemo && (

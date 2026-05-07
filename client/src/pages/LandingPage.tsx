@@ -314,9 +314,30 @@ export function LandingPage() {
             <Feature title="Owner reports" body="AI-generated summaries that explain performance, risks, and practical next actions." />
             <Feature title="Assisted import" body="Paste product lists, sales notes, payments, or expenses and preview structured records before saving." />
             <Feature title="Team workflow" body="Owner and staff access so cashiers can record sales while owners keep control of reports and settings." />
-            <Feature title="AI assistant" body="Ask questions like top products, low stock, week-over-week changes, and profit risks in plain English." />
+            <Feature title="Intellexa assistant" body="Ask questions like top products, low stock, week-over-week changes, and profit risks in plain English." />
             <Feature title="Demo-ready pilots" body="Use sample data for demos, then swap in a pilot customer's real products and recent transactions." />
             <Feature title="Secure business data" body="JWT auth, business-level data scoping, encrypted provider keys, and export paths for paid accounts." />
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-neutral-200 bg-white">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-14 md:py-18 grid grid-cols-1 lg:grid-cols-3 gap-0 border-x border-neutral-200 [&>*]:border-neutral-200 lg:[&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-b lg:[&>*:not(:last-child)]:border-b-0">
+          <div className="p-6 md:p-8 lg:col-span-1">
+            <span className="label">Support built in</span>
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mt-2">Lexa helps users stay unstuck.</h2>
+          </div>
+          <div className="p-6 md:p-8">
+            <div className="section-title">For product help</div>
+            <p className="text-sm text-neutral-600 mt-2 leading-relaxed">
+              Lexa answers setup, import, sample data, reports, billing, permissions, and complaint questions from app help docs.
+            </p>
+          </div>
+          <div className="p-6 md:p-8">
+            <div className="section-title">For business answers</div>
+            <p className="text-sm text-neutral-600 mt-2 leading-relaxed">
+              Intellexa stays focused on the owner's real sales, stock, expenses, profit, and next actions.
+            </p>
           </div>
         </div>
       </section>

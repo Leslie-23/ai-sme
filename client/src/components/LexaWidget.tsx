@@ -27,7 +27,7 @@ const QUICK_PROMPTS = [
   'I have a complaint or bug',
 ];
 
-export function LexaWidget() {
+export function LexaWidget({ hideLauncher = false, position = 'left' }: { hideLauncher?: boolean; position?: 'left' | 'right' }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<LexaMessage[]>(() => loadMessages());
   const [input, setInput] = useState('');
@@ -47,6 +47,14 @@ export function LexaWidget() {
     if (!open) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [open, messages, sending]);
+
+  useEffect(() => {
+    function openLexa() {
+      setOpen(true);
+    }
+    window.addEventListener('lexa:open', openLexa);
+    return () => window.removeEventListener('lexa:open', openLexa);
+  }, []);
 
   async function send(text: string) {
     const trimmed = text.trim();
@@ -106,7 +114,7 @@ export function LexaWidget() {
   }
 
   return (
-    <div className="fixed bottom-5 left-5 z-50">
+    <div className={`fixed bottom-5 z-50 ${position === 'right' ? 'right-5' : 'left-5'}`}>
       {open && (
         <div className="mb-3 w-[calc(100vw-2.5rem)] sm:w-[380px] h-[520px] max-h-[calc(100dvh-6rem)] bg-white border border-neutral-200 shadow-xl flex flex-col">
           <div className="px-4 py-3 border-b border-neutral-200 flex items-center justify-between gap-3">
@@ -180,14 +188,16 @@ export function LexaWidget() {
         </div>
       )}
 
-      <button
-        type="button"
-        className="btn-primary !px-3 !py-2 text-xs shadow-lg"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-      >
-        {open ? 'Close Lexa' : 'Ask Lexa'}
-      </button>
+      {!hideLauncher && (
+        <button
+          type="button"
+          className="btn-primary !px-3 !py-2 text-xs shadow-lg"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+        >
+          {open ? 'Close Lexa' : 'Ask Lexa'}
+        </button>
+      )}
     </div>
   );
 }

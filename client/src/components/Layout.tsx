@@ -47,6 +47,7 @@ export function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const title = pageTitles[location.pathname] || '';
+  const isDashboard = location.pathname === '/dashboard';
 
   const [collapsed, setCollapsed] = useState<boolean>(
     () => localStorage.getItem(SIDEBAR_KEY) === '1'
@@ -227,7 +228,7 @@ export function Layout() {
         <main className="flex-1 px-4 md:px-6 lg:px-8 py-4 md:py-6 overflow-x-hidden">
           <Outlet />
         </main>
-        <LexaWidget />
+        <LexaWidget hideLauncher={isDashboard} position={isDashboard ? 'right' : 'left'} />
       </div>
     </div>
   );
