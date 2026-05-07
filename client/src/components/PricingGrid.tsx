@@ -117,7 +117,7 @@ export function PricingGrid({
           else if (!user && isPaid) ctaLabel = 'Start 14-day trial';
           else if (!user) ctaLabel = 'Get started';
           else if (isPaid && busy) ctaLabel = 'Redirecting…';
-          else if (isPaid) ctaLabel = `Upgrade to ${p.name}`;
+          else if (isPaid) ctaLabel = p.id === 'pro' ? 'Upgrade to Growth' : `Upgrade to ${p.name}`;
           else ctaLabel = 'Switch to Free';
 
           const highlight = p.highlight;

@@ -37,8 +37,8 @@ interface PlanConfig {
 
 // Defaults are USD. Override per-plan via env when you wire up real Paystack plans.
 const PLAN_DEFAULTS: Record<PaidPlanId, { priceSubunit: number }> = {
-  pro: { priceSubunit: 1500 }, // $15.00
-  business: { priceSubunit: 3900 }, // $39.00
+  pro: { priceSubunit: 1900 }, // $19.00
+  business: { priceSubunit: 7900 }, // $79.00
 };
 
 export function getPlanConfig(plan: PaidPlanId): PlanConfig {

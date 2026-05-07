@@ -39,7 +39,7 @@ export function PricingPage() {
     api<VerifyResponse>('/billing/verify', { method: 'POST', body: { reference: ref } })
       .then(async (r) => {
         if (r.ok) {
-          setVerifyMsg(`You're now on ${r.plan === 'business' ? 'Business' : 'Pro'} - welcome aboard.`);
+          setVerifyMsg(`You're now on ${r.plan === 'business' ? 'Business' : 'Growth'} - welcome aboard.`);
           track('subscription_activated', { plan: r.plan });
           await refreshBusiness();
           setTimeout(() => navigate('/dashboard'), 1200);
@@ -63,8 +63,8 @@ export function PricingPage() {
           Choose the plan for your pilot or shop
         </h1>
         <p className="text-sm text-neutral-600 max-w-xl mx-auto">
-          Start with tracking, unlock AI reports and imports on Pro, or use Business when you want
-          onboarding help and export support for real customers.
+          Start with basic tracking, move to Growth when Intellexa becomes part of daily decisions,
+          or use Business when you want assisted setup and owner review support.
         </p>
       </div>
 

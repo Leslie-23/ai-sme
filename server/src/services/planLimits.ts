@@ -16,7 +16,7 @@ export async function assertCanAddProduct(businessId: Types.ObjectId): Promise<v
   if (count >= FREE_PRODUCT_LIMIT) {
     throw new HttpError(
       402,
-      `Free plan is limited to ${FREE_PRODUCT_LIMIT} products. Upgrade to Pro for unlimited.`
+      `Free plan is limited to ${FREE_PRODUCT_LIMIT} products. Upgrade to Growth for unlimited.`
     );
   }
 }
@@ -34,7 +34,7 @@ export async function assertCanAddSale(businessId: Types.ObjectId): Promise<void
   if (count >= FREE_SALES_PER_MONTH) {
     throw new HttpError(
       402,
-      `Free plan is limited to ${FREE_SALES_PER_MONTH} sales per month. Upgrade to Pro for unlimited.`
+      `Free plan is limited to ${FREE_SALES_PER_MONTH} sales per month. Upgrade to Growth for unlimited.`
     );
   }
 }

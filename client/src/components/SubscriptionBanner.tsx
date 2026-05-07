@@ -17,7 +17,7 @@ export function SubscriptionBanner() {
   if (!sub) return null;
   if (location.pathname === '/pricing') return null;
 
-  const planName = sub.plan === 'business' ? 'Business' : 'Pro';
+  const planName = sub.plan === 'business' ? 'Business' : 'Growth';
 
   // Trialing + still has access: nudge about days remaining.
   if (sub.status === 'trialing' && sub.hasProAccess) {

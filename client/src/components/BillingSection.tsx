@@ -6,7 +6,7 @@ import { formatDate } from '../lib/format';
 
 function planName(plan: string): string {
   if (plan === 'business') return 'Business';
-  if (plan === 'pro') return 'Pro';
+  if (plan === 'pro') return 'Growth';
   return 'Free';
 }
 
@@ -80,7 +80,7 @@ export function BillingSection() {
   }
 
   async function onCancel() {
-    const name = sub ? planName(sub.plan) : 'Pro';
+    const name = sub ? planName(sub.plan) : 'Growth';
     if (!confirm(`Cancel your ${name} subscription? You'll keep access until the end of the current billing period.`)) return;
     setCanceling(true);
     setError(null);
@@ -125,7 +125,7 @@ export function BillingSection() {
           <div className="flex gap-2">
             {!onPro && (
               <button type="button" onClick={() => navigate('/pricing')} className="btn-primary">
-                Upgrade to Pro
+                Upgrade to Growth
               </button>
             )}
             {onPro && !sub.cancelAtPeriodEnd && (
@@ -140,7 +140,7 @@ export function BillingSection() {
             )}
             {onPro && sub.cancelAtPeriodEnd && (
               <button type="button" onClick={() => navigate('/pricing')} className="btn-primary">
-                Resume Pro
+                Resume Growth
               </button>
             )}
           </div>

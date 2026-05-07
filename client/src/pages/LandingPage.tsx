@@ -196,7 +196,7 @@ export function LandingPage() {
               )}
             </div>
             <div className="flex flex-wrap items-center gap-4 pt-6 text-xs text-neutral-500">
-              {!user && <><span>14-day Pro trial</span><span className="text-neutral-300">/</span></>}
+              {!user && <><span>14-day Growth trial</span><span className="text-neutral-300">/</span></>}
               <span>Assisted pilot setup</span>
               <span className="text-neutral-300">/</span>
               <span>Retail-ready demo data</span>
@@ -647,19 +647,19 @@ export function LandingPage() {
             />
             <Faq
               q="Is there a free trial?"
-              a="Every new account gets 14 days of Pro access, automatically. No credit card required to sign up. When the trial ends, you stay on Free (50 products, 200 sales/month, no AI) unless you upgrade."
+              a="Every new account gets 14 days of Growth access, automatically. No credit card required to sign up. When the trial ends, you stay on Free (50 products, 200 sales/month, no business AI) unless you upgrade."
             />
             <Faq
-              q="What's the difference between Pro and Business?"
-              a="Pro ($15/mo) unlocks Intellexa, imports, Reports, and unlimited records - everything a solo operator needs. Business ($39/mo) adds priority email support, a 30-minute onboarding call, on-demand data exports, and early access to new features - for owners who want a human in the loop."
+              q="What's the difference between Growth and Business?"
+              a="Growth ($19/mo) unlocks Intellexa, imports, Reports, staff workflows, and unlimited records. Business ($79/mo) adds assisted onboarding, data cleanup, monthly owner review, exports, and priority WhatsApp/email support."
             />
             <Faq
               q="How am I charged?"
-              a="Payments are processed by Paystack in USD. You'll be billed monthly on the same day you subscribed. You can cancel at any time from Settings -> Billing - you keep Pro access until the end of the current period."
+              a="Payments are processed by Paystack in the configured billing currency. You'll be billed monthly on the same day you subscribed. You can cancel at any time from Settings -> Billing - you keep paid access until the end of the current period."
             />
             <Faq
               q="Can I switch plans?"
-              a="Yes. Upgrade from Free to Pro or Business whenever you're ready. Downgrades take effect at the end of your current billing period."
+              a="Yes. Upgrade from Free to Growth or Business whenever you're ready. Downgrades take effect at the end of your current billing period."
             />
             <Faq
               q="What happens if my payment fails?"
