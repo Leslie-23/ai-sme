@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AuthPermissions, useAuth } from '../context/AuthContext';
 import { SubscriptionBanner } from './SubscriptionBanner';
 import { LexaWidget } from './LexaWidget';
+import { AppTour } from './AppTour';
 
 type NavItem = {
   to: string;
@@ -121,7 +122,7 @@ export function Layout() {
           </button>
         </div>
 
-        <nav className="flex-1 py-3">
+        <nav className="flex-1 py-3" data-tour="nav">
           {navItems
             .filter((n) => !n.feature || business?.features?.[n.feature] !== false)
             .filter((n) => !n.requires || user?.permissions?.[n.requires] !== false)
@@ -229,6 +230,7 @@ export function Layout() {
           <Outlet />
         </main>
         <LexaWidget hideLauncher={isDashboard} position={isDashboard ? 'right' : 'left'} />
+        {isDashboard && <AppTour />}
       </div>
     </div>
   );

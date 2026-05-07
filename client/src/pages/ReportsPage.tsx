@@ -129,9 +129,14 @@ export function ReportsPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 card p-0 overflow-hidden">
+        <div className="xl:col-span-2 card p-0 overflow-hidden report-print-area">
           <div className="px-5 py-3 border-b border-neutral-200 flex items-center justify-between">
-            <div className="section-title">Owner insights</div>
+            <div>
+              <div className="section-title">Owner insights</div>
+              <div className="hidden print:block text-xs text-neutral-500 mt-1">
+                {stats.businessName} / Generated {formatDate(generatedAt)}
+              </div>
+            </div>
             <span className="text-[10px] uppercase tracking-wider text-neutral-400">{modelUsed}</span>
           </div>
           <div className="p-5 text-sm text-neutral-800 leading-relaxed">

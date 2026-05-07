@@ -23,7 +23,9 @@ function startOfMonth(d: Date): Date {
 
 export interface DashboardSummary {
   totals: { today: number; week: number; month: number };
+  previousTotals: { today: number; week: number; month: number };
   salesCount: { today: number; week: number; month: number };
+  previousSalesCount: { today: number; week: number; month: number };
   paymentMethodBreakdown: { method: string; total: number; count: number }[];
   topProducts: { productId: string; productName: string; revenue: number; units: number }[];
   lowStockProducts: {
@@ -43,10 +45,16 @@ export async function buildDashboardSummary(businessId: Types.ObjectId): Promise
   const today = startOfDay(now);
   const week = startOfWeek(now);
   const month = startOfMonth(now);
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const previousWeek = new Date(week);
+  previousWeek.setDate(previousWeek.getDate() - 7);
+  const previousMonth = new Date(month);
+  previousMonth.setMonth(previousMonth.getMonth() - 1);
 
   const [totalsAgg, paymentAgg, topProductsAgg, lowStock, expensesAgg, productCount] = await Promise.all([
     Sale.aggregate([
-      { $match: { businessId, createdAt: { $gte: month } } },
+      { $match: { businessId, createdAt: { $gte: previousMonth } } },
       {
         $group: {
           _id: null,
@@ -57,9 +65,27 @@ export async function buildDashboardSummary(businessId: Types.ObjectId): Promise
             $sum: { $cond: [{ $gte: ['$createdAt', week] }, '$totalAmount', 0] },
           },
           monthTotal: { $sum: '$totalAmount' },
+          previousTodayTotal: {
+            $sum: { $cond: [{ $and: [{ $gte: ['$createdAt', yesterday] }, { $lt: ['$createdAt', today] }] }, '$totalAmount', 0] },
+          },
+          previousWeekTotal: {
+            $sum: { $cond: [{ $and: [{ $gte: ['$createdAt', previousWeek] }, { $lt: ['$createdAt', week] }] }, '$totalAmount', 0] },
+          },
+          previousMonthTotal: {
+            $sum: { $cond: [{ $and: [{ $gte: ['$createdAt', previousMonth] }, { $lt: ['$createdAt', month] }] }, '$totalAmount', 0] },
+          },
           todayCount: { $sum: { $cond: [{ $gte: ['$createdAt', today] }, 1, 0] } },
           weekCount: { $sum: { $cond: [{ $gte: ['$createdAt', week] }, 1, 0] } },
-          monthCount: { $sum: 1 },
+          monthCount: { $sum: { $cond: [{ $gte: ['$createdAt', month] }, 1, 0] } },
+          previousTodayCount: {
+            $sum: { $cond: [{ $and: [{ $gte: ['$createdAt', yesterday] }, { $lt: ['$createdAt', today] }] }, 1, 0] },
+          },
+          previousWeekCount: {
+            $sum: { $cond: [{ $and: [{ $gte: ['$createdAt', previousWeek] }, { $lt: ['$createdAt', week] }] }, 1, 0] },
+          },
+          previousMonthCount: {
+            $sum: { $cond: [{ $and: [{ $gte: ['$createdAt', previousMonth] }, { $lt: ['$createdAt', month] }] }, 1, 0] },
+          },
         },
       },
     ]),
@@ -116,9 +142,15 @@ export async function buildDashboardSummary(businessId: Types.ObjectId): Promise
     todayTotal: 0,
     weekTotal: 0,
     monthTotal: 0,
+    previousTodayTotal: 0,
+    previousWeekTotal: 0,
+    previousMonthTotal: 0,
     todayCount: 0,
     weekCount: 0,
     monthCount: 0,
+    previousTodayCount: 0,
+    previousWeekCount: 0,
+    previousMonthCount: 0,
   };
   const expensesMonth = expensesAgg[0]?.total || 0;
 
@@ -128,10 +160,20 @@ export async function buildDashboardSummary(businessId: Types.ObjectId): Promise
       week: totals.weekTotal,
       month: totals.monthTotal,
     },
+    previousTotals: {
+      today: totals.previousTodayTotal,
+      week: totals.previousWeekTotal,
+      month: totals.previousMonthTotal,
+    },
     salesCount: {
       today: totals.todayCount,
       week: totals.weekCount,
       month: totals.monthCount,
+    },
+    previousSalesCount: {
+      today: totals.previousTodayCount,
+      week: totals.previousWeekCount,
+      month: totals.previousMonthCount,
     },
     paymentMethodBreakdown: paymentAgg,
     topProducts: topProductsAgg,

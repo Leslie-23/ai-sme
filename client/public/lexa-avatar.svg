@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Lexa avatar">
+  <rect width="128" height="128" fill="#0a0a0a"/>
+  <circle cx="64" cy="45" r="22" fill="#fff"/>
+  <path d="M28 112c4-24 18-38 36-38s32 14 36 38H28Z" fill="#fff"/>
+  <circle cx="55" cy="43" r="3" fill="#0a0a0a"/>
+  <circle cx="73" cy="43" r="3" fill="#0a0a0a"/>
+  <path d="M56 55c5 4 11 4 16 0" fill="none" stroke="#0a0a0a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M91 24l5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2 5-10Z" fill="#fff"/>
+</svg>

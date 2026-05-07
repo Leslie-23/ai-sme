@@ -13,11 +13,14 @@ import {
   loadSessions,
   saveMessages,
   saveSessions,
+  syncChatSessionToServer,
 } from '../lib/chatStore';
 
 interface DashboardSummary {
   totals: { today: number; week: number; month: number };
+  previousTotals: { today: number; week: number; month: number };
   salesCount: { today: number; week: number; month: number };
+  previousSalesCount: { today: number; week: number; month: number };
   paymentMethodBreakdown: { method: string; total: number; count: number }[];
   topProducts: { productId: string; productName: string; revenue: number; units: number }[];
   lowStockProducts: {
@@ -251,6 +254,7 @@ export function DashboardPage() {
         },
         ...loadSessions(),
       ]);
+      void syncChatSessionToServer(archived.id, archived.title, current);
       track('assistant_dashboard_chat_archived', { messageCount: current.length });
     }
     saveMessages('dashboard', []);
@@ -281,21 +285,24 @@ export function DashboardPage() {
 
         {showOnboardingChecklist && <OnboardingChecklist summary={summary} />}
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
+        <div data-tour="dashboard-kpis" className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
           <KpiCard
             label="Revenue today"
             value={formatMoney(summary.totals.today, currency)}
             sub={`${summary.salesCount.today} orders`}
+            historical={`Yesterday ${formatMoney(summary.previousTotals.today, currency)} / ${summary.previousSalesCount.today} orders`}
           />
           <KpiCard
             label="This week"
             value={formatMoney(summary.totals.week, currency)}
             sub={`${summary.salesCount.week} orders`}
+            historical={`Last week ${formatMoney(summary.previousTotals.week, currency)} / ${summary.previousSalesCount.week} orders`}
           />
           <KpiCard
             label="This month"
             value={formatMoney(summary.totals.month, currency)}
             sub={`${summary.salesCount.month} orders`}
+            historical={`Last month ${formatMoney(summary.previousTotals.month, currency)} / ${summary.previousSalesCount.month} orders`}
           />
           <KpiCard
             label="Net profit (month)"
@@ -306,7 +313,7 @@ export function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2">
+        <div className="xl:col-span-2" data-tour="intellexa-panel">
             <ChatPanel
               key={`dashboard:${chatRefreshTick}`}
               sessionId="dashboard"
@@ -326,7 +333,9 @@ export function DashboardPage() {
           </div>
 
           <div className="space-y-6">
-            <AttentionPanel summary={summary} currency={currency} />
+            <div data-tour="attention-panel">
+              <AttentionPanel summary={summary} currency={currency} />
+            </div>
 
           <Panel title="Restock risks" badge={summary.lowStockProducts.length.toString()}>
             {summary.lowStockProducts.length === 0 ? (
@@ -428,7 +437,7 @@ export function DashboardPage() {
       </div>
       </div>
 
-      <div className="fixed bottom-5 right-5 z-40">
+      <div className="fixed bottom-5 right-5 z-40" data-tour="help-box">
         {helpBoxOpen ? (
           <div className="w-[calc(100vw-2.5rem)] max-w-xs border border-neutral-200 bg-white/95 backdrop-blur-sm shadow-xl animate-help-box-in">
             <div className="px-4 py-3 border-b border-neutral-200 flex items-start justify-between gap-3">
@@ -582,11 +591,13 @@ function KpiCard({
   label,
   value,
   sub,
+  historical,
   tone,
 }: {
   label: string;
   value: string;
   sub?: string;
+  historical?: string;
   tone?: 'normal' | 'warn';
 }) {
   return (
@@ -600,6 +611,7 @@ function KpiCard({
         {value}
       </div>
       {sub && <div className="text-xs text-neutral-500 mt-1">{sub}</div>}
+      {historical && <div className="text-[11px] text-neutral-400 mt-1">{historical}</div>}
     </div>
   );
 }

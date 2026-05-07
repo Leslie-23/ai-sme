@@ -7,6 +7,7 @@ import {
   loadSessions,
   saveSessions,
   deriveTitle,
+  syncChatSessionToServer,
 } from '../lib/chatStore';
 import {
   AttachedFile,
@@ -66,6 +67,10 @@ export function ChatPanel({
 
   useEffect(() => {
     saveMessages(sessionId, messages);
+    if (messages.length > 0) {
+      const title = deriveTitle(messages.find((m) => m.role === 'user')?.text || 'Dashboard chat');
+      void syncChatSessionToServer(sessionId, title, messages);
+    }
     onMessagesChange?.(messages);
   }, [messages, sessionId, onMessagesChange]);
 

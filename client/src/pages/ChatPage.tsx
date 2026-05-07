@@ -6,6 +6,7 @@ import {
   deleteMessages,
   getActiveSessionId,
   loadSessions,
+  loadChatSessionsFromServer,
   saveSessions,
   saveMessages,
   setActiveSessionId,
@@ -15,6 +16,22 @@ export function ChatPage() {
   const [sessions, setSessions] = useState<ChatSession[]>(() => loadSessions());
   const [activeId, setActiveId] = useState<string | null>(() => getActiveSessionId());
   const [refreshTick, setRefreshTick] = useState(0);
+
+  useEffect(() => {
+    loadChatSessionsFromServer()
+      .then((remote) => {
+        if (remote.length > 0) {
+          setSessions(remote);
+          if (!activeId || !remote.some((s) => s.id === activeId)) {
+            setActiveId(remote[0].id);
+            setActiveSessionId(remote[0].id);
+          }
+        }
+      })
+      .catch(() => {
+        // Local chat history remains available if sync is offline.
+      });
+  }, []);
 
   useEffect(() => {
     if (sessions.length === 0) {

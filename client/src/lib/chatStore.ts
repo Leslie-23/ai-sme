@@ -107,6 +107,35 @@ export function deriveTitle(text: string, max = 48): string {
   return titled.length <= max ? titled : titled.slice(0, max - 1).trimEnd() + '...';
 }
 
+export async function syncChatSessionToServer(sessionId: string, title: string, messages: ChatMessage[]): Promise<void> {
+  try {
+    const { api } = await import('./api');
+    await api('/chat-sessions', {
+      method: 'PUT',
+      body: { sessionId, title, messages },
+    });
+  } catch {
+    // Local chat stays usable even if server sync fails.
+  }
+}
+
+export async function loadChatSessionsFromServer(): Promise<ChatSession[]> {
+  const { api } = await import('./api');
+  const rows = await api<Array<ChatSession & { messages: ChatMessage[] }>>('/chat-sessions');
+  for (const row of rows) {
+    saveMessages(row.id, row.messages || []);
+  }
+  const sessions = rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    messageCount: row.messageCount,
+  }));
+  if (sessions.length > 0) saveSessions(sessions);
+  return sessions;
+}
+
 export function clearAllChatData(): void {
   try {
     const drop: string[] = [];

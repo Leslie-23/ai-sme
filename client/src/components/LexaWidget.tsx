@@ -119,8 +119,13 @@ export function LexaWidget({ hideLauncher = false, position = 'left' }: { hideLa
         <div className="mb-3 w-[calc(100vw-2.5rem)] sm:w-[380px] h-[520px] max-h-[calc(100dvh-6rem)] bg-white border border-neutral-200 shadow-xl flex flex-col">
           <div className="px-4 py-3 border-b border-neutral-200 flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="section-title">Lexa</div>
-              <div className="text-[11px] text-neutral-500 mt-0.5">Help, complaints, and setup support</div>
+              <div className="flex items-center gap-2">
+                <img src="/lexa-avatar.svg" alt="" className="h-8 w-8 object-cover border border-neutral-200" />
+                <div>
+                  <div className="section-title">Lexa</div>
+                  <div className="text-[11px] text-neutral-500 mt-0.5">Help, complaints, and setup support</div>
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-1">
               <button type="button" className="btn-ghost !px-2 !py-1 text-xs" onClick={clear}>
@@ -191,11 +196,11 @@ export function LexaWidget({ hideLauncher = false, position = 'left' }: { hideLa
       {!hideLauncher && (
         <button
           type="button"
-          className="btn-primary !px-3 !py-2 text-xs shadow-lg"
+          className="h-11 w-11 border border-neutral-900 bg-neutral-950 text-white shadow-xl hover:bg-neutral-800 animate-help-icon-in"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
         >
-          {open ? 'Close Lexa' : 'Ask Lexa'}
+          <span className="text-lg font-black italic leading-none">i</span>
         </button>
       )}
     </div>
