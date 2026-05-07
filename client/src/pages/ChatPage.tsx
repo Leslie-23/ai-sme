@@ -82,7 +82,7 @@ export function ChatPage() {
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:h-[calc(100vh-9rem)]">
       <aside className="lg:col-span-1 card flex flex-col min-h-[320px]">
         <div className="px-4 py-3 border-b border-neutral-200 flex items-center justify-between">
-          <div className="section-title">Sessions</div>
+          <div className="section-title">Intellexa sessions</div>
           <button
             type="button"
             onClick={newSession}
@@ -166,7 +166,7 @@ export function ChatPage() {
                 className="btn-ghost !px-2 !py-1 !border !border-neutral-200 text-xs"
                 title="Clear current chat"
               >
-                Clear chat
+                Clear
               </button>
             }
           />

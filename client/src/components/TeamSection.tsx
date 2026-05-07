@@ -18,7 +18,7 @@ const PERMISSION_LABELS: { key: keyof AuthPermissions; label: string; hint: stri
   { key: 'viewReports', label: 'View reports', hint: 'All-time reports with AI insights' },
   { key: 'managePayments', label: 'Manage payments', hint: 'Non-sale money in (transfers, refunds)' },
   { key: 'manageExpenses', label: 'Manage expenses', hint: 'Log operating costs' },
-  { key: 'useAI', label: 'Use AI Assistant', hint: 'Chat with business data' },
+  { key: 'useAI', label: 'Use Intellexa', hint: 'Chat with business data' },
 ];
 
 const ROLE_SUGGESTIONS = ['Sales rep', 'Cashier', 'Accountant', 'Inventory manager', 'Shift lead'];

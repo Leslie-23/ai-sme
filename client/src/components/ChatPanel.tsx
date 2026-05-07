@@ -164,9 +164,9 @@ export function ChatPanel({
     <div className={`card flex flex-col ${heightClass}`}>
       <div className="px-4 sm:px-5 py-3 border-b border-neutral-200 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <div className="section-title">Owner Assistant</div>
+          <div className="section-title">Intellexa</div>
           <div className="text-[11px] text-neutral-500 mt-0.5">
-            Sales, stock, expenses, and next actions
+            Your business assistant for sales, stock, expenses, and next actions
           </div>
           {showDateRange && (
             <div className="text-[11px] text-neutral-500 mt-1">
@@ -200,7 +200,7 @@ export function ChatPanel({
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center">
             <div className="text-sm text-neutral-500 mb-4">
-              Ask for a restock list, profit check, sales summary, or next-week action plan.
+              Ask Intellexa for a restock list, profit check, sales summary, or next-week action plan.
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-xl">
               {suggestions.map((s) => (
@@ -242,7 +242,7 @@ export function ChatPanel({
         {sending && (
           <div className="flex justify-start">
             <div className="border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-500">
-              <span className="inline-block animate-pulse">thinking...</span>
+              <span className="inline-block animate-pulse">Intellexa is thinking...</span>
             </div>
           </div>
         )}

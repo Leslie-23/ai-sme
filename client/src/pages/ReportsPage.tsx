@@ -424,7 +424,7 @@ function buildReportActions(stats: ReportStats, currency: string): string[] {
     actions.push(`Cut or explain losses: net profit is ${formatMoney(stats.totals.netProfit, currency)} across the report period.`);
   }
   if (actions.length === 0) {
-    actions.push('Ask the Owner Assistant for a weekly restock list and one expense-control recommendation.');
+    actions.push('Ask Intellexa for a weekly restock list and one expense-control recommendation.');
   }
   return actions.slice(0, 5);
 }

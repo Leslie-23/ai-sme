@@ -118,7 +118,7 @@ export function BillingSection() {
                   {formatDate(sub.currentPeriodEnd)}
                 </div>
               )}
-              {!onPro && <div>Upgrade for AI Assistant, Reports, imports and unlimited records.</div>}
+              {!onPro && <div>Upgrade for Intellexa, Reports, imports and unlimited records.</div>}
             </div>
           </div>
 

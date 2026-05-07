@@ -6,6 +6,14 @@ import { formatDate, formatMoney } from '../lib/format';
 import { ChatPanel } from '../components/ChatPanel';
 import { track } from '../lib/analytics';
 import { SetupLeadModal } from '../components/SetupLeadModal';
+import {
+  createSession,
+  deriveTitle,
+  loadMessages,
+  loadSessions,
+  saveMessages,
+  saveSessions,
+} from '../lib/chatStore';
 
 interface DashboardSummary {
   totals: { today: number; week: number; month: number };
@@ -74,6 +82,7 @@ export function DashboardPage() {
   const [sampleShopReady, setSampleShopReady] = useState(() => localStorage.getItem('ai_sme_sample_shop') === '1');
   const [modal, setModal] = useState<ModalState>(null);
   const [setupLeadOpen, setSetupLeadOpen] = useState(false);
+  const [chatRefreshTick, setChatRefreshTick] = useState(0);
   const currency = business?.currency || 'USD';
   const showOnboardingChecklist = !sampleShopReady;
 
@@ -218,6 +227,26 @@ export function DashboardPage() {
     setModal({ type: 'real', snapshotAvailable: Boolean(localStorage.getItem(REAL_BACKUP_KEY)) });
   }
 
+  function startNewDashboardChat() {
+    const current = loadMessages('dashboard');
+    if (current.length > 0) {
+      const firstUserText = current.find((m) => m.role === 'user')?.text || 'Dashboard chat';
+      const archived = createSession(deriveTitle(firstUserText));
+      saveMessages(archived.id, current);
+      saveSessions([
+        {
+          ...archived,
+          messageCount: current.length,
+          updatedAt: current[current.length - 1]?.timestamp || archived.updatedAt,
+        },
+        ...loadSessions(),
+      ]);
+      track('assistant_dashboard_chat_archived', { messageCount: current.length });
+    }
+    saveMessages('dashboard', []);
+    setChatRefreshTick((t) => t + 1);
+  }
+
   return (
     <div className="relative space-y-6">
       <div className={seedingDemo || modal ? 'blur-sm pointer-events-none select-none' : ''}>
@@ -268,7 +297,22 @@ export function DashboardPage() {
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2">
-            <ChatPanel sessionId="dashboard" heightClass="h-[70vh] xl:h-[560px]" showDateRange />
+            <ChatPanel
+              key={`dashboard:${chatRefreshTick}`}
+              sessionId="dashboard"
+              heightClass="h-[70vh] xl:h-[560px]"
+              showDateRange
+              headerExtras={
+                <button
+                  type="button"
+                  onClick={startNewDashboardChat}
+                  className="btn-ghost !px-2 !py-1 !border !border-neutral-200 text-xs"
+                  title="Archive this chat and start a new one"
+                >
+                  New chat
+                </button>
+              }
+            />
           </div>
 
           <div className="space-y-6">

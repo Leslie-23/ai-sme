@@ -448,7 +448,7 @@ export function SettingsPage() {
             <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
               {(
                 [
-                  ['chat', 'AI Assistant', 'Grounded chat over your business data'],
+                  ['chat', 'Intellexa', 'Grounded chat over your business data'],
                   ['imports', 'Imports', 'Chat-based data ingestion with file attach'],
                   ['expenses', 'Expenses', 'Track operating costs'],
                   ['payments', 'Payments', 'Track non-sale money in'],

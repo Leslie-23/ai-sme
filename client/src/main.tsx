@@ -40,7 +40,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route
               path="/chat"
               element={
-                <Paywall feature="AI Assistant" blurb="Ask questions about your business and get AI-powered answers.">
+                <Paywall feature="Intellexa" blurb="Ask questions about your business and get AI-powered answers.">
                   <ChatPage />
                 </Paywall>
               }

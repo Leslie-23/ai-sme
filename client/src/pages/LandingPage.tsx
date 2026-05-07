@@ -247,7 +247,7 @@ export function LandingPage() {
             <Step n={1} title="Pick a use case" body="Start with one shop workflow: sales visibility, stock control, profit monitoring, or weekly owner reports." />
             <Step n={2} title="Load real data" body="Import products, opening stock, recent sales, and expenses from Excel, POS exports, or manual records." />
             <Step n={3} title="Run the shop" body="Staff record sales and stock changes while the owner watches trends update in the dashboard." />
-            <Step n={4} title="Act" body="Ask the Assistant for restock lists, profit leaks, top products, and next-week actions." />
+            <Step n={4} title="Act" body="Ask Intellexa for restock lists, profit leaks, top products, and next-week actions." />
           </ol>
                     <div className="mt-10 flex justify-center">
             <a href="#how-it-works" className="btn-secondary !px-5 !py-2.5 inline-flex items-center gap-2">
@@ -630,7 +630,7 @@ export function LandingPage() {
             />
             <Faq
               q="What's the difference between Pro and Business?"
-              a="Pro ($15/mo) unlocks the AI Assistant, imports, Reports, and unlimited records - everything a solo operator needs. Business ($39/mo) adds priority email support, a 30-minute onboarding call, on-demand data exports, and early access to new features - for owners who want a human in the loop."
+              a="Pro ($15/mo) unlocks Intellexa, imports, Reports, and unlimited records - everything a solo operator needs. Business ($39/mo) adds priority email support, a 30-minute onboarding call, on-demand data exports, and early access to new features - for owners who want a human in the loop."
             />
             <Faq
               q="How am I charged?"
