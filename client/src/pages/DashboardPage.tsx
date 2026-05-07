@@ -83,6 +83,7 @@ export function DashboardPage() {
   const [modal, setModal] = useState<ModalState>(null);
   const [setupLeadOpen, setSetupLeadOpen] = useState(false);
   const [chatRefreshTick, setChatRefreshTick] = useState(0);
+  const [helpBoxOpen, setHelpBoxOpen] = useState(true);
   const currency = business?.currency || 'USD';
   const showOnboardingChecklist = !sampleShopReady;
 
@@ -122,6 +123,11 @@ export function DashboardPage() {
       window.clearInterval(timer);
     };
   }, [seedingDemo]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setHelpBoxOpen(false), 1200);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   if (loading) return <div className="text-neutral-500 text-sm">Loading...</div>;
   if (error) return <div className="text-red-600 text-sm">Error: {error}</div>;
@@ -422,31 +428,56 @@ export function DashboardPage() {
       </div>
       </div>
 
-      <div className="fixed bottom-5 right-5 z-40 w-[calc(100vw-2.5rem)] max-w-xs border border-neutral-200 bg-white/95 backdrop-blur-sm shadow-xl">
-        <div className="px-4 py-3 border-b border-neutral-200">
-          <div className="section-title">Need a hand?</div>
-          <div className="text-[11px] text-neutral-500 mt-0.5">
-            Switch modes or ask Lexa for setup help.
+      <div className="fixed bottom-5 right-5 z-40">
+        {helpBoxOpen ? (
+          <div className="w-[calc(100vw-2.5rem)] max-w-xs border border-neutral-200 bg-white/95 backdrop-blur-sm shadow-xl">
+            <div className="px-4 py-3 border-b border-neutral-200 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="section-title">Need a hand?</div>
+                <div className="text-[11px] text-neutral-500 mt-0.5">
+                  Switch modes or ask Lexa for setup help.
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-ghost !px-2 !py-1 text-xs"
+                onClick={() => setHelpBoxOpen(false)}
+                aria-label="Minimize help box"
+                title="Minimize"
+              >
+                -
+              </button>
+            </div>
+            <div className="p-3 grid grid-cols-1 gap-2">
+              {sampleShopReady ? (
+                <button
+                  type="button"
+                  onClick={openRealModal}
+                  className="btn-primary !px-3 !py-2 text-xs w-full"
+                >
+                  Try with real business
+                </button>
+              ) : (
+                <button type="button" onClick={openSetupModal} className="btn-primary !px-3 !py-2 text-xs w-full">
+                  Book assisted setup
+                </button>
+              )}
+              <button type="button" onClick={openLexa} className="btn-secondary !px-3 !py-2 text-xs w-full">
+                Ask Lexa
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="p-3 grid grid-cols-1 gap-2">
-          {sampleShopReady ? (
-            <button
-              type="button"
-              onClick={openRealModal}
-              className="btn-primary !px-3 !py-2 text-xs w-full"
-            >
-              Try with real business
-            </button>
-          ) : (
-            <button type="button" onClick={openSetupModal} className="btn-primary !px-3 !py-2 text-xs w-full">
-              Book assisted setup
-            </button>
-          )}
-          <button type="button" onClick={openLexa} className="btn-secondary !px-3 !py-2 text-xs w-full">
-            Ask Lexa
+        ) : (
+          <button
+            type="button"
+            className="h-10 w-10 border border-neutral-200 bg-white/95 backdrop-blur-sm shadow-xl text-sm font-semibold text-neutral-900 hover:border-neutral-900"
+            onClick={() => setHelpBoxOpen(true)}
+            aria-label="Open help box"
+            title="Need a hand?"
+          >
+            i
           </button>
-        </div>
+        )}
       </div>
 
       {seedingDemo && (
