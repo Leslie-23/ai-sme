@@ -56,6 +56,8 @@ const BUSINESS_TYPES: { value: BusinessType; label: string }[] = [
   { value: 'other', label: 'Other' },
 ];
 
+const REAL_BACKUP_KEY = 'ai_sme_real_workspace_snapshot';
+
 interface ConfigResponse {
   provider: Provider;
   model: string | null;
@@ -243,6 +245,52 @@ export function SettingsPage() {
       setError(err instanceof ApiError ? err.message : 'Save failed');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function loadSampleWorkspace() {
+    setError(null);
+    setStatus(null);
+    try {
+      if (!localStorage.getItem(REAL_BACKUP_KEY)) {
+        const snapshot = await api('/demo/snapshot');
+        localStorage.setItem(REAL_BACKUP_KEY, JSON.stringify(snapshot));
+      }
+      await api('/demo/seed', { method: 'POST' });
+      localStorage.setItem('ai_sme_sample_shop', '1');
+      setStatus('Sample shop loaded.');
+      window.location.reload();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not load sample shop');
+    }
+  }
+
+  async function restoreRealWorkspace() {
+    setError(null);
+    setStatus(null);
+    try {
+      const raw = localStorage.getItem(REAL_BACKUP_KEY);
+      if (!raw) throw new Error('No saved workspace found.');
+      const snapshot = JSON.parse(raw);
+      await api('/demo/restore', { method: 'POST', body: { snapshot } });
+      localStorage.removeItem('ai_sme_sample_shop');
+      setStatus('Former workspace restored.');
+      window.location.reload();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : (err as Error).message || 'Could not restore workspace');
+    }
+  }
+
+  async function startFreshWorkspace() {
+    setError(null);
+    setStatus(null);
+    try {
+      await api('/demo/clear', { method: 'POST' });
+      localStorage.removeItem('ai_sme_sample_shop');
+      setStatus('Workspace cleared.');
+      window.location.reload();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not clear workspace');
     }
   }
 
@@ -511,6 +559,33 @@ export function SettingsPage() {
           </div>
         </div>
       </form>
+
+      <div className="card">
+        <div className="px-5 py-3 border-b border-neutral-200 flex items-center justify-between">
+          <div className="section-title">Workspace mode</div>
+          <span className="text-[11px] uppercase tracking-wider text-neutral-500">Demo switch</span>
+        </div>
+        <div className="p-5 space-y-3">
+          <p className="text-sm text-neutral-600">
+            Move between the sample shop and your live workspace without losing the previous data
+            on this browser.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={loadSampleWorkspace}>
+              Try sample shop
+            </button>
+            <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={restoreRealWorkspace}>
+              Restore former data
+            </button>
+            <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={startFreshWorkspace}>
+              Start afresh
+            </button>
+          </div>
+          <div className="text-xs text-neutral-500">
+            If you load the sample again, your current workspace is backed up first.
+          </div>
+        </div>
+      </div>
 
       <form onSubmit={onSave} className="card">
         <div className="px-5 py-3 border-b border-neutral-200 flex items-center justify-between">

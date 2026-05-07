@@ -25,6 +25,63 @@ type DemoSeedStatus = {
   updatedAt: string;
 };
 
+type WorkspaceSnapshot = {
+  business: {
+    name: string;
+    currency: string;
+    timezone: string;
+    businessType: string;
+    categories: string[];
+    terminology: string;
+  };
+  products: Array<{
+    _id: string;
+    name: string;
+    sku: string;
+    category: string;
+    unitPrice: number;
+    costPrice: number;
+    currentStock: number;
+    lowStockThreshold: number;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  sales: Array<{
+    _id: string;
+    items: Array<{ productId: string; productName: string; quantity: number; unitPrice: number }>;
+    totalAmount: number;
+    paymentMethod: PaymentMethod;
+    staffId: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  payments: Array<{
+    _id: string;
+    amount: number;
+    method: PaymentMethod;
+    reference?: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  expenses: Array<{
+    _id: string;
+    amount: number;
+    category: string;
+    description?: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  inventoryLogs: Array<{
+    _id: string;
+    productId: string;
+    quantity: number;
+    type: 'SALE' | 'RESTOCK' | 'ADJUSTMENT';
+    note?: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+};
+
 const catalog: CatalogSeed[] = [
   { name: 'TCL Smart TV 50', sku: 'TV-TCL-50', category: 'Electronics', unitPrice: 4500, costPrice: 3550, openingStock: 7, lowStockThreshold: 3 },
   { name: 'Samsung Microwave', sku: 'MW-SAM-01', category: 'Appliances', unitPrice: 1850, costPrice: 1400, openingStock: 4, lowStockThreshold: 3 },
@@ -89,6 +146,221 @@ export function getDemoSeedStatus(req: Request, res: Response): void {
       updatedAt: new Date().toISOString(),
     } satisfies DemoSeedStatus);
   res.json(current);
+}
+
+export async function getWorkspaceSnapshot(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const businessId = req.auth!.businessId;
+    const [business, products, sales, payments, expenses, inventoryLogs] = await Promise.all([
+      Business.findById(businessId).lean(),
+      Product.find({ businessId }).lean(),
+      Sale.find({ businessId }).lean(),
+      Payment.find({ businessId }).lean(),
+      Expense.find({ businessId }).lean(),
+      InventoryRecord.find({ businessId }).lean(),
+    ]);
+    if (!business) throw new Error('Business not found');
+    const snapshot: WorkspaceSnapshot = {
+      business: {
+        name: business.name,
+        currency: business.currency,
+        timezone: business.timezone,
+        businessType: business.businessType || 'retail',
+        categories: Array.isArray(business.categories) ? business.categories : [],
+        terminology: business.terminology || 'product',
+      },
+      products: products.map((p: any) => ({
+        _id: p._id.toString(),
+        name: p.name,
+        sku: p.sku,
+        category: p.category,
+        unitPrice: p.unitPrice,
+        costPrice: p.costPrice,
+        currentStock: p.currentStock,
+        lowStockThreshold: p.lowStockThreshold,
+        createdAt: p.createdAt?.toISOString?.() || new Date().toISOString(),
+        updatedAt: p.updatedAt?.toISOString?.() || new Date().toISOString(),
+      })),
+      sales: sales.map((s: any) => ({
+        _id: s._id.toString(),
+        items: (s.items || []).map((it: any) => ({
+          productId: it.productId.toString(),
+          productName: it.productName,
+          quantity: it.quantity,
+          unitPrice: it.unitPrice,
+        })),
+        totalAmount: s.totalAmount,
+        paymentMethod: s.paymentMethod,
+        staffId: s.staffId.toString(),
+        createdAt: s.createdAt?.toISOString?.() || new Date().toISOString(),
+        updatedAt: s.updatedAt?.toISOString?.() || new Date().toISOString(),
+      })),
+      payments: payments.map((p: any) => ({
+        _id: p._id.toString(),
+        amount: p.amount,
+        method: p.method,
+        reference: p.reference,
+        createdAt: p.createdAt?.toISOString?.() || new Date().toISOString(),
+        updatedAt: p.updatedAt?.toISOString?.() || new Date().toISOString(),
+      })),
+      expenses: expenses.map((e: any) => ({
+        _id: e._id.toString(),
+        amount: e.amount,
+        category: e.category,
+        description: e.description,
+        createdAt: e.createdAt?.toISOString?.() || new Date().toISOString(),
+        updatedAt: e.updatedAt?.toISOString?.() || new Date().toISOString(),
+      })),
+      inventoryLogs: inventoryLogs.map((r: any) => ({
+        _id: r._id.toString(),
+        productId: r.productId.toString(),
+        quantity: r.quantity,
+        type: r.type,
+        note: r.note,
+        createdAt: r.createdAt?.toISOString?.() || new Date().toISOString(),
+        updatedAt: r.updatedAt?.toISOString?.() || new Date().toISOString(),
+      })),
+    };
+    res.json(snapshot);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function restoreWorkspaceSnapshot(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const businessId = req.auth!.businessId;
+    const snapshot = req.body?.snapshot as WorkspaceSnapshot | undefined;
+    if (!snapshot?.business) {
+      throw new Error('Missing workspace snapshot');
+    }
+
+    setSeedStatus(businessId, {
+      running: true,
+      progress: 8,
+      phase: 'clearing',
+      message: 'Restoring previous workspace data.',
+    });
+
+    await Promise.all([
+      Product.deleteMany({ businessId }),
+      Sale.deleteMany({ businessId }),
+      Expense.deleteMany({ businessId }),
+      Payment.deleteMany({ businessId }),
+      InventoryRecord.deleteMany({ businessId }),
+    ]);
+
+    await Business.findByIdAndUpdate(businessId, {
+      $set: {
+        name: snapshot.business.name,
+        currency: snapshot.business.currency,
+        timezone: snapshot.business.timezone,
+        businessType: snapshot.business.businessType as any,
+        categories: Array.isArray(snapshot.business.categories) ? snapshot.business.categories : [],
+        terminology: snapshot.business.terminology as any,
+      },
+    });
+
+    const oldToNew = new Map<string, Types.ObjectId>();
+    const products = await Product.insertMany(
+      snapshot.products.map((p) => {
+        const id = new Types.ObjectId();
+        oldToNew.set(p._id, id);
+        return {
+          _id: id,
+          name: p.name,
+          sku: p.sku,
+          category: p.category,
+          unitPrice: p.unitPrice,
+          costPrice: p.costPrice,
+          currentStock: p.currentStock,
+          lowStockThreshold: p.lowStockThreshold,
+          businessId,
+          createdAt: new Date(p.createdAt),
+          updatedAt: new Date(p.updatedAt),
+        };
+      })
+    );
+
+    const staffId = req.auth!.userId;
+    const sales = snapshot.sales.map((s) => ({
+      _id: new Types.ObjectId(),
+      items: s.items.map((it) => ({
+        productId: oldToNew.get(it.productId) || new Types.ObjectId(),
+        productName: it.productName,
+        quantity: it.quantity,
+        unitPrice: it.unitPrice,
+      })),
+      totalAmount: s.totalAmount,
+      paymentMethod: s.paymentMethod,
+      staffId,
+      businessId,
+      createdAt: new Date(s.createdAt),
+      updatedAt: new Date(s.updatedAt),
+    }));
+    const payments = snapshot.payments.map((p) => ({
+      _id: new Types.ObjectId(),
+      amount: p.amount,
+      method: p.method,
+      reference: p.reference,
+      businessId,
+      createdAt: new Date(p.createdAt),
+      updatedAt: new Date(p.updatedAt),
+    }));
+    const expenses = snapshot.expenses.map((e) => ({
+      _id: new Types.ObjectId(),
+      amount: e.amount,
+      category: e.category,
+      description: e.description,
+      businessId,
+      createdAt: new Date(e.createdAt),
+      updatedAt: new Date(e.updatedAt),
+    }));
+    const inventoryLogs = snapshot.inventoryLogs.map((r) => ({
+      _id: new Types.ObjectId(),
+      productId: oldToNew.get(r.productId) || new Types.ObjectId(),
+      quantity: r.quantity,
+      type: r.type,
+      note: r.note,
+      businessId,
+      createdAt: new Date(r.createdAt),
+      updatedAt: new Date(r.updatedAt),
+    }));
+
+    await Promise.all([
+      Sale.insertMany(sales),
+      Payment.insertMany(payments),
+      Expense.insertMany(expenses),
+      InventoryRecord.insertMany(inventoryLogs),
+    ]);
+
+    await Product.bulkWrite(
+      products.map((product) => ({
+        updateOne: {
+          filter: { _id: product._id },
+          update: { $set: { currentStock: product.currentStock } },
+        },
+      }))
+    );
+
+    setSeedStatus(businessId, {
+      running: false,
+      progress: 100,
+      phase: 'done',
+      message: 'Previous workspace restored.',
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    if (req.auth?.businessId) {
+      setSeedStatus(req.auth.businessId, {
+        running: false,
+        phase: 'error',
+        message: err instanceof Error ? err.message : 'Restore failed',
+      });
+    }
+    next(err);
+  }
 }
 
 export async function seedDemoBusiness(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -39,6 +39,31 @@ interface DemoSeedStatus {
   updatedAt: string;
 }
 
+interface WorkspaceSnapshot {
+  business: {
+    name: string;
+    currency: string;
+    timezone: string;
+    businessType: string;
+    categories: string[];
+    terminology: string;
+  };
+  products: Array<{ _id: string }>;
+  sales: Array<{ _id: string }>;
+  payments: Array<{ _id: string }>;
+  expenses: Array<{ _id: string }>;
+  inventoryLogs: Array<{ _id: string }>;
+}
+
+type ModalState =
+  | { type: 'seed' }
+  | { type: 'setup' }
+  | { type: 'real'; snapshotAvailable: boolean }
+  | null;
+
+const OWNER_EMAIL = 'lesliepaulajayi@gmail.com';
+const REAL_BACKUP_KEY = 'ai_sme_real_workspace_snapshot';
+
 export function DashboardPage() {
   const { business } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -48,6 +73,7 @@ export function DashboardPage() {
   const [seedingDemo, setSeedingDemo] = useState(false);
   const [seedStatus, setSeedStatus] = useState<DemoSeedStatus | null>(null);
   const [sampleShopReady, setSampleShopReady] = useState(() => localStorage.getItem('ai_sme_sample_shop') === '1');
+  const [modal, setModal] = useState<ModalState>(null);
   const currency = business?.currency || 'USD';
 
   useEffect(() => {
@@ -92,7 +118,13 @@ export function DashboardPage() {
   if (!summary) return null;
 
   async function seedDemo() {
-    if (!confirm('Replace this workspace with demo shop data? Existing products, sales, payments, expenses, and stock logs for this business will be cleared.')) return;
+    setModal({ type: 'seed' });
+  }
+
+  async function runSeedDemo() {
+    if (!sampleShopReady && !localStorage.getItem(REAL_BACKUP_KEY)) {
+      await saveRealWorkspaceSnapshot();
+    }
     setSeedStatus(null);
     setSeedingDemo(true);
     setError(null);
@@ -115,12 +147,22 @@ export function DashboardPage() {
   }
 
   async function clearSampleData() {
-    if (!confirm('Clear the sample data and return this workspace to a blank state?')) return;
+    setModal({ type: 'real', snapshotAvailable: Boolean(localStorage.getItem(REAL_BACKUP_KEY)) });
+  }
+
+  async function continueFormerData() {
+    const raw = localStorage.getItem(REAL_BACKUP_KEY);
+    if (!raw) {
+      await startFreshBlank();
+      return;
+    }
+    const snapshot = JSON.parse(raw) as WorkspaceSnapshot;
+    setModal(null);
     setSeedStatus(null);
     setSeedingDemo(true);
     setError(null);
     try {
-      await api('/demo/clear', { method: 'POST' });
+      await api('/demo/restore', { method: 'POST', body: { snapshot } });
       localStorage.removeItem('ai_sme_sample_shop');
       setSampleShopReady(false);
       const [freshSummary, freshSales] = await Promise.all([
@@ -136,9 +178,48 @@ export function DashboardPage() {
     }
   }
 
+  async function startFreshBlank() {
+    setModal(null);
+    setSeedStatus(null);
+    setSeedingDemo(true);
+    setError(null);
+    try {
+      await api('/demo/clear', { method: 'POST' });
+      localStorage.removeItem('ai_sme_sample_shop');
+      const [freshSummary, freshSales] = await Promise.all([
+        api<DashboardSummary>('/dashboard/summary'),
+        api<Sale[]>('/sales', { query: { limit: '6' } }),
+      ]);
+      setSampleShopReady(false);
+      setSummary(freshSummary);
+      setSales(freshSales);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not clear sample data');
+    } finally {
+      setSeedingDemo(false);
+    }
+  }
+
+  async function saveRealWorkspaceSnapshot() {
+    try {
+      const snapshot = await api<WorkspaceSnapshot>('/demo/snapshot');
+      localStorage.setItem(REAL_BACKUP_KEY, JSON.stringify(snapshot));
+    } catch {
+      // If snapshot export fails, continue with seeding. The user can still use the app.
+    }
+  }
+
+  async function openSetupModal() {
+    setModal({ type: 'setup' });
+  }
+
+  function openRealModal() {
+    setModal({ type: 'real', snapshotAvailable: Boolean(localStorage.getItem(REAL_BACKUP_KEY)) });
+  }
+
   return (
     <div className="relative space-y-6">
-      <div className={seedingDemo ? 'blur-sm pointer-events-none select-none' : ''}>
+      <div className={seedingDemo || modal ? 'blur-sm pointer-events-none select-none' : ''}>
         {sampleShopReady ? (
           <div className="card p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -150,29 +231,13 @@ export function DashboardPage() {
                 <Link to="/help/keys" className="btn-primary !px-3 !py-1.5 text-xs">
                   Get the keys
                 </Link>
-                <button
-                  type="button"
-                  onClick={seedDemo}
-                  disabled={seedingDemo}
-                  className="btn-secondary !px-3 !py-1.5 text-xs"
-                >
-                  {seedingDemo ? 'Preparing...' : 'Reseed sample shop'}
-                </button>
-              </div>
+              <button type="button" onClick={seedDemo} disabled={seedingDemo} className="btn-secondary !px-3 !py-1.5 text-xs">
+                {seedingDemo ? 'Preparing...' : 'Reseed sample shop'}
+              </button>
             </div>
           </div>
-        ) : (
-          <div className="card p-5">
-            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner snapshot</div>
-            <h1 className="text-2xl font-semibold tracking-tight mt-1">Sales, stock, profit, and next actions</h1>
-            <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
-              Use this view in demos to show the owner what sold, what needs attention, and what to ask next.
-            </p>
-            <button type="button" onClick={seedDemo} disabled={seedingDemo} className="btn-secondary !px-3 !py-1.5 text-sm mt-4">
-              {seedingDemo ? 'Preparing demo...' : 'Try sample shop'}
-            </button>
           </div>
-        )}
+        ) : null}
 
         {!sampleShopReady && <OnboardingChecklist summary={summary} />}
 
@@ -312,15 +377,15 @@ export function DashboardPage() {
         {sampleShopReady ? (
           <button
             type="button"
-            onClick={clearSampleData}
+            onClick={openRealModal}
             className="btn-primary !px-3 !py-2 text-xs shadow-lg"
           >
             Try with real business
           </button>
         ) : (
-          <a href="/#setup" className="btn-primary !px-3 !py-2 text-xs shadow-lg">
+          <button type="button" onClick={openSetupModal} className="btn-primary !px-3 !py-2 text-xs shadow-lg">
             Book assisted setup
-          </a>
+          </button>
         )}
       </div>
 
@@ -351,6 +416,89 @@ export function DashboardPage() {
                 {seedStatus?.phase ? `Phase: ${seedStatus.phase}` : 'Phase: initializing'}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {modal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/35 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg border border-neutral-200 bg-white shadow-xl px-6 py-5">
+            {modal.type === 'seed' && (
+              <>
+                <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Sample workspace</div>
+                <div className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">Load demo data?</div>
+                <p className="mt-2 text-sm text-neutral-600">
+                  This will replace the current workspace with the demo shop, including a year of sales, expenses, and stock movements.
+                </p>
+                <div className="mt-5 flex flex-wrap justify-end gap-2">
+                  <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={() => setModal(null)}>
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-primary !px-3 !py-1.5 text-sm"
+                    onClick={async () => {
+                      setModal(null);
+                      await runSeedDemo();
+                    }}
+                  >
+                    Load sample shop
+                  </button>
+                </div>
+              </>
+            )}
+
+            {modal.type === 'setup' && (
+              <>
+                <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Assisted setup</div>
+                <div className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">Send the lead to Leslie</div>
+                <p className="mt-2 text-sm text-neutral-600">
+                  Setup requests are routed to <span className="font-medium text-neutral-900">{OWNER_EMAIL}</span>.
+                </p>
+                <div className="mt-5 flex flex-wrap justify-end gap-2">
+                  <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={() => setModal(null)}>
+                    Close
+                  </button>
+                  <a
+                    className="btn-primary !px-3 !py-1.5 text-sm"
+                    href={`mailto:${OWNER_EMAIL}?subject=${encodeURIComponent('Intellexa assisted setup')}&body=${encodeURIComponent('Hi Leslie,%0D%0A%0D%0APlease help me set up Intellexa for my business.%0D%0A%0D%0AName:%0D%0ABusiness:%0D%0ABusiness type:%0D%0ACurrent system:%0D%0AWhat I want to see first:%0D%0A')}`}
+                  >
+                    Open email draft
+                  </a>
+                </div>
+              </>
+            )}
+
+            {modal.type === 'real' && (
+              <>
+                <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Real workspace</div>
+                <div className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">Return to your live data?</div>
+                <p className="mt-2 text-sm text-neutral-600">
+                  We can restore the saved workspace from before the demo, or start the business fresh.
+                </p>
+                <div className="mt-5 flex flex-wrap justify-end gap-2">
+                  <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={() => setModal(null)}>
+                    Cancel
+                  </button>
+                  {modal.snapshotAvailable && (
+                    <button
+                      type="button"
+                      className="btn-secondary !px-3 !py-1.5 text-sm"
+                      onClick={continueFormerData}
+                    >
+                      Continue with former data
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="btn-primary !px-3 !py-1.5 text-sm"
+                    onClick={startFreshBlank}
+                  >
+                    Start afresh
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

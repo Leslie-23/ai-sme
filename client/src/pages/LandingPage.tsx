@@ -14,6 +14,7 @@ const HORIZONTAL_LINES =
   'bg-[repeating-linear-gradient(0deg,_transparent_0_31px,_#f5f5f5_31px_32px)]';
 const DARK_DOTS =
   'bg-[radial-gradient(circle,_#262626_1.2px,_transparent_1.2px)] [background-size:22px_22px]';
+const OWNER_EMAIL = 'lesliepaulajayi@gmail.com';
 
 export function LandingPage() {
   const { user } = useAuth();
@@ -473,7 +474,7 @@ export function LandingPage() {
             <p className="text-neutral-600 mt-4 max-w-xl">
               For pilots, the fastest path is not self-serve setup. Share your product list,
               recent sales, or current spreadsheet, and we will help turn it into a dashboard,
-              restock list, and owner report.
+              restock list, and owner report. Requests are sent to {OWNER_EMAIL}.
             </p>
             <ul className="mt-6 space-y-3 text-sm text-neutral-700">
               <Bullet>Product catalog and opening stock imported.</Bullet>
@@ -720,6 +721,13 @@ function SetupLeadForm() {
       await api('/leads/setup', { method: 'POST', body: form });
       track('setup_lead_submitted', { businessType: form.businessType, currentSystem: form.currentSystem });
       setStatus('Request received. We will follow up with setup steps.');
+      window.open(
+        `mailto:${OWNER_EMAIL}?subject=${encodeURIComponent('Intellexa assisted setup')}&body=${encodeURIComponent(
+          `Hi Leslie,%0D%0A%0D%0AThe following assisted setup request was submitted from the landing page:%0D%0A%0D%0AName: ${form.name}%0D%0AEmail: ${form.email}%0D%0APhone: ${form.phone || '-'}%0D%0ABusiness: ${form.businessName}%0D%0ABusiness type: ${form.businessType}%0D%0ACurrent system: ${form.currentSystem || '-'}%0D%0AGoal: ${form.goal || '-'}%0D%0A`
+        )}`,
+        '_blank',
+        'noopener,noreferrer'
+      );
       setForm({ name: '', email: '', phone: '', businessName: '', businessType: 'retail', currentSystem: '', goal: '' });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not submit setup request');
