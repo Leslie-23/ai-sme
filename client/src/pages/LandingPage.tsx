@@ -1,10 +1,10 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PricingGrid } from '../components/PricingGrid';
 import { MarkdownText } from '../components/MarkdownText';
-import { api } from '../lib/api';
 import { track } from '../lib/analytics';
+import { SetupLeadModal } from '../components/SetupLeadModal';
 
 const DOT_GRID =
   'bg-[radial-gradient(circle,_#e5e5e5_1px,_transparent_1px)] [background-size:20px_20px]';
@@ -26,6 +26,7 @@ export function LandingPage() {
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [setupOpen, setSetupOpen] = useState(false);
   const lastY = useRef(0);
 
   useEffect(() => {
@@ -474,7 +475,7 @@ export function LandingPage() {
             <p className="text-neutral-600 mt-4 max-w-xl">
               For pilots, the fastest path is not self-serve setup. Share your product list,
               recent sales, or current spreadsheet, and we will help turn it into a dashboard,
-              restock list, and owner report. Requests are sent to {OWNER_EMAIL}.
+              restock list, and owner report. Requests are sent to {OWNER_EMAIL} by email and WhatsApp.
             </p>
             <ul className="mt-6 space-y-3 text-sm text-neutral-700">
               <Bullet>Product catalog and opening stock imported.</Bullet>
@@ -482,7 +483,22 @@ export function LandingPage() {
               <Bullet>First owner report prepared for a walkthrough call.</Bullet>
             </ul>
           </div>
-          <SetupLeadForm />
+          <div className="card p-6 flex flex-col justify-between gap-6">
+            <div className="space-y-3">
+              <div className="section-title">Setup capture</div>
+              <p className="text-sm text-neutral-600">
+                Open a short form, capture the basics, and send the request to Leslie by email and WhatsApp.
+              </p>
+              <div className="grid grid-cols-1 gap-2 text-sm text-neutral-700">
+                <div className="rounded-sm border border-neutral-200 px-3 py-2">Name, email, and WhatsApp contact</div>
+                <div className="rounded-sm border border-neutral-200 px-3 py-2">Business type and current system</div>
+                <div className="rounded-sm border border-neutral-200 px-3 py-2">What the owner wants to see first</div>
+              </div>
+            </div>
+            <button type="button" className="btn-primary w-full" onClick={() => setSetupOpen(true)}>
+              Book assisted setup
+            </button>
+          </div>
         </div>
       </section>
 
@@ -684,6 +700,7 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
+      <SetupLeadModal open={setupOpen} onClose={() => setSetupOpen(false)} source="landing" />
     </div>
   );
 }
@@ -695,103 +712,6 @@ function ValueProp({ label, title, body }: { label: string; title: string; body:
       <h3 className="text-2xl font-semibold tracking-tight mt-3">{title}</h3>
       <p className="text-neutral-600 mt-3 leading-relaxed">{body}</p>
     </div>
-  );
-}
-
-function SetupLeadForm() {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    businessName: '',
-    businessType: 'retail',
-    currentSystem: '',
-    goal: '',
-  });
-  const [status, setStatus] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    setStatus(null);
-    setError(null);
-    setSubmitting(true);
-    try {
-      await api('/leads/setup', { method: 'POST', body: form });
-      track('setup_lead_submitted', { businessType: form.businessType, currentSystem: form.currentSystem });
-      setStatus('Request received. We will follow up with setup steps.');
-      window.open(
-        `mailto:${OWNER_EMAIL}?subject=${encodeURIComponent('Intellexa assisted setup')}&body=${encodeURIComponent(
-          `Hi Leslie,%0D%0A%0D%0AThe following assisted setup request was submitted from the landing page:%0D%0A%0D%0AName: ${form.name}%0D%0AEmail: ${form.email}%0D%0APhone: ${form.phone || '-'}%0D%0ABusiness: ${form.businessName}%0D%0ABusiness type: ${form.businessType}%0D%0ACurrent system: ${form.currentSystem || '-'}%0D%0AGoal: ${form.goal || '-'}%0D%0A`
-        )}`,
-        '_blank',
-        'noopener,noreferrer'
-      );
-      setForm({ name: '', email: '', phone: '', businessName: '', businessType: 'retail', currentSystem: '', goal: '' });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not submit setup request');
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <form onSubmit={submit} className="card p-5 space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="label">Your name</label>
-          <input className="input mt-1.5" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-        </div>
-        <div>
-          <label className="label">Email</label>
-          <input type="email" className="input mt-1.5" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        </div>
-        <div>
-          <label className="label">WhatsApp / phone</label>
-          <input className="input mt-1.5" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-        </div>
-        <div>
-          <label className="label">Business name</label>
-          <input className="input mt-1.5" required value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })} />
-        </div>
-      </div>
-      <div>
-        <label className="label">Business type</label>
-        <select className="input mt-1.5" value={form.businessType} onChange={(e) => setForm({ ...form, businessType: e.target.value })}>
-          <option value="retail">Retail store</option>
-          <option value="pharmacy">Pharmacy</option>
-          <option value="salon_beauty">Salon / beauty retail</option>
-          <option value="restaurant_cafe">Restaurant / cafe</option>
-          <option value="wholesaler">Wholesaler</option>
-          <option value="services">Services</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div>
-        <label className="label">Current system</label>
-        <input
-          className="input mt-1.5"
-          placeholder="Excel, POS export, notebook, WhatsApp, none..."
-          value={form.currentSystem}
-          onChange={(e) => setForm({ ...form, currentSystem: e.target.value })}
-        />
-      </div>
-      <div>
-        <label className="label">What do you want to understand first?</label>
-        <textarea
-          className="input mt-1.5 min-h-24 resize-y"
-          placeholder="Restock list, weekly report, profit leaks, slow sellers..."
-          value={form.goal}
-          onChange={(e) => setForm({ ...form, goal: e.target.value })}
-        />
-      </div>
-      {status && <div className="text-sm text-emerald-700">{status}</div>}
-      {error && <div className="text-sm text-red-600">{error}</div>}
-      <button type="submit" className="btn-primary w-full" disabled={submitting}>
-        {submitting ? 'Sending...' : 'Book assisted setup'}
-      </button>
-    </form>
   );
 }
 

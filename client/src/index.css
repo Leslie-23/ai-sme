@@ -45,9 +45,16 @@
     @apply btn bg-transparent border-transparent text-neutral-700 hover:bg-neutral-100;
   }
   .input {
-    @apply w-full border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900;
+    @apply w-full min-w-0 border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  textarea.input {
+    white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: break-word;
+    overflow-y: auto;
   }
   .card {
     @apply bg-white border border-neutral-200;

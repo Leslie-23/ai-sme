@@ -250,7 +250,7 @@ export function ChatPanel({
         <form onSubmit={onSubmit} className="p-3 flex gap-2">
           <FileAttach attached={attached} onChange={setAttached} disabled={sending} onError={setError} />
           <input
-            className="input flex-1 min-w-0 break-words"
+            className="input flex-1 min-w-0"
             placeholder={placeholder}
             value={input}
             onChange={(e) => setInput(e.target.value)}

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { formatDate, formatMoney } from '../lib/format';
 import { ChatPanel } from '../components/ChatPanel';
 import { track } from '../lib/analytics';
+import { SetupLeadModal } from '../components/SetupLeadModal';
 
 interface DashboardSummary {
   totals: { today: number; week: number; month: number };
@@ -57,11 +58,9 @@ interface WorkspaceSnapshot {
 
 type ModalState =
   | { type: 'seed' }
-  | { type: 'setup' }
   | { type: 'real'; snapshotAvailable: boolean }
   | null;
 
-const OWNER_EMAIL = 'lesliepaulajayi@gmail.com';
 const REAL_BACKUP_KEY = 'ai_sme_real_workspace_snapshot';
 
 export function DashboardPage() {
@@ -74,6 +73,7 @@ export function DashboardPage() {
   const [seedStatus, setSeedStatus] = useState<DemoSeedStatus | null>(null);
   const [sampleShopReady, setSampleShopReady] = useState(() => localStorage.getItem('ai_sme_sample_shop') === '1');
   const [modal, setModal] = useState<ModalState>(null);
+  const [setupLeadOpen, setSetupLeadOpen] = useState(false);
   const currency = business?.currency || 'USD';
   const showOnboardingChecklist = !sampleShopReady;
 
@@ -211,7 +211,7 @@ export function DashboardPage() {
   }
 
   async function openSetupModal() {
-    setModal({ type: 'setup' });
+    setSetupLeadOpen(true);
   }
 
   function openRealModal() {
@@ -449,27 +449,6 @@ export function DashboardPage() {
               </>
             )}
 
-            {modal.type === 'setup' && (
-              <>
-                <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Assisted setup</div>
-                <div className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">Send the lead to Leslie</div>
-                <p className="mt-2 text-sm text-neutral-600">
-                  Setup requests are routed to <span className="font-medium text-neutral-900">{OWNER_EMAIL}</span>.
-                </p>
-                <div className="mt-5 flex flex-wrap justify-end gap-2">
-                  <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={() => setModal(null)}>
-                    Close
-                  </button>
-                  <a
-                    className="btn-primary !px-3 !py-1.5 text-sm"
-                    href={`mailto:${OWNER_EMAIL}?subject=${encodeURIComponent('Intellexa assisted setup')}&body=${encodeURIComponent('Hi Leslie,%0D%0A%0D%0APlease help me set up Intellexa for my business.%0D%0A%0D%0AName:%0D%0ABusiness:%0D%0ABusiness type:%0D%0ACurrent system:%0D%0AWhat I want to see first:%0D%0A')}`}
-                  >
-                    Open email draft
-                  </a>
-                </div>
-              </>
-            )}
-
             {modal.type === 'real' && (
               <>
                 <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Real workspace</div>
@@ -503,6 +482,8 @@ export function DashboardPage() {
           </div>
         </div>
       )}
+
+      <SetupLeadModal open={setupLeadOpen} onClose={() => setSetupLeadOpen(false)} source="dashboard" />
     </div>
   );
 }
