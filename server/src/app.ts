@@ -21,6 +21,8 @@ import teamRoutes from './routes/team';
 import feedbackRoutes from './routes/feedback';
 import analyticsRoutes from './routes/analytics';
 import adminRoutes from './routes/admin';
+import demoRoutes from './routes/demo';
+import leadRoutes from './routes/leads';
 import { getPlans } from './controllers/billingController';
 import { paystackWebhook } from './controllers/paystackWebhookController';
 import { requirePro } from './middleware/requirePro';
@@ -90,6 +92,7 @@ export function createApp(): Express {
   app.get('/api', (_req, res) => res.json({ message: 'AI SME API' }));
 
   app.use('/api/auth', authRoutes);
+  app.use('/api/leads', leadRoutes);
   // Public pricing - landing page needs this without a JWT.
   app.get('/api/billing/plans', getPlans);
   app.use('/api/billing', requireAuth, billingRoutes);
@@ -109,6 +112,7 @@ export function createApp(): Express {
   app.use('/api/feedback', requireAuth, feedbackRoutes);
   app.use('/api/analytics', requireAuth, analyticsRoutes);
   app.use('/api/admin', requireAuth, adminRoutes);
+  app.use('/api/demo', requireAuth, demoRoutes);
 
   app.use(errorHandler);
   return app;

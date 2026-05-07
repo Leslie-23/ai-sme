@@ -8,6 +8,7 @@ import { Expense } from '../models/Expense';
 import { AIQueryLog } from '../models/AIQueryLog';
 import { Feedback } from '../models/Feedback';
 import { HttpError } from '../middleware/error';
+import { SetupLead } from '../models/SetupLead';
 
 const eventSchema = z.object({
   name: z.string().min(1).max(120),
@@ -52,6 +53,7 @@ export async function getAdminAnalytics(req: Request, res: Response, next: NextF
       aiQuestionCount,
       feedbackCount,
       positiveFeedbackCount,
+      setupLeadCount,
       eventAgg,
     ] = await Promise.all([
       Business.countDocuments(),
@@ -62,6 +64,7 @@ export async function getAdminAnalytics(req: Request, res: Response, next: NextF
       AIQueryLog.countDocuments(),
       Feedback.countDocuments(),
       Feedback.countDocuments({ rating: 'useful' }),
+      SetupLead.countDocuments(),
       AnalyticsEvent.aggregate([
         { $match: { createdAt: { $gte: since } } },
         { $group: { _id: '$name', count: { $sum: 1 } } },
@@ -106,6 +109,7 @@ export async function getAdminAnalytics(req: Request, res: Response, next: NextF
         aiQuestions: aiQuestionCount,
         feedback: feedbackCount,
         positiveFeedback: positiveFeedbackCount,
+        setupLeads: setupLeadCount,
       },
       eventsLast30Days: eventAgg,
       businesses: businesses.map((b) => {

@@ -36,6 +36,7 @@ export function DashboardPage() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [seedingDemo, setSeedingDemo] = useState(false);
   const currency = business?.currency || 'USD';
 
   useEffect(() => {
@@ -55,6 +56,20 @@ export function DashboardPage() {
   if (error) return <div className="text-red-600 text-sm">Error: {error}</div>;
   if (!summary) return null;
 
+  async function seedDemo() {
+    if (!confirm('Replace this workspace with demo shop data? Existing products, sales, payments, expenses, and stock logs for this business will be cleared.')) return;
+    setSeedingDemo(true);
+    setError(null);
+    try {
+      await api('/demo/seed', { method: 'POST' });
+      track('demo_seeded');
+      window.location.reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Demo setup failed');
+      setSeedingDemo(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="card p-5">
@@ -63,6 +78,14 @@ export function DashboardPage() {
         <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
           Use this view in demos to show the owner what sold, what needs attention, and what to ask next.
         </p>
+        <button
+          type="button"
+          onClick={seedDemo}
+          disabled={seedingDemo}
+          className="btn-secondary !px-3 !py-1.5 text-sm mt-4"
+        >
+          {seedingDemo ? 'Preparing demo...' : 'Try sample shop'}
+        </button>
       </div>
 
       <OnboardingChecklist summary={summary} />

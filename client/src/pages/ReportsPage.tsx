@@ -105,6 +105,8 @@ export function ReportsPage() {
         </button>
       </div>
 
+      <ReportShareBar stats={stats} report={report} generatedAt={generatedAt} currency={currency} />
+
       <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
         <Kpi label="Total revenue" value={formatMoney(stats.totals.revenue, currency)} sub={`${stats.totals.orders} orders`} />
         <Kpi label="Avg order value" value={formatMoney(stats.totals.averageOrderValue, currency)} sub={`${stats.totals.productsInCatalog} products`} />
@@ -307,6 +309,83 @@ function Kpi({
       {sub && <div className="text-[11px] text-neutral-500 mt-1 truncate">{sub}</div>}
     </div>
   );
+}
+
+function ReportShareBar({
+  stats,
+  report,
+  generatedAt,
+  currency,
+}: {
+  stats: ReportStats;
+  report: string;
+  generatedAt: string;
+  currency: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const shareText = buildShareText(stats, report, generatedAt, currency);
+
+  async function copy() {
+    await navigator.clipboard.writeText(shareText);
+    track('report_shared', { method: 'copy' });
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  }
+
+  function download() {
+    const blob = new Blob([shareText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${stats.businessName.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-owner-report.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    track('report_shared', { method: 'download_txt' });
+  }
+
+  function print() {
+    track('report_shared', { method: 'print' });
+    window.print();
+  }
+
+  return (
+    <div className="card p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <div className="section-title">Share owner report</div>
+        <div className="text-xs text-neutral-500 mt-1">
+          Copy for WhatsApp, download as text, or print to PDF from the browser.
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={copy}>
+          {copied ? 'Copied' : 'Copy summary'}
+        </button>
+        <button type="button" className="btn-secondary !px-3 !py-1.5 text-sm" onClick={download}>
+          Download text
+        </button>
+        <button type="button" className="btn-primary !px-3 !py-1.5 text-sm" onClick={print}>
+          Print / PDF
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function buildShareText(stats: ReportStats, report: string, generatedAt: string, currency: string): string {
+  const top = stats.topProducts[0];
+  const low = stats.lowStock.slice(0, 4).map((p) => p.name).join(', ') || 'none flagged';
+  return [
+    `${stats.businessName} owner report`,
+    `Generated: ${new Date(generatedAt).toLocaleString()}`,
+    '',
+    `Revenue: ${formatMoney(stats.totals.revenue, currency)}`,
+    `Net profit: ${formatMoney(stats.totals.netProfit, currency)}`,
+    `Orders: ${stats.totals.orders}`,
+    top ? `Top seller: ${top.productName} (${top.units} units)` : 'Top seller: no sales yet',
+    `Restock watch: ${low}`,
+    '',
+    report,
+  ].join('\n');
 }
 
 function OwnerActionList({ stats, currency }: { stats: ReportStats; currency: string }) {

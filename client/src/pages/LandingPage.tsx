@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PricingGrid } from '../components/PricingGrid';
+import { api } from '../lib/api';
+import { track } from '../lib/analytics';
 
 const DOT_GRID =
   'bg-[radial-gradient(circle,_#e5e5e5_1px,_transparent_1px)] [background-size:20px_20px]';
@@ -58,6 +60,7 @@ export function LandingPage() {
             <a href="#product" className="btn-ghost !px-3 !py-1.5 text-sm">Solutions</a>
             <a href="#how" className="btn-ghost !px-3 !py-1.5 text-sm">How it works</a>
             <a href="#features" className="btn-ghost !px-3 !py-1.5 text-sm">Features</a>
+            <a href="#setup" className="btn-ghost !px-3 !py-1.5 text-sm">Setup</a>
             <a href="#pricing" className="btn-ghost !px-3 !py-1.5 text-sm">Pricing</a>
             <a href="#security" className="btn-ghost !px-3 !py-1.5 text-sm">Security</a>
             <a href="#faq" className="btn-ghost !px-3 !py-1.5 text-sm">FAQ</a>
@@ -100,6 +103,13 @@ export function LandingPage() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Features
+            </a>
+            <a
+              href="#setup"
+              className="px-5 py-6 text-lg font-medium text-neutral-900 hover:bg-neutral-50 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Setup
             </a>
             <a
               href="#pricing"
@@ -452,6 +462,28 @@ export function LandingPage() {
         </div>
       </section>
 
+      <section id="setup" className="border-b border-neutral-200 bg-neutral-50">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <div>
+            <span className="label">Assisted setup</span>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">
+              Send us your shop data. Get a working demo back.
+            </h2>
+            <p className="text-neutral-600 mt-4 max-w-xl">
+              For pilots, the fastest path is not self-serve setup. Share your product list,
+              recent sales, or current spreadsheet, and we will help turn it into a dashboard,
+              restock list, and owner report.
+            </p>
+            <ul className="mt-6 space-y-3 text-sm text-neutral-700">
+              <Bullet>Product catalog and opening stock imported.</Bullet>
+              <Bullet>Recent sales and expenses structured for review.</Bullet>
+              <Bullet>First owner report prepared for a walkthrough call.</Bullet>
+            </ul>
+          </div>
+          <SetupLeadForm />
+        </div>
+      </section>
+
       <section id="how-it-works" className={`border-b border-neutral-200 ${HORIZONTAL_LINES}`}>
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24">
           <div className="mb-12">
@@ -661,6 +693,96 @@ function ValueProp({ label, title, body }: { label: string; title: string; body:
       <h3 className="text-2xl font-semibold tracking-tight mt-3">{title}</h3>
       <p className="text-neutral-600 mt-3 leading-relaxed">{body}</p>
     </div>
+  );
+}
+
+function SetupLeadForm() {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    businessName: '',
+    businessType: 'retail',
+    currentSystem: '',
+    goal: '',
+  });
+  const [status, setStatus] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setStatus(null);
+    setError(null);
+    setSubmitting(true);
+    try {
+      await api('/leads/setup', { method: 'POST', body: form });
+      track('setup_lead_submitted', { businessType: form.businessType, currentSystem: form.currentSystem });
+      setStatus('Request received. We will follow up with setup steps.');
+      setForm({ name: '', email: '', phone: '', businessName: '', businessType: 'retail', currentSystem: '', goal: '' });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not submit setup request');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="card p-5 space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="label">Your name</label>
+          <input className="input mt-1.5" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        </div>
+        <div>
+          <label className="label">Email</label>
+          <input type="email" className="input mt-1.5" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        </div>
+        <div>
+          <label className="label">WhatsApp / phone</label>
+          <input className="input mt-1.5" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        </div>
+        <div>
+          <label className="label">Business name</label>
+          <input className="input mt-1.5" required value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })} />
+        </div>
+      </div>
+      <div>
+        <label className="label">Business type</label>
+        <select className="input mt-1.5" value={form.businessType} onChange={(e) => setForm({ ...form, businessType: e.target.value })}>
+          <option value="retail">Retail store</option>
+          <option value="pharmacy">Pharmacy</option>
+          <option value="salon_beauty">Salon / beauty retail</option>
+          <option value="restaurant_cafe">Restaurant / cafe</option>
+          <option value="wholesaler">Wholesaler</option>
+          <option value="services">Services</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label className="label">Current system</label>
+        <input
+          className="input mt-1.5"
+          placeholder="Excel, POS export, notebook, WhatsApp, none..."
+          value={form.currentSystem}
+          onChange={(e) => setForm({ ...form, currentSystem: e.target.value })}
+        />
+      </div>
+      <div>
+        <label className="label">What do you want to understand first?</label>
+        <textarea
+          className="input mt-1.5 min-h-24 resize-y"
+          placeholder="Restock list, weekly report, profit leaks, slow sellers..."
+          value={form.goal}
+          onChange={(e) => setForm({ ...form, goal: e.target.value })}
+        />
+      </div>
+      {status && <div className="text-sm text-emerald-700">{status}</div>}
+      {error && <div className="text-sm text-red-600">{error}</div>}
+      <button type="submit" className="btn-primary w-full" disabled={submitting}>
+        {submitting ? 'Sending...' : 'Book assisted setup'}
+      </button>
+    </form>
   );
 }
 

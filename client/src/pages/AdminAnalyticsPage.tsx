@@ -11,6 +11,7 @@ interface AdminAnalytics {
     aiQuestions: number;
     feedback: number;
     positiveFeedback: number;
+    setupLeads: number;
   };
   eventsLast30Days: { name: string; count: number }[];
   businesses: {
@@ -61,11 +62,12 @@ export function AdminAnalyticsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
+      <div className="grid grid-cols-2 lg:grid-cols-5 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
         <Metric label="Businesses" value={data.totals.businesses.toString()} sub={`${activationReady} activated`} />
         <Metric label="Sales recorded" value={data.totals.sales.toString()} sub={`${data.totals.products} products`} />
         <Metric label="AI questions" value={data.totals.aiQuestions.toString()} sub="assistant usage" />
         <Metric label="Feedback" value={`${positiveRate}%`} sub={`${data.totals.feedback} total`} />
+        <Metric label="Setup leads" value={data.totals.setupLeads.toString()} sub="assisted setup" />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
