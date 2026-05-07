@@ -57,6 +57,14 @@ export function ChatPanel({
   }, [sessionId]);
 
   useEffect(() => {
+    if (!showDateRange) return;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    setFrom(monthStart.toISOString().slice(0, 10));
+    setTo(now.toISOString().slice(0, 10));
+  }, [showDateRange]);
+
+  useEffect(() => {
     saveMessages(sessionId, messages);
     onMessagesChange?.(messages);
   }, [messages, sessionId, onMessagesChange]);
@@ -113,7 +121,7 @@ export function ChatPanel({
       const payload: { userQuery: string; dateRange?: { from?: string; to?: string } } = {
         userQuery: fullQuery,
       };
-      if (from || to) {
+      if (showDateRange) {
         payload.dateRange = {
           from: from ? new Date(from).toISOString() : undefined,
           to: to ? new Date(to).toISOString() : undefined,
@@ -154,20 +162,25 @@ export function ChatPanel({
           <div className="text-[11px] text-neutral-500 mt-0.5">
             Sales, stock, expenses, and next actions
           </div>
+          {showDateRange && (
+            <div className="text-[11px] text-neutral-500 mt-1">
+              Default range: 1st of this month to today. Change it anytime before sending.
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           {showDateRange && (
             <>
               <input
                 type="date"
-                className="input !py-1 !px-2 text-xs flex-1 sm:w-36 sm:flex-none"
+                className="input !py-1 !px-2 text-xs flex-1 sm:w-36 sm:flex-none min-w-0"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
               />
               <span className="text-neutral-400 text-xs">to</span>
               <input
                 type="date"
-                className="input !py-1 !px-2 text-xs flex-1 sm:w-36 sm:flex-none"
+                className="input !py-1 !px-2 text-xs flex-1 sm:w-36 sm:flex-none min-w-0"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
               />
@@ -199,7 +212,7 @@ export function ChatPanel({
           messages.map((m) => (
             <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[85%] px-4 py-2.5 text-sm border ${
+                className={`max-w-[85%] px-4 py-2.5 text-sm border break-words ${
                   m.role === 'user'
                     ? 'bg-neutral-900 text-white border-neutral-900'
                     : 'bg-white text-neutral-900 border-neutral-200'
@@ -237,7 +250,7 @@ export function ChatPanel({
         <form onSubmit={onSubmit} className="p-3 flex gap-2">
           <FileAttach attached={attached} onChange={setAttached} disabled={sending} onError={setError} />
           <input
-            className="input flex-1"
+            className="input flex-1 min-w-0 break-words"
             placeholder={placeholder}
             value={input}
             onChange={(e) => setInput(e.target.value)}

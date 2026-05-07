@@ -25,7 +25,8 @@ export async function buildAIContext(
   dateRange?: { from?: string; to?: string }
 ): Promise<AIContext> {
   const now = new Date();
-  const from = dateRange?.from ? new Date(dateRange.from) : new Date(now.getTime() - 30 * 24 * 3600 * 1000);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const from = dateRange?.from ? new Date(dateRange.from) : monthStart;
   const to = dateRange?.to ? new Date(dateRange.to) : now;
 
   const business = await Business.findById(businessId);

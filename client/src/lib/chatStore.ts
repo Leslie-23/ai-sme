@@ -46,7 +46,7 @@ function write(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    /* quota or disabled storage — silent fail */
+    /* quota or disabled storage - silent fail */
   }
 }
 
@@ -97,7 +97,14 @@ export function createSession(title = 'New chat'): ChatSession {
 export function deriveTitle(text: string, max = 48): string {
   const s = text.replace(/\s+/g, ' ').trim();
   if (!s) return 'New chat';
-  return s.length <= max ? s : s.slice(0, max - 1).trimEnd() + '…';
+  const cleaned = s
+    .replace(/^(what|how|why|when|where|who|which|can you|could you|please)\s+/i, '')
+    .replace(/\?+$/, '')
+    .replace(/\b(this week|today|this month|next week|last month)\b/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const titled = cleaned || s;
+  return titled.length <= max ? titled : titled.slice(0, max - 1).trimEnd() + '...';
 }
 
 export function clearAllChatData(): void {
@@ -105,7 +112,15 @@ export function clearAllChatData(): void {
     const drop: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && (k.startsWith(KEY_PREFIX) || k.startsWith('ai_sme_chat_sessions_v1') || k.startsWith('ai_sme_chat_active_v1') || k.startsWith('ai_sme_chat_messages_v1_'))) {
+      if (
+        k &&
+        (
+          k.startsWith(KEY_PREFIX) ||
+          k.startsWith('ai_sme_chat_sessions_v1') ||
+          k.startsWith('ai_sme_chat_active_v1') ||
+          k.startsWith('ai_sme_chat_messages_v1_')
+        )
+      ) {
         drop.push(k);
       }
     }

@@ -379,3 +379,38 @@ export async function seedDemoBusiness(req: Request, res: Response, next: NextFu
     next(err);
   }
 }
+
+export async function clearDemoBusiness(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const businessId = req.auth!.businessId;
+    setSeedStatus(businessId, {
+      running: true,
+      progress: 10,
+      phase: 'clearing',
+      message: 'Clearing sample shop data.',
+    });
+    await Promise.all([
+      Product.deleteMany({ businessId }),
+      Sale.deleteMany({ businessId }),
+      Expense.deleteMany({ businessId }),
+      Payment.deleteMany({ businessId }),
+      InventoryRecord.deleteMany({ businessId }),
+    ]);
+    setSeedStatus(businessId, {
+      running: false,
+      progress: 100,
+      phase: 'done',
+      message: 'Sample data cleared.',
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    if (req.auth?.businessId) {
+      setSeedStatus(req.auth.businessId, {
+        running: false,
+        phase: 'error',
+        message: err instanceof Error ? err.message : 'Clear failed',
+      });
+    }
+    next(err);
+  }
+}

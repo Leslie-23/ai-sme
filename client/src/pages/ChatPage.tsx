@@ -109,7 +109,7 @@ export function ChatPage() {
                   >
                     <div className="min-w-0 flex-1">
                       <div
-                        className={`text-sm font-medium truncate ${
+                        className={`text-sm font-medium leading-snug break-words ${
                           isActive ? 'text-white' : 'text-neutral-900'
                         }`}
                       >

@@ -114,29 +114,51 @@ export function DashboardPage() {
     }
   }
 
+  async function clearSampleData() {
+    if (!confirm('Clear the sample data and return this workspace to a blank state?')) return;
+    setSeedStatus(null);
+    setSeedingDemo(true);
+    setError(null);
+    try {
+      await api('/demo/clear', { method: 'POST' });
+      localStorage.removeItem('ai_sme_sample_shop');
+      setSampleShopReady(false);
+      const [freshSummary, freshSales] = await Promise.all([
+        api<DashboardSummary>('/dashboard/summary'),
+        api<Sale[]>('/sales', { query: { limit: '6' } }),
+      ]);
+      setSummary(freshSummary);
+      setSales(freshSales);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not clear sample data');
+    } finally {
+      setSeedingDemo(false);
+    }
+  }
+
   return (
     <div className="relative space-y-6">
       <div className={seedingDemo ? 'blur-sm pointer-events-none select-none' : ''}>
         {sampleShopReady ? (
-          <div className="card p-5">
-            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner setup</div>
-            <h1 className="text-2xl font-semibold tracking-tight mt-1">Sample shop loaded</h1>
-            <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
-              The dashboard now shows a realistic demo business. Next, get the keys so the assistant
-              can answer owner questions with a live provider.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link to="/help/keys" className="btn-primary !px-3 !py-1.5 text-sm">
-                Get the keys
-              </Link>
-              <button
-                type="button"
-                onClick={seedDemo}
-                disabled={seedingDemo}
-                className="btn-secondary !px-3 !py-1.5 text-sm"
-              >
-                {seedingDemo ? 'Preparing demo...' : 'Reseed sample shop'}
-              </button>
+          <div className="card p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner setup</div>
+                <div className="text-sm text-neutral-600 mt-1">Sample shop loaded. Get keys or reseed.</div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link to="/help/keys" className="btn-primary !px-3 !py-1.5 text-xs">
+                  Get the keys
+                </Link>
+                <button
+                  type="button"
+                  onClick={seedDemo}
+                  disabled={seedingDemo}
+                  className="btn-secondary !px-3 !py-1.5 text-xs"
+                >
+                  {seedingDemo ? 'Preparing...' : 'Reseed sample shop'}
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -146,12 +168,7 @@ export function DashboardPage() {
             <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
               Use this view in demos to show the owner what sold, what needs attention, and what to ask next.
             </p>
-            <button
-              type="button"
-              onClick={seedDemo}
-              disabled={seedingDemo}
-              className="btn-secondary !px-3 !py-1.5 text-sm mt-4"
-            >
+            <button type="button" onClick={seedDemo} disabled={seedingDemo} className="btn-secondary !px-3 !py-1.5 text-sm mt-4">
               {seedingDemo ? 'Preparing demo...' : 'Try sample shop'}
             </button>
           </div>
@@ -184,8 +201,8 @@ export function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <div className="xl:col-span-2">
-            <ChatPanel sessionId="dashboard" heightClass="h-[70vh] xl:h-[560px]" />
+        <div className="xl:col-span-2">
+            <ChatPanel sessionId="dashboard" heightClass="h-[70vh] xl:h-[560px]" showDateRange />
           </div>
 
           <div className="space-y-6">
@@ -291,8 +308,24 @@ export function DashboardPage() {
       </div>
       </div>
 
+      <div className="fixed bottom-5 right-5 z-40">
+        {sampleShopReady ? (
+          <button
+            type="button"
+            onClick={clearSampleData}
+            className="btn-primary !px-3 !py-2 text-xs shadow-lg"
+          >
+            Try with real business
+          </button>
+        ) : (
+          <a href="/#setup" className="btn-primary !px-3 !py-2 text-xs shadow-lg">
+            Book assisted setup
+          </a>
+        )}
+      </div>
+
       {seedingDemo && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
           <div className="w-full max-w-xl border border-neutral-200 bg-white shadow-sm px-6 py-5">
             <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Preparing sample shop</div>
             <div className="mt-1 text-2xl font-semibold tracking-tight text-neutral-900">Loading demo data</div>
