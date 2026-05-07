@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AuthPermissions, useAuth } from '../context/AuthContext';
 import { SubscriptionBanner } from './SubscriptionBanner';
+import { LexaWidget } from './LexaWidget';
 
 type NavItem = {
   to: string;
@@ -226,6 +227,7 @@ export function Layout() {
         <main className="flex-1 px-4 md:px-6 lg:px-8 py-4 md:py-6 overflow-x-hidden">
           <Outlet />
         </main>
+        <LexaWidget />
       </div>
     </div>
   );

@@ -23,6 +23,7 @@ import analyticsRoutes from './routes/analytics';
 import adminRoutes from './routes/admin';
 import demoRoutes from './routes/demo';
 import leadRoutes from './routes/leads';
+import supportRoutes from './routes/support';
 import { getPlans } from './controllers/billingController';
 import { paystackWebhook } from './controllers/paystackWebhookController';
 import { requirePro } from './middleware/requirePro';
@@ -111,6 +112,7 @@ export function createApp(): Express {
   app.use('/api/team', requireAuth, teamRoutes);
   app.use('/api/feedback', requireAuth, feedbackRoutes);
   app.use('/api/analytics', requireAuth, analyticsRoutes);
+  app.use('/api/support', requireAuth, supportRoutes);
   app.use('/api/admin', requireAuth, adminRoutes);
   app.use('/api/demo', requireAuth, demoRoutes);
 
