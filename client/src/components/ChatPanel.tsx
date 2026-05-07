@@ -14,6 +14,7 @@ import {
   FileAttach,
   formatAttachmentsForPrompt,
 } from './FileAttach';
+import { MarkdownText } from './MarkdownText';
 import { FeedbackBox } from './FeedbackBox';
 import { track } from '../lib/analytics';
 
@@ -198,13 +199,13 @@ export function ChatPanel({
           messages.map((m) => (
             <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[85%] px-4 py-2.5 text-sm whitespace-pre-wrap border ${
+                className={`max-w-[85%] px-4 py-2.5 text-sm border ${
                   m.role === 'user'
                     ? 'bg-neutral-900 text-white border-neutral-900'
                     : 'bg-white text-neutral-900 border-neutral-200'
                 }`}
               >
-                {m.text}
+                {m.role === 'user' ? <div className="whitespace-pre-wrap">{m.text}</div> : <MarkdownText text={m.text} />}
                 {m.modelUsed && (
                   <>
                     <div className="text-[10px] uppercase tracking-wider mt-2 opacity-60">

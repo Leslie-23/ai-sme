@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PricingGrid } from '../components/PricingGrid';
+import { MarkdownText } from '../components/MarkdownText';
 import { api } from '../lib/api';
 import { track } from '../lib/analytics';
 
@@ -965,22 +966,16 @@ function MockChat() {
 }
 
 function ChatBubble({ role, text, caret }: { role: 'user' | 'assistant'; text: string; caret?: boolean }) {
-  const lines = text.split('\n');
   return (
     <div className={`flex animate-chat-in ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-[90%] px-3.5 py-2 border whitespace-pre-line ${
+        className={`max-w-[90%] px-3.5 py-2 border ${
           role === 'user'
             ? 'bg-neutral-900 text-white border-neutral-900'
             : 'bg-white border-neutral-200'
         }`}
       >
-        {lines.map((ln, i) => (
-          <span key={i}>
-            {ln}
-            {i < lines.length - 1 && <br />}
-          </span>
-        ))}
+        {role === 'user' ? <div className="whitespace-pre-line">{text}</div> : <MarkdownText text={text} />}
         {caret && <span className="inline-block w-[7px] h-[14px] align-middle bg-white/80 ml-0.5 animate-caret" />}
         {role === 'assistant' && !caret && (
           <div className="text-[10px] uppercase tracking-wider mt-2 opacity-60">grounded answer</div>

@@ -8,6 +8,7 @@ import {
   FileAttach,
   formatAttachmentsForPrompt,
 } from '../components/FileAttach';
+import { MarkdownText } from '../components/MarkdownText';
 import { track } from '../lib/analytics';
 
 type PaymentMethod = 'CASH' | 'MOMO' | 'CARD' | 'TRANSFER';
@@ -319,13 +320,13 @@ export function ImportPage() {
           {messages.map((m) => (
             <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[85%] px-4 py-2.5 text-sm whitespace-pre-wrap border ${
+                className={`max-w-[85%] px-4 py-2.5 text-sm border ${
                   m.role === 'user'
                     ? 'bg-neutral-900 text-white border-neutral-900'
                     : 'bg-white text-neutral-900 border-neutral-200'
                 }`}
               >
-                {m.text}
+                {m.role === 'user' ? <div className="whitespace-pre-wrap">{m.text}</div> : <MarkdownText text={m.text} />}
               </div>
             </div>
           ))}
