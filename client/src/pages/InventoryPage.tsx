@@ -200,7 +200,12 @@ export function InventoryPage() {
             </div>
             <div>
               <label className="label">Note</label>
-              <input className="input mt-1.5" value={adjust.note} onChange={(e) => setAdjust({ ...adjust, note: e.target.value })} />
+              <textarea
+                rows={2}
+                className="input mt-1.5 min-h-20 resize-y"
+                value={adjust.note}
+                onChange={(e) => setAdjust({ ...adjust, note: e.target.value })}
+              />
             </div>
             <button className="btn-primary w-full">Apply</button>
           </div>

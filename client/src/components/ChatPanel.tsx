@@ -1,4 +1,4 @@
-import { FormEvent, useRef, useState, useEffect, useCallback } from 'react';
+import { FormEvent, KeyboardEvent, useRef, useState, useEffect, useCallback } from 'react';
 import { api, ApiError } from '../lib/api';
 import {
   ChatMessage,
@@ -154,6 +154,12 @@ export function ChatPanel({
     send(input);
   }
 
+  function onComposerKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key !== 'Enter' || e.shiftKey) return;
+    e.preventDefault();
+    send(input);
+  }
+
   return (
     <div className={`card flex flex-col ${heightClass}`}>
       <div className="px-4 sm:px-5 py-3 border-b border-neutral-200 flex flex-wrap items-center justify-between gap-3">
@@ -249,11 +255,13 @@ export function ChatPanel({
         <AttachmentChips attached={attached} onRemove={(n) => setAttached(attached.filter((f) => f.name !== n))} />
         <form onSubmit={onSubmit} className="p-3 flex gap-2">
           <FileAttach attached={attached} onChange={setAttached} disabled={sending} onError={setError} />
-          <input
-            className="input flex-1 min-w-0"
+          <textarea
+            rows={1}
+            className="input flex-1 min-w-0 min-h-10 max-h-24 resize-none"
             placeholder={placeholder}
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={onComposerKeyDown}
             disabled={sending}
           />
           <button

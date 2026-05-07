@@ -642,8 +642,8 @@ export function SettingsPage() {
       </div>
 
       {workspaceAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg border border-neutral-200 bg-white shadow-xl px-6 py-5">
+        <div className="modal-overlay z-50">
+          <div className="modal-panel max-w-lg px-6 py-5">
             <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Workspace action</div>
             <div className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">
               {workspaceCopy[workspaceAction].title}

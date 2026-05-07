@@ -391,8 +391,8 @@ export function DashboardPage() {
       </div>
 
       {seedingDemo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
-          <div className="w-full max-w-xl border border-neutral-200 bg-white shadow-sm px-6 py-5">
+        <div className="modal-overlay z-50 !bg-white/70">
+          <div className="modal-panel max-w-xl px-6 py-5">
             <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Preparing sample shop</div>
             <div className="mt-1 text-2xl font-semibold tracking-tight text-neutral-900">Loading demo data</div>
             <p className="mt-2 text-sm text-neutral-600">
@@ -422,8 +422,8 @@ export function DashboardPage() {
       )}
 
       {modal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/35 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg border border-neutral-200 bg-white shadow-xl px-6 py-5">
+        <div className="modal-overlay z-[60]">
+          <div className="modal-panel max-w-lg px-6 py-5">
             {modal.type === 'seed' && (
               <>
                 <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Sample workspace</div>

@@ -46,14 +46,28 @@
   }
   .input {
     @apply w-full min-w-0 border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   textarea.input {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: break-word;
+    overflow-y: auto;
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    @apply flex items-center justify-center overflow-y-auto bg-black/35 backdrop-blur-sm px-4 py-6;
+  }
+  .modal-panel {
+    @apply w-full border border-neutral-200 bg-white shadow-xl;
+    max-height: calc(100dvh - 3rem);
     overflow-y: auto;
   }
   .card {

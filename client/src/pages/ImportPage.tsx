@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { formatMoney } from '../lib/format';
@@ -229,6 +229,12 @@ export function ImportPage() {
     send(input);
   }
 
+  function onComposerKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key !== 'Enter' || e.shiftKey) return;
+    e.preventDefault();
+    send(input);
+  }
+
   function removeFrom<K extends keyof Buckets>(bucket: K, idx: number) {
     setPending((prev) => ({
       ...prev,
@@ -351,11 +357,13 @@ export function ImportPage() {
           />
           <form onSubmit={onSubmit} className="p-3 flex gap-2">
             <FileAttach attached={attached} onChange={setAttached} disabled={sending} onError={setError} />
-            <input
-              className="input flex-1"
+            <textarea
+              rows={1}
+              className="input flex-1 min-w-0 min-h-10 max-h-24 resize-none"
               placeholder={PLACEHOLDERS[kind]}
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={onComposerKeyDown}
               disabled={sending}
             />
             <button

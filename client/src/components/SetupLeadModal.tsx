@@ -103,12 +103,12 @@ export function SetupLeadModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/35 backdrop-blur-sm px-4">
-      <div className="w-full max-w-2xl border border-neutral-200 bg-white shadow-xl px-6 py-5">
+    <div className="modal-overlay z-[70]">
+      <div className="modal-panel max-w-2xl px-6 py-5">
         <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Assisted setup</div>
         <div className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">Send your setup request</div>
         <p className="mt-2 text-sm text-neutral-600">
-          Capture the basics here and we’ll send the request to <span className="font-medium text-neutral-900">{OWNER_EMAIL}</span> by email and WhatsApp.
+          Capture the basics here and we'll send the request to <span className="font-medium text-neutral-900">{OWNER_EMAIL}</span> by email and WhatsApp.
           {OWNER_WHATSAPP_NUMBER ? null : (
             <span className="block mt-1 text-xs text-amber-700">
               Set <code>VITE_OWNER_WHATSAPP_NUMBER</code> to route the WhatsApp draft directly.
@@ -149,8 +149,9 @@ export function SetupLeadModal({
           </div>
           <div>
             <label className="label">Current system</label>
-            <input
-              className="input mt-1.5"
+            <textarea
+              rows={2}
+              className="input mt-1.5 min-h-20 resize-y"
               placeholder="Excel, POS export, notebook, WhatsApp, none..."
               value={form.currentSystem}
               onChange={(e) => setForm({ ...form, currentSystem: e.target.value })}
