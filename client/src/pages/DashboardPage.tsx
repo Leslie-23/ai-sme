@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, formatMoney } from '../lib/format';
@@ -37,6 +38,7 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [seedingDemo, setSeedingDemo] = useState(false);
+  const [sampleShopReady, setSampleShopReady] = useState(() => localStorage.getItem('ai_sme_sample_shop') === '1');
   const currency = business?.currency || 'USD';
 
   useEffect(() => {
@@ -63,6 +65,8 @@ export function DashboardPage() {
     try {
       await api('/demo/seed', { method: 'POST' });
       track('demo_seeded');
+      localStorage.setItem('ai_sme_sample_shop', '1');
+      setSampleShopReady(true);
       window.location.reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Demo setup failed');
@@ -72,23 +76,47 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="card p-5">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner snapshot</div>
-        <h1 className="text-2xl font-semibold tracking-tight mt-1">Sales, stock, profit, and next actions</h1>
-        <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
-          Use this view in demos to show the owner what sold, what needs attention, and what to ask next.
-        </p>
-        <button
-          type="button"
-          onClick={seedDemo}
-          disabled={seedingDemo}
-          className="btn-secondary !px-3 !py-1.5 text-sm mt-4"
-        >
-          {seedingDemo ? 'Preparing demo...' : 'Try sample shop'}
-        </button>
-      </div>
+      {sampleShopReady ? (
+        <div className="card p-5">
+          <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner setup</div>
+          <h1 className="text-2xl font-semibold tracking-tight mt-1">Sample shop loaded</h1>
+          <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
+            The dashboard now shows a realistic demo business. Next, get the keys so the assistant
+            can answer owner questions with a live provider.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link to="/help/keys" className="btn-primary !px-3 !py-1.5 text-sm">
+              Get the keys
+            </Link>
+            <button
+              type="button"
+              onClick={seedDemo}
+              disabled={seedingDemo}
+              className="btn-secondary !px-3 !py-1.5 text-sm"
+            >
+              {seedingDemo ? 'Preparing demo...' : 'Reseed sample shop'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="card p-5">
+          <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Owner snapshot</div>
+          <h1 className="text-2xl font-semibold tracking-tight mt-1">Sales, stock, profit, and next actions</h1>
+          <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
+            Use this view in demos to show the owner what sold, what needs attention, and what to ask next.
+          </p>
+          <button
+            type="button"
+            onClick={seedDemo}
+            disabled={seedingDemo}
+            className="btn-secondary !px-3 !py-1.5 text-sm mt-4"
+          >
+            {seedingDemo ? 'Preparing demo...' : 'Try sample shop'}
+          </button>
+        </div>
+      )}
 
-      <OnboardingChecklist summary={summary} />
+      {!sampleShopReady && <OnboardingChecklist summary={summary} />}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-neutral-200 [&>*]:border-r [&>*]:border-b [&>*]:border-neutral-200 [&>*:nth-child(2n)]:border-r-0 lg:[&>*]:border-b-0 lg:[&>*:nth-child(2n)]:border-r lg:[&>*:last-child]:border-r-0">
         <KpiCard
@@ -285,6 +313,7 @@ function OnboardingChecklist({ summary }: { summary: DashboardSummary }) {
   ];
   const completed = steps.filter((s) => s.done).length;
   const nextStep = steps.find((s) => !s.done);
+  if (completed === steps.length) return null;
 
   return (
     <div className="card p-5">
@@ -304,7 +333,7 @@ function OnboardingChecklist({ summary }: { summary: DashboardSummary }) {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-2 mt-4">
-        {steps.map((step) => (
+        {steps.map((step, idx) => (
           <a
             key={step.label}
             href={step.href}
@@ -316,7 +345,7 @@ function OnboardingChecklist({ summary }: { summary: DashboardSummary }) {
             }`}
           >
             <div className="text-[11px] uppercase tracking-wider text-neutral-500">
-              {step.done ? 'Done' : 'Next'}
+              Step {idx + 1}
             </div>
             <div className="font-medium mt-1">{step.label}</div>
           </a>

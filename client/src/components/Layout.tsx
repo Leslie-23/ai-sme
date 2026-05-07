@@ -35,6 +35,7 @@ const pageTitles: Record<string, string> = {
   '/pricing': 'Pricing',
   '/privacy': 'Privacy',
   '/admin': 'Admin Analytics',
+  '/help/keys': 'Get the Keys',
   '/settings': 'Settings',
 };
 

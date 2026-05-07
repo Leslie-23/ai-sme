@@ -16,6 +16,7 @@ import { PricingPage } from './pages/PricingPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { AdminAnalyticsPage } from './pages/AdminAnalyticsPage';
+import { KeysHelpPage } from './pages/KeysHelpPage';
 import { Paywall } from './components/Paywall';
 import './index.css';
 
@@ -64,6 +65,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/admin" element={<AdminAnalyticsPage />} />
+            <Route path="/help/keys" element={<KeysHelpPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
