@@ -65,14 +65,40 @@ interface ConfigResponse {
   apiKeyMasks: Record<Provider, string | null>;
 }
 
-const FREE_TIER_HINTS: Record<Provider, string> = {
-  openai: 'platform.openai.com/api-keys - paid after free trial',
-  anthropic: 'console.anthropic.com - paid',
-  google: 'aistudio.google.com/app/apikey - free (use gemini-1.5-flash for highest quota)',
-  groq: 'console.groq.com/keys - free, very fast',
-  openrouter: 'openrouter.ai/keys - free models end in ":free"',
-  mistral: 'console.mistral.ai - free tier on La Plateforme',
-  cohere: 'dashboard.cohere.com/api-keys - trial credits',
+type KeyHint = {
+  href: string;
+  label: string;
+};
+
+const FREE_TIER_HINTS: Record<Provider, KeyHint> = {
+  openai: {
+    href: 'https://platform.openai.com/api-keys',
+    label: 'platform.openai.com/api-keys - paid after free trial',
+  },
+  anthropic: {
+    href: 'https://console.anthropic.com/',
+    label: 'console.anthropic.com - paid',
+  },
+  google: {
+    href: 'https://aistudio.google.com/app/apikey',
+    label: 'aistudio.google.com/app/apikey - free (use gemini-1.5-flash for highest quota)',
+  },
+  groq: {
+    href: 'https://console.groq.com/keys',
+    label: 'console.groq.com/keys - free, very fast',
+  },
+  openrouter: {
+    href: 'https://openrouter.ai/keys',
+    label: 'openrouter.ai/keys - free models end in ":free"',
+  },
+  mistral: {
+    href: 'https://console.mistral.ai/',
+    label: 'console.mistral.ai - free tier on La Plateforme',
+  },
+  cohere: {
+    href: 'https://dashboard.cohere.com/api-keys',
+    label: 'dashboard.cohere.com/api-keys - trial credits',
+  },
 };
 
 export function SettingsPage() {
@@ -501,7 +527,14 @@ export function SettingsPage() {
             <div key={p}>
               <div className="flex items-baseline justify-between">
                 <label className="label">{config.providerLabels[p]}</label>
-                <span className="text-[10px] text-neutral-400">{FREE_TIER_HINTS[p]}</span>
+                <a
+                  href={FREE_TIER_HINTS[p].href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[10px] text-neutral-400 hover:text-neutral-600 hover:underline"
+                >
+                  {FREE_TIER_HINTS[p].label}
+                </a>
               </div>
               <input
                 type="password"
