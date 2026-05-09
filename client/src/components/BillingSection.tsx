@@ -60,7 +60,7 @@ export function BillingSection() {
     setError(null);
     setExporting(kind);
     try {
-      if (kind === 'all') await downloadExport('/export/all.json', `askly-export-${Date.now()}.json`);
+      if (kind === 'all') await downloadExport('/export/all.json', `intellexa-export-${Date.now()}.json`);
       if (kind === 'products') await downloadExport('/export/products.csv', 'products.csv');
       if (kind === 'sales') await downloadExport('/export/sales.csv', 'sales.csv');
     } catch (e) {
