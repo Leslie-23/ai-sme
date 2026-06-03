@@ -229,7 +229,7 @@ export function Layout() {
         <main className="flex-1 px-4 md:px-6 lg:px-8 py-4 md:py-6 overflow-x-hidden">
           <Outlet />
         </main>
-        <LexaWidget hideLauncher={isDashboard} position={isDashboard ? 'right' : 'left'} />
+        <LexaWidget hideLauncher={isDashboard} position="left" />
         {isDashboard && <AppTour />}
       </div>
     </div>

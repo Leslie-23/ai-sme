@@ -6,12 +6,13 @@ export function PrivacyPage() {
           Privacy and security
         </div>
         <h1 className="text-2xl md:text-3xl font-semibold tracking-tight mt-2">
-          Plain-English data handling for pilot customers
+          Data handling for pilot customers
         </h1>
         <p className="text-sm text-neutral-600 mt-3 max-w-3xl">
-          Intellexa is built for small businesses that need practical insight without losing control
-          of their operating records. Use this page in demos to explain what is stored, what the AI
-          sees, and how owners keep access under control.
+          Intellexa is built for small businesses that need practical insight
+          without losing control of their operating records. Use this page in
+          demos to explain what is stored, what the AI sees, and how owners keep
+          access under control.
         </p>
       </div>
 
@@ -45,10 +46,22 @@ export function PrivacyPage() {
       <div className="card p-5">
         <div className="section-title">Demo guidance</div>
         <ul className="mt-3 space-y-2 text-sm text-neutral-700">
-          <li>Explain data handling before asking for a real product or sales file.</li>
-          <li>Use sample data for first demos, then import real data only after the owner agrees.</li>
-          <li>Keep AI provider setup behind the scenes unless the owner asks about it.</li>
-          <li>Use staff permissions to show how cashiers can record sales without seeing reports or billing.</li>
+          <li>
+            Explain data handling before asking for a real product or sales
+            file.
+          </li>
+          <li>
+            Use sample data for first demos, then import real data only after
+            the owner agrees.
+          </li>
+          <li>
+            Keep AI provider setup behind the scenes unless the owner asks about
+            it.
+          </li>
+          <li>
+            Use staff permissions to show how cashiers can record sales without
+            seeing reports or billing.
+          </li>
         </ul>
       </div>
     </div>

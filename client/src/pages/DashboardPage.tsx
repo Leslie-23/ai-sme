@@ -437,7 +437,7 @@ export function DashboardPage() {
       </div>
       </div>
 
-      <div className="fixed bottom-5 right-5 z-40" data-tour="help-box">
+      <div className="fixed bottom-5 left-5 z-40" data-tour="help-box">
         {helpBoxOpen ? (
           <div className="w-[calc(100vw-2.5rem)] max-w-xs border border-neutral-200 bg-white/95 backdrop-blur-sm shadow-xl animate-help-box-in">
             <div className="px-4 py-3 border-b border-neutral-200 flex items-start justify-between gap-3">
