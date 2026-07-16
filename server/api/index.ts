@@ -61,8 +61,6 @@ function setCorsHeaders(req: IncomingMessage, res: ServerResponse): void {
   }
 }
 
-// Vercel reuses the Node runtime between invocations on warm starts, so we
-// connect to MongoDB once and reuse. On cold start this runs once.
 async function connectMongo(): Promise<void> {
   if (mongoose.connection.readyState === 1) return;
   if (connectionPromise) {
@@ -89,8 +87,13 @@ async function connectMongo(): Promise<void> {
   }
 }
 
+// Public routes should still work if MongoDB is unavailable.
+function requiresMongo(req: IncomingMessage): boolean {
+  const path = new URL(req.url || '/', 'http://localhost').pathname;
+  return !['/', '/api', '/health', '/api/health', '/api/billing/plans'].includes(path);
+}
+
 async function init(): Promise<Handler> {
-  await connectMongo();
   const app = createApp();
   return app as unknown as Handler;
 }
@@ -121,15 +124,23 @@ export default async function handler(
     return;
   }
 
+  const needsMongo = requiresMongo(req);
   try {
+    if (needsMongo) {
+      await connectMongo();
+    }
     const h = await getHandler();
     h(req, res);
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('[vercel-handler]', err);
     setCorsHeaders(req, res);
-    res.statusCode = 500;
+    res.statusCode = needsMongo ? 503 : 500;
     res.setHeader('content-type', 'application/json');
-    res.end(JSON.stringify({ error: 'Server init failed' }));
+    res.end(
+      JSON.stringify({
+        error: needsMongo ? 'Database unavailable' : 'Server init failed',
+      })
+    );
   }
 }
