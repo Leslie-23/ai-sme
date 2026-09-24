@@ -1,5 +1,6 @@
 import express, { Express } from 'express';
 import cors from 'cors';
+import mongoose from 'mongoose';
 import { requireAuth } from './middleware/auth';
 import { errorHandler } from './middleware/error';
 
@@ -89,6 +90,24 @@ export function createApp(): Express {
   // (uptime checks at /health) and in-app calls (/api/health).
   app.get('/health', (_req, res) => res.json({ ok: true }));
   app.get('/api/health', (_req, res) => res.json({ ok: true }));
+
+  // Keep-alive for MongoDB, hit by the Vercel cron in vercel.json. Vercel
+  // sends `Authorization: Bearer $CRON_SECRET` when CRON_SECRET is set.
+  app.get('/api/cron/keepalive', async (req, res) => {
+    const secret = process.env.CRON_SECRET;
+    if (secret && req.headers.authorization !== `Bearer ${secret}`) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const db = mongoose.connection.db;
+    if (!db) return res.status(503).json({ ok: false, error: 'Database not connected' });
+    try {
+      const started = Date.now();
+      await db.admin().ping();
+      res.json({ ok: true, pingMs: Date.now() - started });
+    } catch (err) {
+      res.status(503).json({ ok: false, error: (err as Error).message });
+    }
+  });
 
   app.get('/', (_req, res) => res.json({ message: 'AI SME API' }));
   app.get('/api', (_req, res) => res.json({ message: 'AI SME API' }));

@@ -6,6 +6,9 @@
       "maxDuration": 30
     }
   },
+  "crons": [
+    { "path": "/api/cron/keepalive", "schedule": "0 6 * * *" }
+  ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api" },
     { "source": "/health", "destination": "/api" },
